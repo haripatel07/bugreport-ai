@@ -1,0 +1,20 @@
+{
+  "collection_date": "2026-02-20T10:10:54.042024",
+  "total_issues": 177,
+  "successful_repositories": 9,
+  "total_repositories": 10,
+  "repositories": [
+    "microsoft/vscode",
+    "tensorflow/tensorflow",
+    "facebook/react",
+    "nodejs/node",
+    "python/cpython",
+    "pandas-dev/pandas",
+    "scikit-learn/scikit-learn",
+    "django/django",
+    "kubernetes/kubernetes",
+    "rust-lang/rust"
+  ],
+  "output_directory": "data/raw/github_issues",
+  "github_token_used": true
+}
