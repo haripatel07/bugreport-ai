@@ -1,0 +1,569 @@
+[
+  {
+    "id": 3964542074,
+    "number": 296343,
+    "title": "When question comes in `chatUserActionRequired` signal does not play",
+    "body": "- Enable screen reader mode\n- Use `#askQuestions`\n- 🐛 no `chatUserActionRequired` sound plays",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "accessibility",
+      "unreleased"
+    ],
+    "created_at": "2026-02-19T18:56:00Z",
+    "closed_at": "2026-02-19T19:55:35Z",
+    "updated_at": "2026-02-19T19:56:40Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/296343",
+    "repository": "microsoft/vscode",
+    "user": "meganrogge"
+  },
+  {
+    "id": 3961199207,
+    "number": 296204,
+    "title": "PromptFileParser fails to parse most of the `Explore` agent prompt file",
+    "body": "Only 2 headers are detected after parsing (name and description)\n\nThe agent has a target of `vscode`\nAs the parser fails, this agent is displayed for all chat types\n\nAlso, i don't think the right tools would have been used either",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "unreleased",
+      "chat-background-agent"
+    ],
+    "created_at": "2026-02-19T06:18:15Z",
+    "closed_at": "2026-02-19T06:54:26Z",
+    "updated_at": "2026-02-19T06:55:38Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/296204",
+    "repository": "microsoft/vscode",
+    "user": "DonJayamanne"
+  },
+  {
+    "id": 3960021748,
+    "number": 296123,
+    "title": "tool_search_tool_regex enters retry loop when MCP server fails to activate",
+    "body": "When an MCP server fails to activate (e.g. server is unavailable or misconfigured), the model repeatedly calls `tool_search_tool_regex` in an infinite loop trying to load the deferred MCP tools. Each attempt fails, but the model keeps retrying with the same or similar queries, never giving up.\n\n**Steps to reproduce:**\n1. Configure an MCP server in `.vscode/mcp.json` that fails to activate (e.g. unreachable URL)\n2. Ask the model to use a tool from that MCP server (e.g. \"create a GitHub issue\")\n3. Observe the model calling `tool_search_tool_regex` repeatedly without stopping\n\n**Expected:** The model should recognize after 1-2 failed attempts that the tool is unavailable and inform the user, rather than looping indefinitely.\n\n**Actual:** The model calls `tool_search_tool_regex` in a loop, wasting tokens and never completing the request.",
+    "state": "closed",
+    "labels": [
+      "bug"
+    ],
+    "created_at": "2026-02-18T22:13:51Z",
+    "closed_at": "2026-02-18T23:33:02Z",
+    "updated_at": "2026-02-18T23:33:02Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/296123",
+    "repository": "microsoft/vscode",
+    "user": "bhavyaus"
+  },
+  {
+    "id": 3959305172,
+    "number": 296069,
+    "title": "rm context window usage tip as it can't apply until a user runs a request",
+    "body": "<img width=\"480\" height=\"137\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/836d7272-ef1f-460c-b699-1d6935970c56\" />\n\n<!-- ⚠️⚠️ Do Not Delete This! bug_report_template ⚠️⚠️ -->\n<!-- Please read our Rules of Conduct: https://opensource.microsoft.com/codeofconduct/ -->\n<!-- 🕮 Read our guide about submitting issues: https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions -->\n<!-- 🔎 Search existing issues to avoid creating duplicates. -->\n<!-- 🧪 Test using the latest Insiders build to see if your issue has already been fixed: https://code.visualstudio.com/insiders/ -->\n<!-- 💡 Instead of creating your report here, use 'Report Issue' from the 'Help' menu in VS Code to pre-fill useful information. -->\n<!-- 🔧 Launch with `code --disable-extensions` to check. -->\nDoes this issue occur when all extensions are disabled?: Yes/No\n\n<!-- 🪓 If you answered No above, use 'Help: Start Extension Bisect' from Command Palette to try to identify the cause. -->\n<!-- 📣 Issues caused by an extension need to be reported directly to the extension publisher. The 'Help > Report Issue' dialog can assist with this. -->\n- VS Code Version: \n- OS Version: \n\nSteps to Reproduce:\n\n1. \n2.\n",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "insiders-released",
+      "chat-tips"
+    ],
+    "created_at": "2026-02-18T18:54:35Z",
+    "closed_at": "2026-02-18T19:36:07Z",
+    "updated_at": "2026-02-18T21:56:46Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/296069",
+    "repository": "microsoft/vscode",
+    "user": "meganrogge"
+  },
+  {
+    "id": 3959018781,
+    "number": 296057,
+    "title": "Tips toolbar: Dismissed tips are not staying dismissed when feature is re-enabled",
+    "body": "<!-- ⚠️⚠️ Do Not Delete This! bug_report_template ⚠️⚠️ -->\n\n**Describe the bug**\nWhen a user dismisses a tip in the tips toolbar, it should not appear again for the same user, even after re-enabling the \"chat.tips.enabled\" setting. However, after re-enabling, dismissed tips repeatedly come back when clicking the checkmark, rather than leaving the user in a tip-free state as expected. This appears to be a regression from previous behavior.\n\n**To Reproduce**\n1. Navigate to the tips toolbar and dismiss some tips by clicking the checkmark.\n2. Disable tips from the toolbar or context menu.\n3. Re-enable tips by toggling the \"chat.tips.enabled\" setting.\n4. Tips previously dismissed keep reappearing despite being acknowledged before.\n\n**Expected behavior**\nOnce a tip has been dismissed, it should not show up again for the user, regardless of toggling the tips feature on and off. Dismissal should be persistent per user.\n\n**Additional context**\n- Some users would prefer not to disable tips outright if they knew dismissed tips would never reappear. Persistent dismissal enables them to keep tips on for new content without being bothered by repeats.\n- There was discussion about whether navigating tips should mark them as read/dismissed (answer: no).\n- This was confirmed as a regression in the Slack thread.\n\nDoes this issue occur when all extensions are disabled?: Yes\n\n- VS Code Version: [Please fill]\n- OS Version: [Please fill]\n\nSteps to Reproduce:\n1. Follow dismissal and re-enable steps as described above.\n2. Observe repeated display of previously dismissed tips, which should not occur.\n\n[View original Slack conversation](https://vscodeteam.slack.com/archives/C1C2M1KEZ/p1771433472070599?thread_ts=1771433472.070599&cid=C1C2M1KEZ)",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "regression",
+      "insiders-released",
+      "chat-tips"
+    ],
+    "created_at": "2026-02-18T17:39:42Z",
+    "closed_at": "2026-02-18T19:37:33Z",
+    "updated_at": "2026-02-18T21:56:51Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/296057",
+    "repository": "microsoft/vscode",
+    "user": "meganrogge"
+  },
+  {
+    "id": 3955201624,
+    "number": 295893,
+    "title": "Support dismissing modal overlays by clicking outside",
+    "body": "<!-- ⚠️⚠️ Do Not Delete This! feature_request_template ⚠️⚠️ -->\n<!-- Please read our Rules of Conduct: https://opensource.microsoft.com/codeofconduct/ -->\n<!-- Please search existing issues to avoid creating duplicates. -->\n\n<!-- Describe the feature you'd like. -->\nCurrently, modal overlays for Settings and Extensions can only be dismissed via the Escape key or the small close button (×) in the top-right corner of the modal. I find it rather unintuitive that I cannot click outside the modal's bounds to dismiss it. Would be great if that could be supported, either as an option or by default.\n\nBasically, I'd like to be able to click the yellow area to dismiss the modal:\n\n<img width=\"1168\" height=\"724\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/89ede642-1496-4c27-9148-6a61153008d3\" />\n\nlabel:workbench-modal-editor\n\n### Version\n\nVersion: 1.110.0-insider (user setup)\nCommit: 2001cfd88a7e89fca268e64c29acf0da84e93591\nDate: 2026-02-17T17:11:03.424Z\nElectron: 39.6.0\nElectronBuildId: 13312042\nChromium: 142.0.7444.265\nNode.js: 22.22.0\nV8: 14.2.231.22-electron.0\nOS: Windows_NT x64 10.0.26220\n\ncc: @bpasero",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "ux",
+      "insiders-released",
+      "workbench-modal-editor"
+    ],
+    "created_at": "2026-02-18T00:06:51Z",
+    "closed_at": "2026-02-18T12:29:02Z",
+    "updated_at": "2026-02-18T16:58:35Z",
+    "comments_count": 2,
+    "url": "https://github.com/microsoft/vscode/issues/295893",
+    "repository": "microsoft/vscode",
+    "user": "JeffreyCA"
+  },
+  {
+    "id": 3955073582,
+    "number": 295885,
+    "title": "Chat actions appear disabled by default, poor contrast on buttons actually disabled",
+    "body": "Using the default dark modern theme:\n\n1. These look like they're all disabled (but they're not)\n2. The action that's actually disabled (on the far right) does not have sufficient contrast\n\n<img width=\"641\" height=\"198\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/2f412e2a-3129-411e-b2c9-d6dec68f8cf1\" />\n\nfrom https://github.com/microsoft/vscode/pull/294351",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "accessibility",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-17T23:15:23Z",
+    "closed_at": "2026-02-18T02:02:20Z",
+    "updated_at": "2026-02-18T08:09:02Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295885",
+    "repository": "microsoft/vscode",
+    "user": "connor4312"
+  },
+  {
+    "id": 3954801533,
+    "number": 295868,
+    "title": "Chat tip shown when anonymous user exceeds quota and upgrade widget is visible",
+    "body": "Repro steps:\n\n1. Launch a new VS Code instance.\n2. Enable the setting: `chat.allowAnonymousAccess` to allow anonymous access to GitHub Copilot.\n3. Send a bunch of requests until you hit the quota (at this point, the upgrade prompt should show up on top of the chat input box).\n4. Observe: Above the chat input, an upgrade prompt widget appears https://github.com/microsoft/vscode/pull/294620/changes\n5. **Bug:** Currently, the chat tip might also be shown at the same time. It should not be displayed when the quota/upgrade widget is visible above the input.\n\nExpected:\n- When the quota is hit and the upgrade widget is displayed, chat tips should not be shown above the input, as the user cannot act on them.\n\nPlease investigate so these onboarding tips are suppressed when the upgrade/budget widget takes precedence.\n\n(Reference: feedback thread in Standup.)\n\n[View original Slack conversation](https://vscodeteam.slack.com/archives/C1C2M1KEZ/p1771013688355029?thread_ts=1771013688.355029&cid=C1C2M1KEZ)",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "insiders-released",
+      "chat-tips"
+    ],
+    "created_at": "2026-02-17T21:45:23Z",
+    "closed_at": "2026-02-18T20:56:18Z",
+    "updated_at": "2026-02-19T06:43:28Z",
+    "comments_count": 3,
+    "url": "https://github.com/microsoft/vscode/issues/295868",
+    "repository": "microsoft/vscode",
+    "user": "meganrogge"
+  },
+  {
+    "id": 3954393739,
+    "number": 295837,
+    "title": "Integrated Browser + Live Preview: opened side-by-side window should have \"Lock group\"",
+    "body": "In the old experience, the browser is opened on the side with a Locked group. In the new experience with Integrated Browser, it's not opened with a locked group.\n\nThe reason why a locked group is useful is so that newly opened editors don't open on the same group as the browser, even if the browser is focused.\n\n---\n\nOld experience (\"livePreview.useIntegratedBrowser\": false) -- note the Locked Group icon:\n\n<img width=\"899\" height=\"456\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3c1fc8fe-1bf5-4794-8264-4bbbe4ccc5b2\" />\n\nNew experience (\"livePreview.useIntegratedBrowser\": true) -- note no Locked Group icon:\n\n<img width=\"688\" height=\"190\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3056adaf-3e1a-474d-9121-be1868e7ee72\" />\n\n---\n\nNote for verification: Requires installing the Live Preview extension (https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server)",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-17T19:12:04Z",
+    "closed_at": "2026-02-17T22:18:23Z",
+    "updated_at": "2026-02-18T08:09:13Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295837",
+    "repository": "microsoft/vscode",
+    "user": "jruales"
+  },
+  {
+    "id": 3953930750,
+    "number": 295807,
+    "title": "Recent changes causing Gemini Pro model to hallucinate",
+    "body": "<!-- Please search existing issues to avoid creating duplicates -->\n<!-- Please attach logs to help us diagnose your issue -->\n\nRecently (past two or three days) Gemini Pro models have been hallucinating tool calls rather than making edits directly. This seems to be changes to the system prompt or something- it probably needs a reminder to use the tools. It's yielded some comical results, though:\n<img width=\"631\" height=\"727\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/6e1335c6-12dc-42b4-ae35-74db04ced45f\" />\n\n<img width=\"453\" height=\"560\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/1eea503e-e31f-4709-a268-c6ad259d449c\" />\n\n<img width=\"90\" height=\"718\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/4fab9549-677e-4676-a6f7-d82ecad7c39c\" />\n\n- Copilot Chat Extension Version: 0.37.6\n- VS Code Version: 1.109.4\n- OS Version: Windows 11 (VSCode in WSL)\n- Feature (e.g. agent/edit/ask mode): Agent\n- Selected model (e.g. GPT 4.1, Claude 3.7 Sonnet): Gemini 3 Pro\n- Logs: See attached diagnostics & transcript\n\n[copilot_diagnostics.md](https://github.com/user-attachments/files/25371248/copilot_diagnostics.md)\n\nFull Transcript (Note that I start with Claude 4.6 then transition to Gemini 3 Pro at the end):\n[transcript.md](https://github.com/user-attachments/files/25371226/transcript.md)\n\nSteps to Reproduce:\n\n1. Choose Gemini Pro as the model\n2. Ask it to solve a problem\n3. Within 2 to 3 iterations it begins hallucinating tool calls rather than calling directly.\n\nThis seems pretty consistently reproducible right now, in various chats.\n",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "new release"
+    ],
+    "created_at": "2026-02-17T17:40:46Z",
+    "closed_at": "2026-02-19T00:16:26Z",
+    "updated_at": "2026-02-19T00:32:32Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295807",
+    "repository": "microsoft/vscode",
+    "user": "mattv8"
+  },
+  {
+    "id": 3953595978,
+    "number": 295793,
+    "title": "add bottom border to chat tip",
+    "body": "From @bhavyaus \n\nBefore\n\n<img width=\"626\" height=\"454\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/e7ba90d8-1b0b-449e-bdd4-91b11019acad\" />\n\nAfter, what we want\n\n<img width=\"626\" height=\"454\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/077ecffa-f51e-484e-82d7-d45b4338761f\" />",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "polish",
+      "insiders-released",
+      "chat-tips"
+    ],
+    "created_at": "2026-02-17T16:23:03Z",
+    "closed_at": "2026-02-17T20:43:28Z",
+    "updated_at": "2026-02-18T08:09:24Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295793",
+    "repository": "microsoft/vscode",
+    "user": "meganrogge"
+  },
+  {
+    "id": 3953426743,
+    "number": 295789,
+    "title": "Avoid advertising the dangerous auto-approve setting via Tips",
+    "body": "<!-- ⚠️⚠️ Do Not Delete This! bug_report_template ⚠️⚠️ -->\n<!-- # Please read our Rules of Conduct: https://opensource.microsoft.com/codeofconduct/ -->\n<!-- √ 🕮 Read our guide about submitting issues: https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions -->\n<!-- √ 🔎 Search existing issues to avoid creating duplicates. -->\n<!-- √ 🧪 Test using the latest Insiders build to see if your issue has already been fixed: https://code.visualstudio.com/insiders/ -->\n<!-- # 💡 Instead of creating your report here, use 'Report Issue' from the 'Help' menu in VS Code to pre-fill useful information. -->\n<!-- # 🔧 Launch with `code --disable-extensions` to check. -->\nDoes this issue occur when all extensions are disabled?: Untested. Probably not, because it is related to the Copilot Chat extension.\n\n<!-- 🪓 If you answered No above, use 'Help: Start Extension Bisect' from Command Palette to try to identify the cause. -->\n<!-- 📣 Issues caused by an extension need to be reported directly to the extension publisher. The 'Help > Report Issue' dialog can assist with this. -->\n- VS Code Version: \n  - Version: 1.110.0-insider (Universal)\n  - Commit: a928adf44c1eb37236679c0dfbeba7dd4f9650e3\n  - Date: 2026-02-16T09:12:32.047Z (1 day ago)\n- OS Version: macOS 15.7.3 (24G419) Sequoia\n\nSteps to Reproduce:\n\n1. Open the Chat panel. A Tip appears directly above the prompt text input.\n2. Press the \"Next tip\" button until the following tip appears:\n\n<img width=\"900\" height=\"416\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/6d3cd63a-3068-443c-bb48-1ed28e944e49\" />\n\nI argue that auto-approval (\"YOLO mode\") is an unsafe feature and therefore is unwise to advertise via the tip system. **In short, I think this tip is dangerous and should be removed.** The existing wording in the settings system agrees that auto-approval mode is dangerous:\n\n<img width=\"2906\" height=\"648\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/c130ff6e-1bdb-47c9-8e4b-64f215c946c4\" />",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "unreleased",
+      "papercut :drop_of_blood:",
+      "chat-tips"
+    ],
+    "created_at": "2026-02-17T15:46:48Z",
+    "closed_at": "2026-02-19T19:24:34Z",
+    "updated_at": "2026-02-19T19:25:33Z",
+    "comments_count": 2,
+    "url": "https://github.com/microsoft/vscode/issues/295789",
+    "repository": "microsoft/vscode",
+    "user": "davidfstr"
+  },
+  {
+    "id": 3952863504,
+    "number": 295767,
+    "title": "ctrl+shift+h still fails for toggling state of AskQuestion experience",
+    "body": "<!-- ⚠️⚠️ Do Not Delete This! bug_report_template ⚠️⚠️ -->\n<!-- Please read our Rules of Conduct: https://opensource.microsoft.com/codeofconduct/ -->\n<!-- 🕮 Read our guide about submitting issues: https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions -->\n<!-- 🔎 Search existing issues to avoid creating duplicates. -->\n<!-- 🧪 Test using the latest Insiders build to see if your issue has already been fixed: https://code.visualstudio.com/insiders/ -->\n<!-- 💡 Instead of creating your report here, use 'Report Issue' from the 'Help' menu in VS Code to pre-fill useful information. -->\n<!-- 🔧 Launch with `code --disable-extensions` to check. -->\nDoes this issue occur when all extensions are disabled?: Yes/No\n\n<!-- 🪓 If you answered No above, use 'Help: Start Extension Bisect' from Command Palette to try to identify the cause. -->\n<!-- 📣 Issues caused by an extension need to be reported directly to the extension publisher. The 'Help > Report Issue' dialog can assist with this. -->\n- VS Code Version: \n- OS Version: \n\nSteps to Reproduce:\n\nHi,\n\nThe issue with ctrl+shift+h continues to persist in the latest VSCode release.\n\nI have a suggestion to resolve the issue. Change the Search in Files hotkey and add this when condition:\n\n!inChatInput\n\nIn this case, if the chat window is in focus then it does not fire that specific keystroke. This resolved the issue for me.\n\nThe other solution may be to tie agent constants as a part of the when condition, similar to how the ctrl+shift+t hotkey is done for todos.\n\nJeff\n\n",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "accessibility",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-17T13:49:01Z",
+    "closed_at": "2026-02-17T18:15:32Z",
+    "updated_at": "2026-02-18T08:09:29Z",
+    "comments_count": 2,
+    "url": "https://github.com/microsoft/vscode/issues/295767",
+    "repository": "microsoft/vscode",
+    "user": "accesswatch"
+  },
+  {
+    "id": 3949329062,
+    "number": 295650,
+    "title": "Chat: tried to use tool but was blocked in background",
+    "body": "<img width=\"1150\" height=\"299\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/97e93c0a-4b89-422b-a36c-b8f65456645f\" />\n\nIt worked, I got a question asked, but still found this in the chat response for background.",
+    "state": "closed",
+    "labels": [
+      "bug"
+    ],
+    "created_at": "2026-02-16T19:59:13Z",
+    "closed_at": "2026-02-19T00:47:52Z",
+    "updated_at": "2026-02-19T00:48:01Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295650",
+    "repository": "microsoft/vscode",
+    "user": "bpasero"
+  },
+  {
+    "id": 3948824997,
+    "number": 295619,
+    "title": "Modal view leaves quick pick out of focus",
+    "body": "1. Open model management UI\n2. Click on Add models, choose OpenAI compatible\n3. QuickPick opens, but it is in background and I can not give it focus 🐛 \n\nSo looks like modal views and quick pick interaction needs to be fixed. Ideally quick pick can come on top of modal views and have focu?\n\n<img width=\"1359\" height=\"484\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3d8ca302-828f-4fad-9426-b868b144d45b\" />\n\ncc @sandy081 ",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "verified",
+      "insiders-released",
+      "workbench-modal-editor"
+    ],
+    "created_at": "2026-02-16T17:35:16Z",
+    "closed_at": "2026-02-16T19:55:05Z",
+    "updated_at": "2026-02-17T08:37:48Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295619",
+    "repository": "microsoft/vscode",
+    "user": "isidorn"
+  },
+  {
+    "id": 3948769133,
+    "number": 295616,
+    "title": "Cmd+enter shortcut does not work for Approve while steering",
+    "body": "Ask agent something. For example, open internalbacklog and say \"Figure out how many agentMode users we have that are using vscode version 1.107.*\"\n\nAfter it starts steer it to \"You can look at panel.request event and if command == editAgent\"\n\nWhen it is being steered,  cmd+enter shortcut to approve tools does not work 🐛 ",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "chat-tools"
+    ],
+    "created_at": "2026-02-16T17:22:15Z",
+    "closed_at": "2026-02-17T23:01:34Z",
+    "updated_at": "2026-02-17T23:01:34Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295616",
+    "repository": "microsoft/vscode",
+    "user": "isidorn"
+  },
+  {
+    "id": 3947092717,
+    "number": 295557,
+    "title": "Disabling Chat tips should be preserved across workspaces",
+    "body": "1. Open workspace, see Chat tips\n2. Click on X to no longer show tips \n3. Open another workspace. See chat tips again 🐛 \n\nHiding tips should be preserved across workspaces (it is a user choice, not a workspace choice)\n\ncc @roblourens ",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "verified",
+      "insiders-released",
+      "chat-tips"
+    ],
+    "created_at": "2026-02-16T10:43:40Z",
+    "closed_at": "2026-02-17T18:06:46Z",
+    "updated_at": "2026-02-18T08:34:45Z",
+    "comments_count": 4,
+    "url": "https://github.com/microsoft/vscode/issues/295557",
+    "repository": "microsoft/vscode",
+    "user": "isidorn"
+  },
+  {
+    "id": 3946233384,
+    "number": 295527,
+    "title": "Command names broken",
+    "body": "\nType: <b>Bug</b>\n\ncommand names are showing up as `%command%` etc\n\n<img width=\"969\" height=\"598\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/a82f80de-28d4-42c2-a67d-dacba3b9edc7\" />\n\n<img width=\"1074\" height=\"569\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/5dc09224-965b-4752-b877-51489e6d6198\" />\n\nVSCode Web Insiders\nnot desktop\n\nVS Code version: Code - Insiders 1.110.0-insider (0366405821955682155a4507a122611c742df3fa, 2026-02-13T17:17:46.163Z)\nOS version:   \nModes:\n\nSystem Info: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36<details><summary>Extensions (16)</summary>\n\nExtension|Author (truncated)|Version\n---|---|---\nanycode|ms-|0.0.75\nanycode-kotlin|ms-|0.0.8\nanycode-php|ms-|0.0.8\nanycode-go|ms-|0.0.8\nanycode-cpp|ms-|0.0.7\nanycode-python|ms-|0.0.7\nanycode-rust|ms-|0.0.8\nanycode-java|ms-|0.0.8\nanycode-typescript|ms-|0.0.7\nanycode-c-sharp|ms-|0.0.8\nremote-server|ms-|1.6.2026020909\ncodespaces|Git|1.18.5\nremotehub|Git|0.65.2026012801\nazure-repos|ms-|0.41.2026012801\nremote-explorer|ms-|0.6.2025081809\nremote-repositories|ms-|0.43.2026012801\n\n\n</details>\n<!-- generated by issue reporter -->",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-16T07:00:10Z",
+    "closed_at": "2026-02-17T23:55:04Z",
+    "updated_at": "2026-02-18T08:09:45Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295527",
+    "repository": "microsoft/vscode",
+    "user": "RedCMD"
+  },
+  {
+    "id": 3945410281,
+    "number": 295507,
+    "title": "Inline code blocks litted with `[file](http://_vscodecontentref_/1)`",
+    "body": "\nType: <b>Bug</b>\n\nSeeing this a lot in latest Insiders, making understanding and copying many of the generated example commands harder.\n\n<img src=\"https://github.com/user-attachments/assets/4ad143df-185d-4211-809d-140bc019a1d7\" alt=\"Image\" width=\"466\" height=\"111\">\n\nVS Code version: Code - Insiders 1.110.0-insider (Universal) (0366405821955682155a4507a122611c742df3fa, 2026-02-13T17:11:57.496Z)\nOS version: Darwin arm64 25.3.0\nModes:\n\n<details>\n<summary>System Info</summary>\n\n|Item|Value|\n|---|---|\n|CPUs|Apple M4 Pro (14 x 2400)|\n|GPU Status|2d_canvas: enabled<br>GPU0: VENDOR= 0x106b [Google Inc. (Apple)], DEVICE=0x0000 [ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Version 26.3 (Build 25D125))], DRIVER_VENDOR=Apple, DRIVER_VERSION=26.3 *ACTIVE*<br>Machine model name: Mac<br>Machine model version: 16.7<br>direct_rendering_display_compositor: disabled_off_ok<br>gpu_compositing: enabled<br>multiple_raster_threads: enabled_on<br>opengl: enabled_on<br>rasterization: enabled<br>raw_draw: disabled_off_ok<br>skia_graphite: enabled_on<br>trees_in_viz: disabled_off<br>video_decode: enabled<br>video_encode: enabled<br>webgl: enabled<br>webgl2: enabled<br>webgpu: enabled<br>webnn: disabled_off|\n|Load (avg)|5, 4, 3|\n|Memory (System)|24.00GB (0.07GB free)|\n|Process Argv|--log trace --crash-reporter-id 9b206efe-c338-4f34-baff-2aab1c48a82e|\n|Screen Reader|no|\n|VM|0%|\n</details>\n<!-- generated by issue reporter -->",
+    "state": "closed",
+    "labels": [
+      "bug"
+    ],
+    "created_at": "2026-02-16T01:24:22Z",
+    "closed_at": "2026-02-18T23:18:17Z",
+    "updated_at": "2026-02-19T00:32:52Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295507",
+    "repository": "microsoft/vscode",
+    "user": "digitarald"
+  },
+  {
+    "id": 3944591293,
+    "number": 295472,
+    "title": "Question carousel breaks when closing chat",
+    "body": "- Have a question\n- Close the chat, or change editor tabs, or move the chat from editor to sidebar\n- It says \"skipped\" but chat hangs forever\n\n<img width=\"840\" height=\"236\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/161d1ef9-a22e-4c4c-a24e-50cab382532d\" />\n\nTHe chat broke, I never got past this point",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "confirmed",
+      "insiders-released",
+      "chat-ask"
+    ],
+    "created_at": "2026-02-15T17:58:52Z",
+    "closed_at": "2026-02-17T19:56:00Z",
+    "updated_at": "2026-02-18T08:09:50Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295472",
+    "repository": "microsoft/vscode",
+    "user": "roblourens"
+  },
+  {
+    "id": 3943195801,
+    "number": 295411,
+    "title": "Missing closing '>' in keybinding placeholder breaks accessible view navigation hint",
+    "body": "## Bug Description\r\n\r\nIn `src/vs/workbench/contrib/accessibility/browser/accessibleView.ts`, the `_navigationHint()` method (line 867) has a keybinding placeholder missing its closing `>` delimiter.\r\n\r\nThe `<keybinding:...>` syntax is a placeholder resolved by `resolveContentAndKeybindingItems()`. Because the first placeholder is missing its closing `>`, it is **not recognized** and the raw placeholder text is shown to the user instead of the resolved keybinding label.\r\n\r\n### Code\r\n\r\n```typescript\r\nprivate _navigationHint(): string {\r\n    return localize('accessibleViewNextPreviousHint',\r\n        \"Show the next item{0} or previous item{1}.\",\r\n        `<keybinding:${AccessibilityCommandId.ShowNext}`,      // MISSING closing >\r\n        `<keybinding:${AccessibilityCommandId.ShowPrevious}>`   // correct\r\n    );\r\n}\r\n```\r\n\r\n## Steps to Reproduce\r\n\r\n1. Enable a screen reader\r\n2. Open the Accessible View (e.g. from terminal or chat)\r\n3. Open Accessible View Help\r\n4. Read the navigation hint text\r\n\r\n## Expected Behavior\r\n\r\nThe hint should read something like: \"Show the next item (Alt+N) or previous item (Alt+P).\" with both keybindings resolved.\r\n\r\n## Actual Behavior\r\n\r\nThe \"Show Next\" keybinding is displayed as raw placeholder text because the closing `>` is missing, while \"Show Previous\" is resolved correctly.\r\n\r\n## Fix\r\n\r\nOne-character fix — add the missing `>`:\r\n\r\n```diff\r\n- `<keybinding:${AccessibilityCommandId.ShowNext}`\r\n+ `<keybinding:${AccessibilityCommandId.ShowNext}>`\r\n```\r\n\r\n## Impact\r\n\r\nThis is an accessibility issue - screen reader users cannot see the correct keybinding for navigating to the next item in the accessible view.\r\n",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "accessibility",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-15T05:46:19Z",
+    "closed_at": "2026-02-17T19:13:28Z",
+    "updated_at": "2026-02-18T08:09:55Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295411",
+    "repository": "microsoft/vscode",
+    "user": "Vedag812"
+  },
+  {
+    "id": 3942800534,
+    "number": 295393,
+    "title": "Maximize Secondary Side Bar doesn't maximize if \"Panel\" is maximized",
+    "body": "\nType: <b>Bug</b>\n\n# If\n\n<img width=\"1920\" height=\"1032\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/5ee2fcc7-f95d-4b20-a826-7b34a9571e5f\" />\n\n## Then\n\n<img width=\"1920\" height=\"1032\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/d47bfabe-0c6d-4be3-b204-a37964ff1d38\" />\n\n# Compare with\n\n<img width=\"1920\" height=\"1032\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/56b96aa4-1e78-4552-8b39-1f245f545142\" />\n\n## then\n\n<img width=\"1920\" height=\"1032\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/f4ed51a7-49bf-47fd-afa9-d90613012040\" />\n\nVS Code version: Code - Insiders 1.110.0-insider (0366405821955682155a4507a122611c742df3fa, 2026-02-13T17:11:57.496Z)\nOS version: Windows_NT x64 10.0.26200\nModes:\n\n# Troubleshooting\n\n- None\n\n## Notes\n\n- The behavior is consistent, not intermittent.\n- The maximize button originally maximized in both situations.\n- In the last month, the behavior changed.\n- I have not associated the change with a specific event.\n- If there are other problems, I am unaware of them, or I have not associated the other problems with this _minor_ UI issue.\n- I have only observed a problem with the presentation: I do not think it changes data or settings.\n\n# Details\n<details>\n<summary>System Info</summary>\n\n|Item|Value|\n|---|---|\n|CPUs|AMD Ryzen 7 5700U with Radeon Graphics          (16 x 1797)|\n|GPU Status|2d_canvas: enabled<br>GPU0: VENDOR= 0x1002, DEVICE=0x164c [AMD Radeon(TM) Graphics], DRIVER_VENDOR=AMD, DRIVER_VERSION=31.0.21923.11000 *ACTIVE*<br>GPU1: VENDOR= 0x1414, DEVICE=0x008c [Microsoft Basic Render Driver], DRIVER_VERSION=10.0.26100.7309<br>Machine model name: <br>Machine model version: <br>direct_rendering_display_compositor: disabled_off_ok<br>gpu_compositing: enabled<br>multiple_raster_threads: enabled_on<br>opengl: enabled_on<br>rasterization: enabled<br>raw_draw: disabled_off_ok<br>skia_graphite: disabled_off<br>trees_in_viz: disabled_off<br>video_decode: enabled<br>video_encode: enabled<br>webgl: enabled<br>webgl2: enabled<br>webgpu: enabled<br>webnn: disabled_off|\n|Load (avg)|undefined|\n|Memory (System)|12.90GB (3.42GB free)|\n|Process Argv||\n|Screen Reader|no|\n|VM|0%|\n</details><details><summary>Extensions (34)</summary>\n\nExtension|Author (truncated)|Version\n---|---|---\nz0z_-extensions-for-visual-studio-code|hun|0.0.3\nty|ast|2026.14.0\nmarkdown-preview-github-styles|bie|2.2.0\nmarkdown-yaml-preamble|bie|0.1.0\nfile-properties-viewer|bru|1.3.1\ninsert-unicode|bru|0.15.1\nruff|cha|2026.36.0\nmeld-diff|dan|1.5.1\nvscode-markdownlint|Dav|0.61.1\nrewrap-revived|dnu|17.9.0\nEditorConfig|Edi|0.18.1\ncopilot-chat|Git|0.38.2026021305\nvscode-github-actions|git|0.31.0\nvscode-pull-request-github|Git|0.129.2026021313\ntodo-tree|Gru|0.0.226\nvscode-pdf|mat|0.1.6\nrainbow-csv|mec|3.24.1\nisort|ms-|2025.1.13251007\npython|ms-|2026.1.2026021101\nvscode-pylance|ms-|2025.12.104\nvscode-python-envs|ms-|1.19.10441011\ndatawrangler|ms-|1.24.0\njupyter|ms-|2025.9.1\njupyter-keymap|ms-|1.1.2\njupyter-renderers|ms-|1.3.2025062701\nindent-rainbow|ode|8.3.1\nmaterial-icon-theme|PKi|5.31.0\nmaterial-product-icons|PKi|1.7.1\nmulti-command|ryu|1.6.0\ncode-spell-checker|str|4.5.6\ntombi|tom|0.7.28\nsort-lines|Tyr|1.12.0\nremove-empty-lines|use|1.0.1\nmarkdown-all-in-one|yzh|3.6.3\n\n\n</details>\n<!-- generated by issue reporter -->",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "layout",
+      "confirmed"
+    ],
+    "created_at": "2026-02-15T01:24:03Z",
+    "closed_at": "2026-02-16T08:12:20Z",
+    "updated_at": "2026-02-16T08:12:20Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295393",
+    "repository": "microsoft/vscode",
+    "user": "hunterhogan"
+  },
+  {
+    "id": 3941887634,
+    "number": 295352,
+    "title": "Sending execution of a prompt to a worktree results in the creation of countless worktrees",
+    "body": "\nType: <b>Bug</b>\n\nCopilot starts creating one new worktree every second and never stops.\n\nSteps:\n1. Write a prompt\n2. Send the execution of the prompt to a worktree\n3. Run `git worktree list`\n\nExtension version: 0.38.2026021305\nVS Code version: Code - Insiders 1.110.0-insider (Universal) (0366405821955682155a4507a122611c742df3fa, 2026-02-13T17:11:57.496Z)\nOS version: Darwin arm64 25.3.0\nModes:\n\n<details><summary>Logs</summary>\n<pre>\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Finished handling auth change event.\nDebug: Ado auth state changed, firing event. Had token before: true. Has token now: true.\nDebug: Finished handling auth change event.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nTrace: CodeSearchChunkSearch.updateIndexedCommitForAllRepos\nTrace: CodeSearchChunkSearch.updateRepoStateFromEndpoint(file:///Users/ole/VS%20Code%20Workspace/jobManager). Checking status from endpoint.\nTrace: CodeSearchChunkSearch.getRepoIndexStatusFromEndpoint(file:///Users/ole/VS%20Code%20Workspace/jobManager\nDebug: Handling onDidChangeSession.\nTrace: GithubCodeSearchService::getRemoteIndexState(freshmozart1/jobmanager). Found indexed commit: 54a6479afbb1c96c3e56932fa8b660e6af616bef.\nTrace: CodeSearchChunkSearch.updateRepoStateFromEndpoint(file:///Users/ole/VS%20Code%20Workspace/jobManager). Updating state to Ready.\nTrace: ChatStatusWorkspaceIndexingStatus::updateStatusItem(id=35): starting\nTrace: CodeSearchChunkSearch::initialize#36 started\nTrace: CodeSearchChunkSearch::initialize#36 success. Elapsed 0.3079579999903217\nTrace: ChatStatusWorkspaceIndexingStatus::_writeStatusItem()\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nTrace: CodeSearchWorkspaceDiff: refreshing diff for file:///Users/ole/VS%20Code%20Workspace/jobManager\nTrace: CodeSearchWorkspaceDiff::tryGetDiffedIndexedFiles() Got 45 initially changed files for file:///Users/ole/VS%20Code%20Workspace/jobManager\nTrace: CodeSearchWorkspaceDiff::tryGetDiffedIndexedFiles() Returning [object ResourceSet] changes for file:///Users/ole/VS%20Code%20Workspace/jobManager\nTrace: CodeSearchWorkspaceDiff: Refreshed diff for file:///Users/ole/VS%20Code%20Workspace/jobManager. New diff count: 45\nTrace: CodeSearchWorkspaceDiff: Refreshed all diffs. New local diffs count: 0\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\nDebug: Handling onDidChangeSession.\n</pre>\n</details>\n<details><summary>Request IDs</summary>\n<pre>\n\n</pre>\n</details><details>\n<summary>System Info</summary>\n\n|Item|Value|\n|---|---|\n|CPUs|Apple M1 (8 x 2400)|\n|GPU Status|2d_canvas: enabled<br>GPU0: VENDOR= 0x106b [Google Inc. (Apple)], DEVICE=0x0000 [ANGLE (Apple, ANGLE Metal Renderer: Apple M1, Version 26.3 (Build 25D125))], DRIVER_VENDOR=Apple, DRIVER_VERSION=26.3 *ACTIVE*<br>Machine model name: MacBookPro<br>Machine model version: 17.1<br>direct_rendering_display_compositor: disabled_off_ok<br>gpu_compositing: enabled<br>multiple_raster_threads: enabled_on<br>opengl: enabled_on<br>rasterization: enabled<br>raw_draw: disabled_off_ok<br>skia_graphite: enabled_on<br>trees_in_viz: disabled_off<br>video_decode: enabled<br>video_encode: enabled<br>webgl: enabled<br>webgl2: enabled<br>webgpu: enabled<br>webnn: disabled_off|\n|Load (avg)|2, 4, 6|\n|Memory (System)|8.00GB (0.09GB free)|\n|Process Argv|--log trace --crash-reporter-id e5ead86d-61b5-4aa2-8d3e-fd7896466130|\n|Screen Reader|no|\n|VM|0%|\n</details><details>\n<summary>A/B Experiments</summary>\n\n```\nvsliv368cf:30146710\npythonvspyt551:31249597\nnativeloc1:31118317\ndwcopilot:31158714\ndwoutputs:31242946\ncopilot_t_ci:31333650\ng012b348:31231168\npythonrdcb7:31268811\npythonpcpt1cf:31399617\n6518g693:31302842\nb6b4d950:31327385\n6abeh943:31336334\nenvsactivate1:31349248\neditstats-enabled:31346256\ncloudbuttont:31366566\n3efgi100_wstrepl:31403338\nuse-responses-api:31390341\nje187915:31401257\ncp_cls_t_966_ss:31454198\nchatvisible:31417128\ninlinechat_v2_hd992725:31445440\nge8j1254_inline_auto_hint_haiku:31426887\na5gib710:31434435\n7ig2g208:31429686\n31c7i317_no_change:31458090\n406hc587_ask_agent:31428392\npreserve_tokens:31444547\ncp_cls_c_1081:31454833\ncopilot-nes-oct-trt:31432609\nia-use-proxy-models-svc:31446143\nnes-slash-models-on:31441832\na43f0576c:31442820\ne9c30283:31453065\nc0ci8992_validated:31449878\nh_5b0j5247:31457745\nidci7584:31454084\nedit_mode_hidden:31453871\nnes-ftch-ctrl:31458523\nnes_chat_context_enabled:31451401\nshowstats:31452402\ne3e4d672:31454087\n864ei723_large_tool_results_to_disk:31455802\nshowingstats:31457201\npp-44cc9697:31455969\nei9d7968:31462942\n55364912:31455227\n7ef87755:31455235\nnes-extended-on:31455475\nagentwelcome:31461166\nnes-sp-on:31462751\nf860i809:31458078\nanthropic_alt_t:31459357\nah:31460422\nquick_suggest_off_75197330:31462668\n237g4698:31461282\nnetwork-fallback-crash-ctrl:31461018\n67jbj424:31461979\n7e884298:31462391\n\n```\n\n</details>\n\n<!-- generated by issue reporter -->",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "freeze-slow-crash-leak",
+      "unreleased",
+      "chat-background-agent"
+    ],
+    "created_at": "2026-02-14T17:17:20Z",
+    "closed_at": "2026-02-20T01:58:53Z",
+    "updated_at": "2026-02-20T01:59:56Z",
+    "comments_count": 7,
+    "url": "https://github.com/microsoft/vscode/issues/295352",
+    "repository": "microsoft/vscode",
+    "user": "freshmozart1"
+  },
+  {
+    "id": 3941547026,
+    "number": 295339,
+    "title": "Chat windows show dropdowns for a single frame",
+    "body": "This gif shows be spamming ctrl+., the picker shows for a frame and hides:\n\n![Image](https://github.com/user-attachments/assets/b89ba81b-690b-40f5-acb8-73e6764e7a9e)\n\nThis happens when I click any of the dropdowns, they hide immediately.\n\nRepro:\n\n1. Open chat editor\n2. Try open a dropdown\n\nVersion: 1.110.0-insider (user setup)\nCommit: 0366405821955682155a4507a122611c742df3fa\nDate: 2026-02-13T17:11:57.496Z\nElectron: 39.5.2\nElectronBuildId: 13298971\nChromium: 142.0.7444.265\nNode.js: 22.22.0\nV8: 14.2.231.22-electron.0\nOS: Windows_NT x64 10.0.26200",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "important"
+    ],
+    "created_at": "2026-02-14T14:30:24Z",
+    "closed_at": "2026-02-17T18:17:31Z",
+    "updated_at": "2026-02-17T18:17:31Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295339",
+    "repository": "microsoft/vscode",
+    "user": "Tyriar"
+  },
+  {
+    "id": 3939817311,
+    "number": 295280,
+    "title": "Chat not restoring properly",
+    "body": "Steps:\n* Use Claude agent\n* Reload window\n* 🐛  it says local for a few seconds\n* 🐛 the options are gone:\n\n<img width=\"988\" height=\"392\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/1ba88345-8e7e-42db-bcb2-8870f0cfb5c2\" />\n\nWorkaround:\n* change to local\n* change to Claude\n* options then show up",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-14T00:02:42Z",
+    "closed_at": "2026-02-17T21:48:55Z",
+    "updated_at": "2026-02-18T08:10:05Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295280",
+    "repository": "microsoft/vscode",
+    "user": "TylerLeonhardt"
+  },
+  {
+    "id": 3939686094,
+    "number": 295272,
+    "title": "Cannot read properties of undefined (reading 'replace')",
+    "body": "Saw this when updating to today's insiders with a background session open:\n\n```\n ERR Cannot read properties of undefined (reading 'replace'): TypeError: Cannot read properties of undefined (reading 'replace')\n\tat jmi (/Users/matb/.vscode-insiders/extensions/github.copilot-chat-0.38.2026021305/dist/extension.js:1759:15668)\n\tat /Users/matb/.vscode-insiders/extensions/github.copilot-chat-0.38.2026021305/dist/extension.js:1759:17818\n\tat Array.filter (<anonymous>)\n\tat ifn (/Users/matb/.vscode-insiders/extensions/github.copilot-chat-0.38.2026021305/dist/extension.js:1759:17807)\n\tat NY.getChatHistory (/Users/matb/.vscode-insiders/extensions/github.copilot-chat-0.38.2026021305/dist/extension.js:1794:544)\n\tat qX.provideChatSessionContent (/Users/matb/.vscode-insiders/extensions/github.copilot-chat-0.38.2026021305/dist/extension.js:2353:15414)\n\tat async fd.$provideChatSessionContent (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:522:64643)\n```\n\n\nLooks like this is somewhere in the copilot cli provider",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "chat-background-agent"
+    ],
+    "created_at": "2026-02-13T23:09:29Z",
+    "closed_at": "2026-02-15T04:56:06Z",
+    "updated_at": "2026-02-15T04:56:06Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295272",
+    "repository": "microsoft/vscode",
+    "user": "mjbvz"
+  },
+  {
+    "id": 3939507367,
+    "number": 295264,
+    "title": "Backport fix for CVE-2026-2441 from chromium",
+    "body": "Refs https://chromereleases.googleblog.com/2026/02/extended-stable-updates-for-desktop_13.html\n\nhttps://github.com/electron/electron/commit/a229dbf7a56336b847b34dfff1bac79afc311eee",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "upstream",
+      "verified",
+      "candidate",
+      "chromium",
+      "unreleased"
+    ],
+    "created_at": "2026-02-13T22:11:29Z",
+    "closed_at": "2026-02-16T16:40:14Z",
+    "updated_at": "2026-02-19T06:43:31Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295264",
+    "repository": "microsoft/vscode",
+    "user": "deepak1556"
+  },
+  {
+    "id": 3939046578,
+    "number": 295242,
+    "title": "ctrl/cmd+shift+h does not work for chat question caraousel",
+    "body": "Its getting overriden by `search: replace in files`\n\nhttps://github.com/user-attachments/assets/939c6e2c-9ba4-4b98-9c39-da61f5913c2e\n\nhttps://github.com/user-attachments/assets/808a7a7c-90fe-4d53-8bc0-2908bc482188\n\n@accesswatch @rperez030 ",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "accessibility",
+      "insiders-released"
+    ],
+    "created_at": "2026-02-13T20:27:40Z",
+    "closed_at": "2026-02-13T20:47:08Z",
+    "updated_at": "2026-02-17T16:17:31Z",
+    "comments_count": 5,
+    "url": "https://github.com/microsoft/vscode/issues/295242",
+    "repository": "microsoft/vscode",
+    "user": "anthonykim1"
+  },
+  {
+    "id": 3938208547,
+    "number": 295216,
+    "title": "Hooks error messages should filter out terminal control characters",
+    "body": "```\nVersion: 1.110.0-insider\nCommit: 16e49a8b88457e6bd43b048933707e77bdad65ff\nDate: 2026-02-13T05:06:10.672Z\nElectron: 39.5.2\nElectronBuildId: 13298971\nChromium: 142.0.7444.265\nNode.js: 22.22.0\nV8: 14.2.231.22-electron.0\nOS: Darwin arm64 25.2.0\n```\n\n\n<img width=\"384\" height=\"290\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/f3cebdd8-51ca-4fad-8374-573fe642f963\" />",
+    "state": "closed",
+    "labels": [
+      "bug"
+    ],
+    "created_at": "2026-02-13T17:24:05Z",
+    "closed_at": "2026-02-13T19:50:53Z",
+    "updated_at": "2026-02-17T17:03:58Z",
+    "comments_count": 0,
+    "url": "https://github.com/microsoft/vscode/issues/295216",
+    "repository": "microsoft/vscode",
+    "user": "joshspicer"
+  },
+  {
+    "id": 3937743107,
+    "number": 295197,
+    "title": "Grid breaks when maximising 2nd sidebar over maximised panel",
+    "body": "A regression from https://github.com/microsoft/vscode/commit/849d97e1bcf0cd949cf430fe2590cb597f72144f\n\n**Steps:**\n* maximise panel\n* maximise aux bar\n\n=> layout breaks\n\nhttps://github.com/user-attachments/assets/dbd25b02-679c-4cf6-bd3c-3d27d45a26ca",
+    "state": "closed",
+    "labels": [
+      "bug",
+      "important",
+      "layout",
+      "regression"
+    ],
+    "created_at": "2026-02-13T15:31:34Z",
+    "closed_at": "2026-02-16T09:03:11Z",
+    "updated_at": "2026-02-16T09:03:11Z",
+    "comments_count": 1,
+    "url": "https://github.com/microsoft/vscode/issues/295197",
+    "repository": "microsoft/vscode",
+    "user": "bpasero"
+  }
+]

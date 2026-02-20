@@ -1,0 +1,140 @@
+[
+  {
+    "id": 3953323732,
+    "number": 137085,
+    "title": "kube-proxy iptables mode has 5-6x performance regression on aws-k8s-1.34 due to iptables-nft backend",
+    "body": "### What happened?\n\nkube-proxy iptables mode sync latency is 5-6x slower on aws-k8s-1.34 nodes compared to aws-k8s-1.32/1.33 nodes.\n\n  | Node Variant | iptables version             | Rule Sync Latency | iptables-save time |\n  |--------------|------------------------------|-------------------|--------------------|\n  | aws-k8s-1.32 | iptables v1.8.11 (legacy)    | 32-52ms           | 21ms               |\n  | aws-k8s-1.33 | iptables v1.8.11 (legacy)    | 24-34ms           | -                  |\n  | aws-k8s-1.34 | iptables v1.8.11 (nf_tables) | 172-248ms         | 61ms               |\n\n  Test environment: Same EKS cluster , same kube-proxy version (v1.34.3-eksbuild.2), same workload (877 services, 2057 endpoints).\n\n  Root cause: aws-k8s-1.34 switched from legacy iptables to iptables-nft (nftables kernel backend with iptables compatibility layer). Every iptables operation is now translated to nftables, adding significant overhead.\n\n  Evidence from the nodes:\n  # aws-k8s-1.32 (fast)\n  $ iptables --version\n  iptables v1.8.11 (legacy)\n\n  $ ls -la /usr/sbin/iptables*\n  # Points to legacy iptables binaries\n\n  # aws-k8s-1.34 (slow)\n  $ iptables --version\n  iptables v1.8.11 (nf_tables)\n\n  $ ls -la /usr/sbin/iptables*\n  lrwxrwxrwx. 1 root root  7 Jan 23 01:35 /usr/sbin/iptables -> xtables\n  lrwxrwxrwx. 1 root root 17 Jan 23 01:35 /usr/sbin/iptables-nft -> xtables-nft-multi\n\n### What did you expect to happen?\n\nkube-proxy running in iptables mode should have similar rule sync performance on aws-k8s-1.34 nodes as on aws-k8s-1.32/1.33 nodes\n\n### How can we reproduce it (as minimally and precisely as possible)?\n\n1. Create an EKS cluster with mixed node groups:\n    - Node group A: Bottlerocket aws-k8s-1.32 AMI\n    - Node group B: Bottlerocket aws-k8s-1.34 AMI\n  2. Deploy kube-proxy in iptables mode (EKS default)\n  3. Deploy enough services to generate meaningful load (100+ services)\n  4. Check kube-proxy logs on both node types:\n  kubectl logs -n kube-system <kube-proxy-pod> | grep \"SyncProxyRules complete\"\n\n\n### Anything else we need to know?\n\n**Image I'm using:**\n\n  - Bottlerocket OS 1.54.0 (aws-k8s-1.34) - kernel 6.12.63\n  - Bottlerocket OS 1.54.0 (aws-k8s-1.32) - kernel 6.1.159 (for comparison)\n  - Bottlerocket OS 1.54.0 (aws-k8s-1.33) - kernel 6.12.63 (for comparison)\n\n### Kubernetes version\n\n<details>\n\n```console\n$ kubectl version\nClient Version: v1.30.2\nKustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3\nServer Version: v1.34.3-eks-ac2d5a0\n```\n\n</details>\n\n\n### Cloud provider\n\n<details>\nEKS\n</details>\n\n\n### OS version\n\n<details>\n\n```console\n# On Linux:\n$ cat /etc/os-release\nNAME=Bottlerocket\nID=bottlerocket\nVERSION=\"1.54.0 (aws-k8s-1.34)\"\nPRETTY_NAME=\"Bottlerocket OS 1.54.0 (aws-k8s-1.34)\"\nVARIANT_ID=aws-k8s-1.34\nVERSION_ID=1.54.0\nBUILD_ID=5043decc\nVENDOR_NAME=Bottlerocket\nHOME_URL=\"https://github.com/bottlerocket-os/bottlerocket\"\nSUPPORT_URL=\"https://github.com/bottlerocket-os/bottlerocket/discussions\"\nBUG_REPORT_URL=\"https://github.com/bottlerocket-os/bottlerocket/issues\"\nDOCUMENTATION_URL=\"https://bottlerocket.dev\n$ uname -a\nLinux ip-10-221-26-24.ec2.internal 6.12.63 #1 SMP PREEMPT_DYNAMIC Thu Jan 22 00:56:26 UTC 2026 x86_64 GNU/Linux\n\n# On Windows:\nC:\\> wmic os get Caption, Version, BuildNumber, OSArchitecture\n# paste output here\n```\n\n</details>\n\n\n### Install tools\n\n<details>\n- vpc-cni\n- csi\n- eks-pod-identity\n- coredns\n- nodelocaldns\n- istio\n</details>\n\n\n### Container runtime (CRI) and version (if applicable)\n\n<details>\n\n</details>\n\n\n### Related plugins (CNI, CSI, ...) and versions (if applicable)\n\n<details>\n\n</details>\n",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "needs-sig",
+      "needs-triage"
+    ],
+    "created_at": "2026-02-17T15:25:24Z",
+    "closed_at": "2026-02-17T15:29:11Z",
+    "updated_at": "2026-02-17T15:29:12Z",
+    "comments_count": 3,
+    "url": "https://github.com/kubernetes/kubernetes/issues/137085",
+    "repository": "kubernetes/kubernetes",
+    "user": "xqianwang"
+  },
+  {
+    "id": 3924917109,
+    "number": 136936,
+    "title": "https://dl.k8s.io/release/stable.txt endpoint does not work",
+    "body": "**What happened**:\n- I cannot obtain version data from release/stable.txt endpoint\n- I got \"Timed out while waiting on cache-fra-etou8220127-FRA\" or just timeout.\n \n**What you expected to happen**:\n- I should be able to extract stable version number from this url.\n\n**How to reproduce it (as minimally and precisely as possible)**:\n- Open browser\n- Enter \"https://dl.k8s.io/release/stable.txt\"\n\n**Anything else we need to know?**:\n- Tested within CI/CD via curl command (from different geolocation) and manually on two different devices\n- Other endpoints seem to work fine, e.g. https://dl.k8s.io/release/stable-1.txt\n\n**Environment**:\n- not relevant\n\n",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "sig/release",
+      "triage/accepted",
+      "sig/k8s-infra"
+    ],
+    "created_at": "2026-02-10T16:45:26Z",
+    "closed_at": "2026-02-11T20:47:02Z",
+    "updated_at": "2026-02-11T20:47:08Z",
+    "comments_count": 5,
+    "url": "https://github.com/kubernetes/kubernetes/issues/136936",
+    "repository": "kubernetes/kubernetes",
+    "user": "Electromorphosis"
+  },
+  {
+    "id": 3913365616,
+    "number": 136841,
+    "title": "govulncheck fails with internal errors when run against Kubernetes using Go 1.25",
+    "body": "### What happened?\n\nWhen running `govulncheck` against the Kubernetes repository using Go 1.25.0, the tool consistently fails with internal errors instead of completing the analysis or failing gracefully.\n\nThis occurs both when scanning specific paths (e.g. `./pkg/... ./staging/...`) and when scanning the full repository (`./...`).\n\nThe failure prevents running automated Go vulnerability scanning on Kubernetes with the latest Go toolchain, which impacts security auditing workflows.\n\nThis does not appear to be a misuse of the tool or an environment issue, as the error is reproducible on a clean checkout and reports internal type-checking failures.\n\n### Example error \n\n```bash\npnkcaht@pnkcaht:~/Documents/K8S_Principal/kubernetes$ govulncheck ./...\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: error \"package requires newer Go version go1.25\" (*errors.errorString) without position\n2026/02/08 14:03:41 internal error: package \"golang.org/x/sys/unix\" without types was imported from \"github.com/cyphar/filepath-securejoin/pathrs-lite/internal\"\npnkcaht@pnkcaht:~/Documents/K8S_Principal/kubernetes$ \n```\n\n### What did you expect to happen?\n\n`govulncheck` should complete successfully when run against the Kubernetes repository, or fail gracefully with a clear and actionable error message if the current Go version is unsupported.\n\nIn particular, the tool should not terminate with internal errors, as this prevents vulnerability scanning and makes it difficult to determine whether any security issues are present.\n\n\n### How can we reproduce it (as minimally and precisely as possible)?\n\n1. Install Go 1.25.0\n2. Clone the Kubernetes repository:\n\n   ```bash\n   git clone https://github.com/kubernetes/kubernetes.git\n   cd kubernetes\n   ```\n\n3. Install govulncheck:\n\n   ```bash\n   go install golang.org/x/vuln/cmd/govulncheck@latest\n   ```\n\n4. Run govulncheck against the repository:\n   ```bash\n    govulncheck ./...\n   ```\n\n### Anything else we need to know?\n\nThis issue occurs consistently on a clean checkout of the repository.\n\nRunning `govulncheck -version` reports no issues with the vulnerability database itself, and the failures only occur when analyzing Kubernetes packages.\n\nThe problem does not appear to be a specific vulnerability, but rather a tooling or compatibility issue that prevents vulnerability scanning from completing successfully with Go 1.25.\n\nThis may be related to Go version support boundaries or type-checking behavior in transitive dependencies.\n\n\n### Kubernetes version\n\nN/A\n\nThis issue was observed directly in the Kubernetes source repository and does not depend on a running cluster or `kubectl`. It occurs when running `govulncheck` against the codebase itself. No Kubernetes cluster was involved.\n\n### Cloud provider\n\nN/A\n\nThis issue is not related to a Kubernetes cluster or cloud environment. It occurs when running `govulncheck` against the Kubernetes source code.\n\n### OS version\n\nDebian 13\n\n\n",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "needs-sig",
+      "needs-triage"
+    ],
+    "created_at": "2026-02-08T19:18:22Z",
+    "closed_at": "2026-02-08T22:34:41Z",
+    "updated_at": "2026-02-09T13:09:48Z",
+    "comments_count": 5,
+    "url": "https://github.com/kubernetes/kubernetes/issues/136841",
+    "repository": "kubernetes/kubernetes",
+    "user": "Pnkcaht"
+  },
+  {
+    "id": 3904581779,
+    "number": 136789,
+    "title": "CVE-2025-15566: ingress-nginx auth-proxy-set-headers nginx configuration injection",
+    "body": "CVSS Rating: [CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H)\n\nA security issue was discovered in ingress-nginx where the nginx.ingress.kubernetes.io/auth-proxy-set-headers Ingress annotation can be used to inject configuration into nginx. This can lead to arbitrary code execution in the context of the ingress-nginx controller, and disclosure of Secrets accessible to the controller. (Note that in the default installation, the controller can access all Secrets cluster-wide.)\n\n### Am I vulnerable?\n\nThis issue affects ingress-nginx. If you do not have ingress-nginx installed on your cluster, you are not affected. You can check this by running `kubectl get pods --all-namespaces --selector app.kubernetes.io/name=ingress-nginx`.\n\n#### Affected Versions\n\n- ingress-nginx: < v1.12.5\n- ingress-nginx: < v1.13.1\n\n### How do I mitigate this vulnerability?\n\nACTION REQUIRED: The following steps must be taken to mitigate this vulnerability: Upgrade ingress-nginx to v1.12.5, v1.13.1, or any later version.\n\n#### How to upgrade?\n\nTo upgrade, refer to the documentation: [Upgrading Ingress-nginx](https://kubernetes.github.io/ingress-nginx/deploy/upgrade/)\n\n### Detection\n\nSuspicious data within a configmap passed to the `nginx.ingress.kubernetes.io/auth-proxy-set-headers` annotation of an Ingress resource could indicate an attempt to exploit this vulnerability.\n\nIf you find evidence that this vulnerability has been exploited, please contact **security@kubernetes.io**\n\n#### Acknowledgements\n\nThis issue was discovered **and patched** by Jan-Otto Kröpke.\n\n/area security\n/kind bug\n/committee security-response\n/label official-cve-feed\n/sig network\n\n<details>\n<summary>OSV format</summary>\n\n```json osv\n{\n  \"schema_version\": \"1.6.0\",\n  \"id\": \"CVE-2025-15566\",\n  \"modified\": \"2026-02-06T02:46:50Z\",\n  \"summary\": \"ingress-nginx auth-proxy-set-headers nginx configuration injection\",\n  \"details\": \"A security issue was discovered in ingress-nginx where the nginx.ingress.kubernetes.io/auth-proxy-set-headers Ingress annotation can be used to inject configuration into nginx. This can lead to arbitrary code execution in the context of the ingress-nginx controller, and disclosure of Secrets accessible to the controller. (Note that in the default installation, the controller can access all Secrets cluster-wide.)\",\n  \"severity\": [\n    {\n      \"type\": \"CVSS_V3\",\n      \"score\": \"CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H\"\n    }\n  ],\n  \"affected\": [\n    {\n      \"package\": {\n        \"ecosystem\": \"Kubernetes\",\n        \"name\": \"ingress-nginx\"\n      },\n      \"ranges\": [\n        {\n          \"type\": \"SEMVER\",\n          \"events\": [\n            {\n              \"introduced\": \"0\"\n            },\n            {\n              \"fixed\": \"v1.12.5\"\n            },\n            {\n              \"introduced\": \"0\"\n            },\n            {\n              \"fixed\": \"v1.13.1\"\n            }\n          ]\n        }\n      ]\n    }\n  ],\n  \"references\": [\n    {\n      \"type\": \"WEB\",\n      \"url\": \"https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H\"\n    }\n  ],\n  \"credits\": [\n    {\n      \"name\": \"This issue was discoverd **and patched** by Jan-Otto Kröpke.\",\n      \"type\": \"FINDER\"\n    }\n  ]\n}\n```\n\n</details>\n\n<!-- generated by srctl v1.0.0 (2665728667a5-dirty, 2026-01-31T19:18:07Z, go1.25.6) -->\n",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "sig/network",
+      "area/security",
+      "committee/security-response",
+      "triage/accepted",
+      "official-cve-feed"
+    ],
+    "created_at": "2026-02-06T02:54:24Z",
+    "closed_at": "2026-02-06T03:26:54Z",
+    "updated_at": "2026-02-11T22:40:52Z",
+    "comments_count": 6,
+    "url": "https://github.com/kubernetes/kubernetes/issues/136789",
+    "repository": "kubernetes/kubernetes",
+    "user": "tabbysable"
+  },
+  {
+    "id": 3903537003,
+    "number": 136786,
+    "title": "kube-proxy fails to sync in nftables mode when newer nftables sets exist",
+    "body": "### What happened?\n\nkube-proxy crashes repeatedly, causing the container network to not function.\n```\nE0205 20:24:21.385767       1 proxier.go:1217] \"Failed to list existing sets\" err=\"failed to run nft: signal: segmentation fault (core dumped)\" ipFamily=\"IPv4\"\nE0205 20:24:22.721950       1 proxier.go:1788] \"nftables sync failed\" err=\"signal: segmentation fault (core dumped)\" ipFamily=\"IPv4\"\nI0205 20:24:22.723136       1 proxier.go:1143] \"Sync failed\" ipFamily=\"IPv4\" retryingTime=\"30s\"\nE0205 20:24:23.698591       1 proxier.go:1217] \"Failed to list existing sets\" err=\"failed to run nft: signal: segmentation fault (core dumped)\" ipFamily=\"IPv6\"\nE0205 20:24:24.761438       1 proxier.go:1788] \"nftables sync failed\" err=\"signal: segmentation fault (core dumped)\" ipFamily=\"IPv6\"\nI0205 20:24:24.761928       1 proxier.go:1143] \"Sync failed\" ipFamily=\"IPv6\" retryingTime=\"30s\"\n```\n\n### What did you expect to happen?\n\nkube-proxy should correctly setup nftables rules.\n\n\n### How can we reproduce it (as minimally and precisely as possible)?\n\nRun a container in the host namespace with a newer version of nftables (1.1.3+), for example Fedora 43. Add a nft set in the container:\n```\nnft add table test_table\nnft add set test_table test_set '{ type ifname; elements = { \"test\" } }'\n```\n\nThen delete the kube-proxy pod on the host, and example the logs on the new pod.\n\n\n### Anything else we need to know?\n\nkube-proxy in nftables mode crashes repeatedly on hosts where newer versions of nftables (eg 1.1.3) have created sets in the same network namespace.\n\nI found a fix for the crash in newer nftables here (it appears to be related to udata being present on newer nft sets):\nhttps://git.netfilter.org/nftables/commit/?id=be737a1986bfee0ddea4bee7863dca0123a2bcbc\n\nIt's probably a good idea to build kube-proxy with a patched version of nftables to avoid the crash, but not use anything newer than nftables 1.1.1 as it could then potentially break other unpatched nftables in CNIs etc.\n\n\n### Kubernetes version\n\n<details>\n\n```console\nClient Version: v1.34.3\nKustomize Version: v5.7.1\nServer Version: v1.34.3\n```\n\n</details>\n\nAlso crashes on v1.35.0, and probably older versions.\n\n\n### Cloud provider\n\n<details>\nNone: bare metal\n</details>\n\n\n### OS version\n\n<details>\n\n```console\n$ cat /etc/os-release\nNAME=\"Fedora Linux\"\nVERSION=\"43 (Forty Three)\"\nRELEASE_TYPE=stable\n$ uname -a\nLinux fedora 6.18.7-200.fc43.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Jan 23 16:42:34 UTC 2026 x86_64 GNU/Linux\n```\n\n</details>\n\n\n### Install tools\n\n<details>\nkubeadm\n</details>\n\n\n### Container runtime (CRI) and version (if applicable)\n\n_No response_\n\n### Related plugins (CNI, CSI, ...) and versions (if applicable)\n\n_No response_",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "sig/network",
+      "area/kube-proxy",
+      "triage/accepted"
+    ],
+    "created_at": "2026-02-05T20:50:57Z",
+    "closed_at": "2026-02-11T22:24:01Z",
+    "updated_at": "2026-02-11T22:24:01Z",
+    "comments_count": 7,
+    "url": "https://github.com/kubernetes/kubernetes/issues/136786",
+    "repository": "kubernetes/kubernetes",
+    "user": "sshambar"
+  },
+  {
+    "id": 3897418488,
+    "number": 136749,
+    "title": "QOS behavior for explicit 0 resources",
+    "body": "### What happened?\n\nWhen creating a pod with 0 request and limit on cpu, and request and limit X on memory. Pod is classified as burstable.\n\n### What did you expect to happen?\n\nBased on the https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#criteria it should be considered Guaranteed qos\n\n### How can we reproduce it (as minimally and precisely as possible)?\n\n```\napiVersion: v1\nkind: Pod\nmetadata:\n  name: my-app-pod\nspec:\n  containers:\n  - name: my-app-container\n    image: nginx:alpine\n    resources:\n      requests:\n        memory: \"100Mi\"\n        cpu: \"0\"\n      limits:\n        memory: \"100Mi\"\n        cpu: \"0\"\n```\n\n### Anything else we need to know?\n\n_No response_\n\n### Kubernetes version\n\n<details>\n\n```console\n$ kubectl version\nClient Version: v1.34.3\n```\n\n</details>\n\n\n### Cloud provider\n\n<details>\ngke\n</details>\n\n\n### OS version\n\n<details>\n\n```console\n# On Linux:\n$ cat /etc/os-release\n# paste output here\n$ uname -a\n# paste output here\n\n# On Windows:\nC:\\> wmic os get Caption, Version, BuildNumber, OSArchitecture\n# paste output here\n```\n\n</details>\n\n\n### Install tools\n\n<details>\n\n</details>\n\n\n### Container runtime (CRI) and version (if applicable)\n\n<details>\n\n</details>\n\n\n### Related plugins (CNI, CSI, ...) and versions (if applicable)\n\n<details>\n\n</details>\n",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "needs-sig",
+      "needs-triage"
+    ],
+    "created_at": "2026-02-04T16:39:22Z",
+    "closed_at": "2026-02-04T17:26:49Z",
+    "updated_at": "2026-02-04T17:26:50Z",
+    "comments_count": 5,
+    "url": "https://github.com/kubernetes/kubernetes/issues/136749",
+    "repository": "kubernetes/kubernetes",
+    "user": "krzysied"
+  },
+  {
+    "id": 3896231092,
+    "number": 136742,
+    "title": "kube-proxy - TAH not excluding endpoints in not ready state causing log spamming",
+    "body": "### What happened?\n\nWhen a deployment with one replica in crashloop, the kube-proxy logs spams the log with below message instead of ignoring the endpoint.\n```\nIgnoring same-zone topology hints for service since no hints were provided for zone\n```\n\nA developer cluster that has many pods in crash loop, mostly with one replica ( since it's a developer environment ) caused sudden spike in kube-proxy log spamming to otel and impacted log ingestion after upgrading to 1.33.9.\n\n### What did you expect to happen?\n\nkube-proxy should ignore endpoint with below condition while calling `topologyModeFromHints`\n\n```\n  endpoints:\n    conditions:\n      ready: false\n      serving: false\n      terminating: false\n```\n\n### How can we reproduce it (as minimally and precisely as possible)?\n\n- Upgrade Kubernetes to 1.33.9\n- Scale the deployment to 0\n- Change the image to a non-existent one\n- Let the pod to be in ImagePull error\n- Check the kube-proxy logs and that will show below message\n\n`Ignoring same-zone topology hints for service since no hints were provided for zone`\n\n### Anything else we need to know?\n\n_No response_\n\n### Kubernetes version\n\n```console\nServer Version: v1.33.7-eks-ac2d5a0\n```\n\n\n### Cloud provider\n\nAWS\n\n\n### OS version\n\nNA\n\n\n### Install tools\n\nNA\n\n### Container runtime (CRI) and version (if applicable)\n\nNA\n\n### Related plugins (CNI, CSI, ...) and versions (if applicable)\n\nNA",
+    "state": "closed",
+    "labels": [
+      "kind/bug",
+      "sig/network",
+      "triage/accepted"
+    ],
+    "created_at": "2026-02-04T12:09:00Z",
+    "closed_at": "2026-02-10T10:42:22Z",
+    "updated_at": "2026-02-10T10:42:23Z",
+    "comments_count": 4,
+    "url": "https://github.com/kubernetes/kubernetes/issues/136742",
+    "repository": "kubernetes/kubernetes",
+    "user": "ansilh"
+  }
+]

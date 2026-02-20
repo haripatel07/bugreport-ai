@@ -1,0 +1,579 @@
+[
+  {
+    "id": 3890046156,
+    "number": 109469,
+    "title": "TF 2.18.0 import warnings with Protobuf 6.33.5: GetPrototype AttributeError",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nbinary\n\n### TensorFlow version\n\ntf 2.18\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nWindows 10\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12.8\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nWhen importing TensorFlow 2.18.0 with Protobuf 6.33.5 installed, the console is flooded with multiple `AttributeError` warnings during the module initialization phase:\nAttributeError: 'MessageFactory' object has no attribute 'GetPrototype'\n\n### Standalone code to reproduce the issue\n\n```shell\nimport sys\nimport os\nimport platform\nfrom datetime import datetime\n\nprint(\"=\" * 80)\nprint(\"🐛 TensorFlow Protobuf compatibility issue reproducer\")\nprint(\"=\" * 80)\nprint(f\"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\")\nprint(f\"System: {platform.system()} {platform.release()}\")\nprint(f\"Python: {sys.version}\")\nprint(\"=\" * 80)\nprint()\n\nprint(\"-\" * 80)\n\nenv_info = {}\n\n\ntry:\n    import tensorflow as tf\n\n    env_info['tensorflow'] = tf.__version__\n    print(f\"✓ TensorFlow: {tf.__version__}\")\nexcept ImportError as e:\n    print(f\"❌ TensorFlow uninstalled: {e}\")\n    sys.exit(1)\n\n\ntry:\n    import google.protobuf\n\n    env_info['protobuf'] = google.protobuf.__version__\n    print(f\"✓ Protobuf: {google.protobuf.__version__}\")\nexcept ImportError as e:\n    print(f\"❌ Protobuf uninstalled: {e}\")\n    sys.exit(1)\n\n# 收集其他依赖\ntry:\n    import numpy as np\n\n    env_info['numpy'] = np.__version__\n    print(f\"✓ NumPy: {np.__version__}\")\nexcept:\n    env_info['numpy'] = \"Not installed\"\n\ntry:\n    import keras\n\n    env_info['keras'] = keras.__version__\n    print(f\"✓ Keras: {keras.__version__}\")\nexcept:\n    try:\n        env_info['keras'] = tf.keras.__version__\n        print(f\"✓ Keras (from TF): {tf.keras.__version__}\")\n    except:\n        env_info['keras'] = \"Not installed\"\n\nprint()\n```\n\n### Relevant log output\n\n```shell\n================================================================================\n🐛 TensorFlow Protobuf compatibility issue reproducer\n================================================================================\nTime: 2026-02-03 16:52:25\nSystem: Windows 10\nPython: 3.12.8 (tags/v3.12.8:2dc476b, Dec  3 2024, 19:30:04) [MSC v.1942 64 bit (AMD64)]\n================================================================================\n\n--------------------------------------------------------------------------------\n2026-02-03 16:52:26.028858: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nAttributeError: 'MessageFactory' object has no attribute 'GetPrototype'\nAttributeError: 'MessageFactory' object has no attribute 'GetPrototype'\nAttributeError: 'MessageFactory' object has no attribute 'GetPrototype'\n2026-02-03 16:52:27.314885: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nAttributeError: 'MessageFactory' object has no attribute 'GetPrototype'\nAttributeError: 'MessageFactory' object has no attribute 'GetPrototype'\n✓ TensorFlow: 2.18.0\n✓ Protobuf: 6.33.5\n✓ NumPy: 1.26.4\n✓ Keras: 3.9.2\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "comp:core",
+      "TF 2.18"
+    ],
+    "created_at": "2026-02-03T08:56:20Z",
+    "closed_at": "2026-02-05T01:38:32Z",
+    "updated_at": "2026-02-05T01:38:35Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/109469",
+    "repository": "tensorflow/tensorflow",
+    "user": "wbs-cz"
+  },
+  {
+    "id": 3841242850,
+    "number": 108640,
+    "title": "Bbm",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\nJhg\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nNhgh\n\n### Standalone code to reproduce the issue\n\n```shell\nJjh\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug"
+    ],
+    "created_at": "2026-01-22T04:59:12Z",
+    "closed_at": "2026-01-22T22:12:01Z",
+    "updated_at": "2026-01-22T22:12:01Z",
+    "comments_count": 0,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108640",
+    "repository": "tensorflow/tensorflow",
+    "user": "ramiaslu411-lab"
+  },
+  {
+    "id": 3841152611,
+    "number": 108629,
+    "title": "CPU/GPU inconsistency when casting bfloat16 to int8 for the api tf.experimental.numpy.asarray",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntf 2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\nNo\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\ntf.experimental.numpy.asarray produces different int8 results on CPU vs GPU for bfloat16 input\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\nimport numpy as np\nprint(tf.__version__)\nshape = (17, 5, 8, 3, 3)\ndata_np = np.random.randint(\n    low=-9984,\n    high=9984,\n    size=shape,\n    dtype=np.int32\n)\n\na = tf.convert_to_tensor(data_np, dtype=tf.bfloat16)\n\ndef run_asarray(device):\n    with tf.device(device):\n        result = tf.experimental.numpy.asarray(a, dtype=np.int8)\n        return result.numpy()\n\ncpu_result = run_asarray(\"/CPU:0\")\n\nif tf.config.list_physical_devices(\"GPU\"):\n    gpu_result = run_asarray(\"/GPU:0\")\nelse:\n    raise RuntimeError(\"No GPU available\")\n\n# Compare results\ndiff = cpu_result != gpu_result\n\nprint(\"Total elements:\", cpu_result.size)\nprint(\"Number of differing elements:\", np.sum(diff))\n\n# Show first few mismatches (if any)\nif np.any(diff):\n    idx = np.argwhere(diff)\n    print(\"\\nFirst 10 differences:\")\n    for i in idx[:10]:\n        i = tuple(i)\n        print(f\"Index {i}: CPU={cpu_result[i]}, GPU={gpu_result[i]}\")\nelse:\n    print(\"\\nNo differences found.\")\n```\n\n### Relevant log output\n\n```shell\n2.20.0\nTotal elements: 6120\nNumber of differing elements: 5691\n\nFirst 10 differences:\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(0), np.int64(0)): CPU=127, GPU=64\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(0), np.int64(1)): CPU=-128, GPU=64\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(0), np.int64(2)): CPU=-128, GPU=-32\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(1), np.int64(0)): CPU=127, GPU=-68\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(1), np.int64(1)): CPU=-128, GPU=64\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(1), np.int64(2)): CPU=-128, GPU=64\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(2), np.int64(0)): CPU=127, GPU=0\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(2), np.int64(1)): CPU=-128, GPU=64\nIndex (np.int64(0), np.int64(0), np.int64(0), np.int64(2), np.int64(2)): CPU=-128, GPU=-112\nIndex (np.int64(0), np.int64(0), np.int64(1), np.int64(0), np.int64(0)): CPU=-128, GPU=64\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:ops",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-22T04:11:12Z",
+    "closed_at": "2026-01-22T22:13:32Z",
+    "updated_at": "2026-01-22T22:13:34Z",
+    "comments_count": 2,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108629",
+    "repository": "tensorflow/tensorflow",
+    "user": "dora-the-explorer"
+  },
+  {
+    "id": 3841108396,
+    "number": 108628,
+    "title": "When a single tensor and out of range axis is passed to tf.concat it silently succeeds",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntf 2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\nNo\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\ntf.concat raises an error when axis is out of range for a list of tensors, but silently succeeds when a single tensor is passed. Even though no concatenation happens for a single tensor, it is surprising that axis validation is skipped, leading to inconsistent behavior.\n\nIn pipelines with conditional or dynamic feature selection, the number of tensors passed to tf.concat may vary at runtime. If axis is invalid:\nThe bug is silently masked when only one feature is enabled\nThe same code crashes when two features are enabled\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nprint(tf.__version__)\n\nx = tf.constant([1, 2, 3], dtype=tf.int32)\naxis = 5  # clearly out of range (rank = 1)\n\n# Case A: one tensor -> silently succeeds\nprint(\"Single tensor:\")\nprint(tf.concat([x], axis))\n\n# Case B: two tensors -> raises error\nprint(\"\\nTwo tensors:\")\nprint(tf.concat([x, x], axis))\n```\n\n### Relevant log output\n\n```shell\n2.20.0\nSingle tensor:\ntf.Tensor([1 2 3], shape=(3,), dtype=int32)\n\nTwo tensors:\n---------------------------------------------------------------------------\nInvalidArgumentError                      Traceback (most recent call last)\n/tmp/ipython-input-4121979096.py in <cell line: 0>()\n     12 # Case B: two tensors -> raises error\n     13 print(\"\\nTwo tensors:\")\n---> 14 print(tf.concat([x, x], axis))\n\n1 frames/usr/local/lib/python3.12/dist-packages/tensorflow/python/util/traceback_utils.py in error_handler(*args, **kwargs)\n    151     except Exception as e:\n    152       filtered_tb = _process_traceback_frames(e.__traceback__)\n--> 153       raise e.with_traceback(filtered_tb) from None\n    154     finally:\n    155       del filtered_tb\n\n/usr/local/lib/python3.12/dist-packages/tensorflow/python/framework/ops.py in raise_from_not_ok_status(e, name)\n   6025 def raise_from_not_ok_status(e, name) -> NoReturn:\n   6026   e.message += (\" name: \" + str(name if name is not None else \"\"))\n-> 6027   raise core._status_to_exception(e) from None  # pylint: disable=protected-access\n   6028 \n   6029 \n\nInvalidArgumentError: {{function_node __wrapped__ConcatV2_N_2_device_/job:localhost/replica:0/task:0/device:GPU:0}} ConcatOp : Expected concatenating dimensions in the range [-1, 1), but got 5 [Op:ConcatV2] name: concat\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:ops",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-22T03:46:36Z",
+    "closed_at": "2026-01-22T22:12:50Z",
+    "updated_at": "2026-01-22T22:12:53Z",
+    "comments_count": 2,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108628",
+    "repository": "tensorflow/tensorflow",
+    "user": "dora-the-explorer"
+  },
+  {
+    "id": 3839727079,
+    "number": 108608,
+    "title": "tf.compat.forward_compatible does not validate year/month/day ranges as documented",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntensorflow 2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\nNo\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nThe documentation for tf.compat.forward_compatible(year, month, day) specifies that `month` must be in 1–12 and `day` must be in appropriate ranges for the given month. However, the implementation does not validate these ranges and is silently returning an Output instead of raising an error\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\nprint(\"tensorflow_version:\", tf.__version__)\nyear = 8561\nmonth = 0\nday = -1270\n\ntry:\n    result = tf.compat.forward_compatible(year, month, day)\n    print(\"Result:\", result)\nexcept Exception as e:\n    print(\"Error:\", type(e).__name__, \"-\", e)\n```\n\n### Relevant log output\n\n```shell\ntensorflow_version: 2.20.0\nResult: True\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:core",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-21T19:35:06Z",
+    "closed_at": "2026-01-22T22:14:55Z",
+    "updated_at": "2026-01-22T22:14:58Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108608",
+    "repository": "tensorflow/tensorflow",
+    "user": "dora-the-explorer"
+  },
+  {
+    "id": 3839661440,
+    "number": 108605,
+    "title": "tf.compat.dimension_value returns a Tensor when given a Tensor, despite documentation stating it returns only int or None.",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntensorflow 2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\nNo\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nAccording to the documentation, tf.compat.dimension_value has the following signature:\n\ndimension: Union['Dimension', int, None]\nreturns: Union[int, None]\n\nHowever, passing a tf.Tensor is silently accepted and the Tensor is returned unchanged, resulting in a return value outside the documented return type.\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nprint(\"TensorFlow version:\", tf.__version__)\ndimension = tf.constant([8517, 8517], dtype=tf.int32)\n\ntry:\n    value = tf.compat.dimension_value(dimension)\n    print(\"dimension_value returned:\", value)\nexcept Exception as e:\n    print(\"Error type:\", type(e).__name__)\n    print(\"Error message:\", e)\n```\n\n### Relevant log output\n\n```shell\nTensorFlow version: 2.20.0\ndimension_value returned: tf.Tensor([8517 8517], shape=(2,), dtype=int32)\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug"
+    ],
+    "created_at": "2026-01-21T19:13:41Z",
+    "closed_at": "2026-01-22T22:16:16Z",
+    "updated_at": "2026-01-22T22:16:19Z",
+    "comments_count": 3,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108605",
+    "repository": "tensorflow/tensorflow",
+    "user": "dora-the-explorer"
+  },
+  {
+    "id": 3835798550,
+    "number": 108548,
+    "title": "Misleading output when an invalid encoding Parameter Passed to tf.compat.as_str_any",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntensorflow 2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\nNo\n\n### Python version\n\n3.12.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\ntf.compat.as_str_any silently produces an output when an invalid encoding parameter is passed (e.g. np.str_('area')).  While the other apis tf.compat.as_bytes, tf.compat.as_str, tf.compat.as_text raise LookupError\n\n### Standalone code to reproduce the issue\n\n```shell\nimport numpy as np\nimport tensorflow as tf\nprint(tf.__version__)\nvalue = np.str_('min')\nencoding = np.str_('area')  # invalid encoding\n\nresult = tf.compat.as_str_any(value, encoding)\n\nprint(result) #Outputs: min\n```\n\n### Relevant log output\n\n```shell\nTensorflow version: 2.20.0\nResult: min\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:ops",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-20T22:53:04Z",
+    "closed_at": "2026-01-22T16:25:54Z",
+    "updated_at": "2026-01-22T16:25:56Z",
+    "comments_count": 2,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108548",
+    "repository": "tensorflow/tensorflow",
+    "user": "dora-the-explorer"
+  },
+  {
+    "id": 3834627575,
+    "number": 108521,
+    "title": "spam: tf.concat does not consistently validate non-scalar axis",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\nmaster\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nNA\n\n### Mobile device\n\nNA\n\n### Python version\n\nNA\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\ntf.concat validates that `axis` is a scalar only in the single-input path.\nWhen multiple tensors are provided, invalid axis shapes result in confusing\nerrors from lower-level ops instead of an early validation error.\n\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\na = tf.constant([[1, 2], [3, 4]])\nb = tf.constant([[5, 6], [7, 8]])\n\ntf.concat([a, b], axis=[0, 1])\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug"
+    ],
+    "created_at": "2026-01-20T17:10:33Z",
+    "closed_at": "2026-01-20T17:22:54Z",
+    "updated_at": "2026-01-20T17:30:47Z",
+    "comments_count": 3,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108521",
+    "repository": "tensorflow/tensorflow",
+    "user": "dhruvildave235"
+  },
+  {
+    "id": 3833838188,
+    "number": 108503,
+    "title": "spam/duplicate: python 3.14 support",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.2\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nwindows 11\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\npip install tensorflow\nERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)\nERROR: No matching distribution found for tensorflow\n\n### Standalone code to reproduce the issue\n\n```shell\npip install tensorflow\nERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)\nERROR: No matching distribution found for tensorflow\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "TF 2.2"
+    ],
+    "created_at": "2026-01-20T13:52:25Z",
+    "closed_at": "2026-01-20T17:34:36Z",
+    "updated_at": "2026-01-20T17:35:04Z",
+    "comments_count": 1,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108503",
+    "repository": "tensorflow/tensorflow",
+    "user": "jdfoxito"
+  },
+  {
+    "id": 3833688202,
+    "number": 108502,
+    "title": "[XLA] tf.nn.dropout with tensor seed works in eager mode but fails in XLA compilation with type mismatch error",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nThe tf.nn.dropout operation accepts a tf.Tensor as the seed parameter in eager execution mode and runs successfully, but fails with a TypeError when the same code is compiled with @tf.function(jit_compile=True).\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass TestModel(tf.keras.Model):\n\n    def __init__(self):\n        super().__init__()\n        self.d1 = tf.keras.layers.Dense(64, activation='relu')\n        self.dropout = tf.keras.layers.Dropout(0.5, seed=123)\n        self.d2 = tf.keras.layers.Dense(32, activation='tanh')\n        self.d3 = tf.keras.layers.Dense(16, activation='sigmoid')\n        self.final = tf.keras.layers.Dense(8)\n\n    def call(self, x):\n        x = self.d1(x)\n        x = tf.nn.dropout(x, rate=0.3, seed=tf.constant(456))\n        x = self.d2(x)\n        x = tf.random.uniform(shape=tf.shape(x), minval=-1.0, maxval=1.0, seed=789)\n        x = self.d3(x)\n        x = self.final(x)\n        return x\n\ndef get_default_model():\n    return TestModel()\n\ndef get_sample_inputs():\n    x = tf.random.normal([16, 64], seed=100)\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print('Input shape:', inputs[0].shape)\n    print('Output shape:', output.shape)\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out.shape)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\nInput shape: (16, 64)\nOutput shape: (16, 8)\nTraceback (most recent call last):\n...line 15, in call\n    x = tf.nn.dropout(x, rate=0.3, seed=tf.constant(456))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: in user code:\n...line 15, in call\n        x = tf.nn.dropout(x, rate=0.3, seed=tf.constant(456))\n\n    TypeError: Exception encountered when calling TestModel.call().\n    \n    Expected int for argument 'seed2' not <tf.Tensor 'test_model_1/dropout/random_uniform/mod:0' shape=() dtype=int32>.\n    \n    Arguments received by TestModel.call():\n      • x=tf.Tensor(shape=(16, 64), dtype=float32)\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-20T13:12:12Z",
+    "closed_at": "2026-02-12T02:17:52Z",
+    "updated_at": "2026-02-12T02:17:55Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108502",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3833645336,
+    "number": 108501,
+    "title": "[XLA] Model names with '@' character work in eager mode but fail during XLA compilation with unclear validation error",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nIssue: Keras model names containing the '@' character (e.g., 'special@chars') work correctly in eager execution mode but throw a ValueError when the model is called under @tf.function(jit_compile=True).No official TensorFlow/Keras documentation specifies that '@' is disallowed in model names, particularly for XLA compilation.\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass TestModel(tf.keras.Model):\n\n    def __init__(self, input_dim=16, hidden_dim=32, output_dim=8, activation='relu'):\n        super().__init__(name='special@chars')\n        self.d1 = tf.keras.layers.Dense(hidden_dim, activation=activation)\n        self.d2 = tf.keras.layers.Dense(output_dim, activation='linear')\n        self.dropout = tf.keras.layers.Dropout(0.2)\n\n    def call(self, x):\n        x = self.d1(x)\n        x = self.dropout(x)\n        return self.d2(x)\n\ndef get_default_model():\n    return TestModel(input_dim=16, hidden_dim=32, output_dim=8, activation='tanh')\n\ndef get_sample_inputs():\n    x = tf.random.normal([4, 16], seed=42)\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print('Input shape:', inputs[0].shape)\n    print('Output shape:', output.shape)\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out.shape)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\nInput shape: (4, 16)\nOutput shape: (4, 8)\nTraceback (most recent call last):\n...line 137, in __enter__\n    return next(self.gen)\n^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: in user code:\n... line 138, in __enter__\n        except StopIteration:\n\n    ValueError: 'special@chars' is not a valid root scope name. A root scope name has to match the following pattern: ^[A-Za-z0-9.][A-Za-z0-9_.\\\\/>-]*$\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-20T13:01:29Z",
+    "closed_at": "2026-02-12T02:17:53Z",
+    "updated_at": "2026-02-12T02:17:57Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108501",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3830039824,
+    "number": 108488,
+    "title": "Crash in `tf.experimental.numpy.transpose` when using invalid `axes` specification",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.19\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.11\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nI encountered a crash when calling `tf.experimental.numpy.transpose` with an invalid `axes` configuration. Instead of raising a Python-level exception, TensorFlow terminates the process. This indicates that input validation for the `axes` argument is incomplete, allowing illegal configurations to reach lower-level execution paths and trigger a crash.\n\nHere is the [gist](https://colab.research.google.com/drive/1GRJS-dWPvt2hazDrIi-jiCzJzZ1GwcfX?usp=sharing).\n\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\n# Create a sample tensor\ntensor = tf.constant([[1, 2, 3], [4, 5, 6]])\n\n# Invalid axes configuration\nresult = tf.experimental.numpy.transpose(tensor, axes=[-1, 0])\n\nprint(result)\n```\n\n### Relevant log output\n\n```shell\n2026-01-19 23:05:39.536084: E tensorflow/core/util/util.cc:131] oneDNN supports DT_INT32 only on platforms with AVX-512. Falling back to the default Eigen-based implementation if present.\n2026-01-19 23:05:39.537343: F tensorflow/core/framework/tensor_shape.cc:356] Check failed: d >= 0 (0 vs. -1)\n[1]    2113109 abort (core dumped)\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:ops",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-19T14:44:53Z",
+    "closed_at": "2026-01-20T17:36:47Z",
+    "updated_at": "2026-01-20T17:36:49Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108488",
+    "repository": "tensorflow/tensorflow",
+    "user": "KnightGOKU"
+  },
+  {
+    "id": 3825559838,
+    "number": 108471,
+    "title": "BertInputTensorsMd.md \"tesnor\" -> \"tensor\"",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\nLatest (see GitHub BertInputTensorsMd.md)\n\n### Custom code\n\nNo\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nBugs may occour because the wrong <meta itemprop=\"property\" content=\"create_input_tesnor_metadata\"/> is set internally because it had to be \"tensor\" instead of \"tesnor\" (in multiple places within this file)\n\n### Standalone code to reproduce the issue\n\n```shell\nI just saw this from looking at the code\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:keras"
+    ],
+    "created_at": "2026-01-17T17:28:14Z",
+    "closed_at": "2026-01-21T01:26:28Z",
+    "updated_at": "2026-01-21T01:26:31Z",
+    "comments_count": 5,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108471",
+    "repository": "tensorflow/tensorflow",
+    "user": "benediktjohannes"
+  },
+  {
+    "id": 3816011842,
+    "number": 108306,
+    "title": "Type mismatch in tf.while_loop condition with mixed int32/bfloat16 comparison in XLA compilation mode",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\ntf.while_loop condition function fails with type mismatch error in XLA compilation mode (@tf.function(jit_compile=True)) when comparing int32 loop variable with bfloat16 tensor, while the same code works in eager mode. The error message is: \"Input 'y' of 'Less' Op has type bfloat16 that does not match type int32 of argument 'x'.\"\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass TestModel(tf.keras.Model):\n\n    def __init__(self):\n        super().__init__()\n        self.d1 = tf.keras.layers.Dense(64)\n        self.d2 = tf.keras.layers.Dense(32)\n        self.d3 = tf.keras.layers.Dense(16)\n\n    def call(self, x):\n        ta = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, element_shape=x.shape[1:])\n        seq_len = tf.cast(tf.shape(x)[0], tf.bfloat16)\n\n        def body(i, ta_acc):\n            elem = x[i]\n            ta_acc = ta_acc.write(i, elem)\n            return (i + 1, ta_acc)\n        _, ta_final = tf.while_loop(cond=lambda i, _: i < seq_len, body=body, loop_vars=[0, ta])\n        output_ta = ta_final.stack()\n        x = tf.nn.leaky_relu(self.d1(output_ta), 0.2)\n        x = tf.nn.relu(self.d2(x))\n        return {'prediction': self.d3(x)}\n\ndef get_default_model():\n    return TestModel()\n\ndef get_sample_inputs():\n    x = tf.random.normal([5, 32])\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print('Input shape:', inputs[0].shape)\n    print('Output shape:', output)\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\nInput shape: (5, 32)\nOutput shape: {'prediction': <tf.Tensor: shape=(5, 16), dtype=float32, numpy=\narray([[ 0.24356467, -0.11890022, -0.24342127, -0.33563152, -0.42202947,\n        -0.64719486, -0.3149111 ,  0.23008917, -0.26536044, -0.29225266,\n        -0.5708995 , -0.21597521,  0.2607373 ,  0.14706561,  0.7988336 ,\n        -0.6409221 ],\n       [ 0.03354245, -0.78872263,  0.5808505 ,  0.20610869, -0.6000922 ,\n        -0.32243162, -0.33653268,  0.5481547 ,  0.97554374, -1.0903989 ,\n         0.5954457 ,  0.56590515, -0.03829147,  0.01979205,  0.61128914,\n        -0.38266134],\n       [-0.40727267, -0.31714034,  0.5069832 ,  0.359199  , -0.07829472,\n        -0.41875625, -0.31857094, -0.06175479,  0.7953586 , -0.77593076,\n         0.52764195,  0.42920932, -0.7422577 , -0.32970107,  0.15264258,\n         0.22021724],\n       [-0.8571572 , -0.30497062, -0.01812826, -0.3331145 , -0.04472171,\n         0.0208623 , -0.11895985, -0.14256379,  0.7869797 , -0.4385661 ,\n        -0.00596316,  0.15489477,  0.20353432, -0.28181002,  0.10931334,\n        -0.38854295],\n       [-0.05535901, -0.26269874,  0.12378547, -0.7537082 ,  0.327912  ,\n        -0.2229647 , -0.12895137,  0.5173456 , -0.16898067,  0.02931979,\n         0.08459555, -0.10634142,  0.7680971 ,  0.5835655 ,  0.7746116 ,\n         0.05600575]], dtype=float32)>}\nTraceback (most recent call last):\n...line 19, in <lambda>\n    _, ta_final = tf.while_loop(cond=lambda i, _: i < seq_len, body=body, loop_vars=[0, ta])\n                                                  ^^^^^^^^^^^\nTypeError: in user code:\n...line 19, in <lambda>\n        _, ta_final = tf.while_loop(cond=lambda i, _: i < seq_len, body=body, loop_vars=[0, ta])\n\n    TypeError: Exception encountered when calling TestModel.call().\n    \n    Input 'y' of 'Less' Op has type bfloat16 that does not match type int32 of argument 'x'.\n    \n    Arguments received by TestModel.call():\n      • x=tf.Tensor(shape=(5, 32), dtype=float32)\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-15T04:57:57Z",
+    "closed_at": "2026-02-12T02:17:56Z",
+    "updated_at": "2026-02-12T02:18:00Z",
+    "comments_count": 5,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108306",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3816003086,
+    "number": 108305,
+    "title": "Type mismatch in tf.maximum with mixed int/float arguments in XLA compilation mode",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\ntf.maximum function fails with type mismatch error in XLA compilation mode (@tf.function(jit_compile=True)) when arguments have different types (int vs float), while the same code works in eager mode. The error message is: \"Input 'y' of 'Maximum' Op has type float32 that does not match type int32 of argument 'x'.\"\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass SpikingModel(tf.keras.Model):\n\n    def __init__(self):\n        super().__init__()\n        with tf.device('/device:GPU:1'):\n            self.d1 = tf.keras.layers.Dense(64, activation='relu')\n        self.d2 = tf.keras.layers.Dense(32)\n        self.d3 = tf.keras.layers.Dense(16, activation='sigmoid')\n\n    def spike_function(self, v_scaled, dampening_factor=1.0):\n        pseudo_derivative = dampening_factor * tf.maximum(0, 1 - tf.abs(v_scaled))\n        return pseudo_derivative\n\n    def call(self, x):\n        x = self.d1(x)\n        x = self.d2(x)\n        v_scaled = x / 2.0\n        grad = self.spike_function(v_scaled)\n        x = x * grad\n        return self.d3(x)\n\ndef get_default_model():\n    return SpikingModel()\n\ndef get_sample_inputs():\n    x = tf.random.normal([8, 64])\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print('Input shape:', inputs[0].shape)\n    print('Output shape:', output.shape)\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out.shape)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\nInput shape: (8, 64)\nOutput shape: (8, 16)\nTraceback (most recent call last):\n...line 13, in spike_function\n    pseudo_derivative = dampening_factor * tf.maximum(0, 1 - tf.abs(v_scaled))\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: in user code:\n\n...line 13, in spike_function\n        pseudo_derivative = dampening_factor * tf.maximum(0, 1 - tf.abs(v_scaled))\n\n    TypeError: Exception encountered when calling SpikingModel.call().\n    \n    Input 'y' of 'Maximum' Op has type float32 that does not match type int32 of argument 'x'.\n    \n    Arguments received by SpikingModel.call():\n      • x=tf.Tensor(shape=(8, 64), dtype=float32)\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-15T04:52:57Z",
+    "closed_at": "2026-02-06T02:17:37Z",
+    "updated_at": "2026-02-06T02:17:39Z",
+    "comments_count": 5,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108305",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3812866117,
+    "number": 108268,
+    "title": "\"TypeError in tf.image.extract_patches with tf.function(jit_compile=True) when rates contains tf.Tensor\"",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nWhen calling tf.image.extract_patches within a function decorated with @tf.function(jit_compile=True), if the rates parameter contains tf.Tensor objects (even scalars), it raises a TypeError: \"Expected int for argument 'rates' not <tf.Tensor...>\". The same code runs successfully in eager mode but fails when compiled with XLA.\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass PatchEmbeddingLayer(tf.keras.layers.Layer):\n\n    def __init__(self, projection_dim=128, num_patches=196, patch_size=16, **kwargs):\n        super().__init__(**kwargs)\n        self.projection_dim = projection_dim\n        self.num_patches = num_patches\n        self.patch_size = patch_size\n        self.projection = tf.keras.layers.Dense(units=projection_dim)\n\n    def call(self, x):\n        batch_size = tf.shape(x)[0]\n        patches = tf.image.extract_patches(images=x, sizes=[1, self.patch_size, self.patch_size, 1], strides=[1, self.patch_size, self.patch_size, 1], rates=[1, 1, 1, tf.constant(1)], padding='VALID')\n        patches = tf.reshape(patches, [batch_size, -1, self.patch_size * self.patch_size * 3])\n        projected_patches = self.projection(patches)\n        return projected_patches\n\n    def get_config(self):\n        config = super().get_config()\n        config.update({'projection_dim': self.projection_dim, 'num_patches': self.num_patches, 'patch_size': self.patch_size})\n        return config\n\nclass VisionTransformerModel(tf.keras.Model):\n\n    def __init__(self, num_classes=10):\n        super().__init__()\n        self.patch_embedding = PatchEmbeddingLayer(projection_dim=64, num_patches=49, patch_size=8)\n        self.class_token = self.add_weight(shape=(1, 1, 64), initializer='zeros', trainable=True, name='class_token')\n        self.transformer_layer = tf.keras.layers.MultiHeadAttention(num_heads=4, key_dim=64)\n        self.dense = tf.keras.layers.Dense(128, activation='relu')\n        self.output_layer = tf.keras.layers.Dense(num_classes)\n\n    def call(self, x):\n        x = self.patch_embedding(x)\n        class_tokens = tf.tile(self.class_token, [tf.shape(x)[0], 1, 1])\n        x = tf.concat([class_tokens, x], axis=1)\n        x = self.transformer_layer(x, x)\n        x = tf.reduce_mean(x, axis=1)\n        x = self.dense(x)\n        return self.output_layer(x)\n\ndef get_default_model():\n    return VisionTransformerModel()\n\ndef get_sample_inputs():\n    x = tf.random.normal([4, 32, 32, 3])\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print(f'input shape: {inputs[0].shape}')\n    print(f'output shape: {output}')\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\ninput shape: (4, 32, 32, 3)\noutput shape: [[ 0.07561567  0.02638962 -0.06744174  0.07796545 -0.0245095   0.03981645\n  -0.01332754  0.03856094 -0.03203508  0.04546917]\n [-0.01457022  0.04204187  0.03022837  0.06021232 -0.04133815 -0.00289381\n   0.01716603  0.03673409  0.02553079  0.01486181]\n [ 0.05760813  0.03761114 -0.0362419   0.00678537 -0.03318139 -0.00481312\n  -0.01927684  0.03599973 -0.02927703  0.10986082]\n [-0.02012206  0.03121285 -0.0255487   0.08138618  0.00673938 -0.02710311\n  -0.04592795  0.01614783  0.01323262  0.00771455]]\nTraceback (most recent call last):\n... line 14, in call\n    patches = tf.image.extract_patches(images=x, sizes=[1, self.patch_size, self.patch_size, 1], strides=[1, self.patch_size, self.patch_size, 1], rates=[1, 1, 1, tf.constant(1)], padding='VALID')\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: in user code:\n...line 14, in call\n        patches = tf.image.extract_patches(images=x, sizes=[1, self.patch_size, self.patch_size, 1], strides=[1, self.patch_size, self.patch_size, 1], rates=[1, 1, 1, tf.constant(1)], padding='VALID')\n\n    TypeError: Exception encountered when calling PatchEmbeddingLayer.call().\n    \n    Expected int for argument 'rates' not <tf.Tensor 'vision_transformer_model_1/patch_embedding_layer_1/Const:0' shape=() dtype=int32>.\n    \n    Arguments received by PatchEmbeddingLayer.call():\n      • x=tf.Tensor(shape=(4, 32, 32, 3), dtype=float32)\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-14T11:48:51Z",
+    "closed_at": "2026-01-28T09:54:21Z",
+    "updated_at": "2026-01-28T09:54:25Z",
+    "comments_count": 6,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108268",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3807244421,
+    "number": 108143,
+    "title": "Type error in XLA: tf.image.extract_patches expects integer ksize values, not tensors, during compilation",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nWhen using `tf.image.extract_patches` with tensor-valued `sizes` parameter (e.g., `sizes=[1, self.window_size * tf.constant(2) + tf.constant(1), 1, 1]`), XLA compilation (`jit_compile=True`) fails with a type error expecting integers instead of tensors. This works in eager mode but fails in XLA compilation, creating an inconsistency between execution modes.\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass LocalAttention(tf.keras.layers.Layer):\n\n    def __init__(self, window_size=5, dropout_rate=0.0):\n        super(LocalAttention, self).__init__()\n        self.window_size = window_size\n        self.dropout = tf.keras.layers.Dropout(dropout_rate)\n\n    def call(self, query, key, value, training=False):\n        batch_size = tf.shape(query)[0]\n        seq_len = tf.shape(query)[1]\n        depth = tf.shape(key)[-1]\n        padded_key = tf.pad(key, [[0, 0], [self.window_size, self.window_size], [0, 0]])\n        padded_value = tf.pad(value, [[0, 0], [self.window_size, self.window_size], [0, 0]])\n        key_windows = tf.image.extract_patches(padded_key[:, :, tf.newaxis, :], sizes=[1, self.window_size * tf.constant(2) + tf.constant(1), 1, 1], strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='VALID')\n        key_windows = tf.reshape(key_windows, [batch_size, seq_len, self.window_size * tf.constant(2) + tf.constant(1), depth])\n        value_windows = tf.image.extract_patches(padded_value[:, :, tf.newaxis, :], sizes=[1, self.window_size * tf.constant(2) + tf.constant(1), 1, 1], strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='VALID')\n        value_windows = tf.reshape(value_windows, [batch_size, seq_len, self.window_size * tf.constant(2) + tf.constant(1), depth])\n        query_expanded = tf.expand_dims(query, axis=2)\n        scores = tf.matmul(query_expanded, key_windows, transpose_b=4)\n        scores = tf.squeeze(scores, axis=2)\n        scores = scores / tf.math.sqrt(tf.cast(depth, tf.float32))\n        attention_weights = tf.nn.softmax(scores, axis=-1)\n        attention_weights = self.dropout(attention_weights, training=training)\n        attention_weights_expanded = tf.expand_dims(attention_weights, axis=-1)\n        output = tf.reduce_sum(attention_weights_expanded * value_windows, axis=2)\n        return output\n\nclass LocalAttentionLayer(tf.keras.layers.Layer):\n\n    def __init__(self, feature_dim=256, num_heads=8, window_size=5, dropout_rate=0.0):\n        super(LocalAttentionLayer, self).__init__()\n        self.num_heads = num_heads\n        self.feature_dim = feature_dim\n        self.window_size = window_size\n        self.head_dim = feature_dim // num_heads\n        self.query_proj = tf.keras.layers.Dense(feature_dim)\n        self.key_proj = tf.keras.layers.Dense(feature_dim)\n        self.value_proj = tf.keras.layers.Dense(feature_dim)\n        self.attention = LocalAttention(window_size, dropout_rate)\n        self.output_proj = tf.keras.layers.Dense(feature_dim)\n\n    def split_heads(self, x, batch_size):\n        x = tf.reshape(x, [batch_size, -1, self.num_heads, self.head_dim])\n        return tf.transpose(x, [0, 2, 1, 3])\n\n    def combine_heads(self, x, batch_size):\n        x = tf.transpose(x, [0, 2, 1, 3])\n        return tf.reshape(x, [batch_size, -1, self.feature_dim])\n\n    def call(self, x, training=False):\n        batch_size = tf.shape(x)[0]\n        seq_len = tf.shape(x)[1]\n        query = self.query_proj(x)\n        key = self.key_proj(x)\n        value = self.value_proj(x)\n        query = self.split_heads(query, batch_size)\n        key = self.split_heads(key, batch_size)\n        value = self.split_heads(value, batch_size)\n        query = tf.reshape(query, [batch_size * self.num_heads, seq_len, self.head_dim])\n        key = tf.reshape(key, [batch_size * self.num_heads, seq_len, self.head_dim])\n        value = tf.reshape(value, [batch_size * self.num_heads, seq_len, self.head_dim])\n        attention_output = self.attention(query, key, value, training=training)\n        attention_output = tf.reshape(attention_output, [batch_size, self.num_heads, seq_len, self.head_dim])\n        attention_output = self.combine_heads(attention_output, batch_size)\n        output = self.output_proj(attention_output)\n        return output\n\nclass TestModel(tf.keras.Model):\n\n    def __init__(self, feature_dim=256, num_heads=8, window_size=5):\n        super(TestModel, self).__init__()\n        self.local_attention = LocalAttentionLayer(feature_dim, num_heads, window_size)\n\n    def call(self, x, training=False):\n        output = self.local_attention(x, training=training)\n        return output\n\ndef get_default_model():\n    return TestModel()\n\ndef get_sample_inputs():\n    x = tf.random.normal([8, 16, 256])\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print(f'input shape: {inputs[0].shape}')\n    print(f'output shape: {output.shape}')\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out.shape)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\ninput shape: (8, 16, 256)\noutput shape: (8, 16, 256)\nTraceback (most recent call last):\n ...line 16, in call\n    key_windows = tf.image.extract_patches(padded_key[:, :, tf.newaxis, :], sizes=[1, self.window_size * tf.constant(2) + tf.constant(1), 1, 1], strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='VALID')\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: in user code:\n\n...line 16, in call\n        key_windows = tf.image.extract_patches(padded_key[:, :, tf.newaxis, :], sizes=[1, self.window_size * tf.constant(2) + tf.constant(1), 1, 1], strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='VALID')\n\n    TypeError: Exception encountered when calling LocalAttention.call().\n    \n    Expected int for argument 'ksizes' not <tf.Tensor 'test_model_1/local_attention_layer_1/local_attention_1/add:0' shape=() dtype=int32>.\n    \n    Arguments received by LocalAttention.call():\n      • query=tf.Tensor(shape=(64, 16, 32), dtype=float32)\n      • key=tf.Tensor(shape=(64, 16, 32), dtype=float32)\n      • value=tf.Tensor(shape=(64, 16, 32), dtype=float32)\n      • training=False\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-13T05:54:26Z",
+    "closed_at": "2026-01-22T16:27:37Z",
+    "updated_at": "2026-01-22T16:27:40Z",
+    "comments_count": 3,
+    "url": "https://github.com/tensorflow/tensorflow/issues/108143",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3799039975,
+    "number": 107978,
+    "title": "TensorFlow `tf.summary.scalar` crashes when `step` is provided as an empty tuple",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.19\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nI encountered a crash in TensorFlow when using the summary API `tf.summary.scalar`. The code is as follows:\n\nWhen running the following code, the TensorFlow runtime crashes instead of raising a Python exception indicating an invalid `step` argument. The process terminates due to an internal check failure. This crash is reproducible on TensorFlow 2.19 on CPU and is triggered by passing an empty tuple to the `step` parameter, which is not properly validated before being used internally. Here is the [gist](https://colab.research.google.com/drive/1V9xU9BWbLfNYboDlRma7GzQ7qh2sY7BK?usp=sharing).\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nwith tf.summary.create_file_writer(\"logs\").as_default():\n    tf.summary.scalar(\"loss\", 0.5, step=())\n```\n\n### Relevant log output\n\n```shell\n2026-01-10 11:39:45.532923: F tensorflow/core/framework/tensor.cc:852] Check failed: 1 == NumElements() (1 vs. 0)Must have a one element tensor\n[1]    2161303 abort (core dumped)\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "TF 2.19"
+    ],
+    "created_at": "2026-01-10T03:20:57Z",
+    "closed_at": "2026-01-12T07:11:46Z",
+    "updated_at": "2026-01-12T07:11:48Z",
+    "comments_count": 3,
+    "url": "https://github.com/tensorflow/tensorflow/issues/107978",
+    "repository": "tensorflow/tensorflow",
+    "user": "KnightGOKU"
+  },
+  {
+    "id": 3789378285,
+    "number": 107723,
+    "title": "error with tf.pad when I pad an kerastensor",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.8\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nwindows\n\n### Mobile device\n\nwindows\n\n### Python version\n\n3.9\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nError was raised when I am attempting to pad a kerastensor in my code, here is a demo of the bug:\n```\nt = tf.keras.Input(tf.constant([[1, 2, 3], [4, 5, 6]]).shape)\npaddings = tf.constant([[0,0], [1, 1], [2, 2]])\n# 'constant_values' is 0.\n# rank of 't' is 2.\ntf.pad(t, paddings, \"CONSTANT\")\n```\nTraceback (most recent call last):\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\util\\dispatch.py\", line 206, in wrapper\n    return target(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\ops\\array_ops.py\", line 3528, in pad\n    result = gen_array_ops.pad(tensor, paddings, name=name)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\ops\\gen_array_ops.py\", line 6481, in pad\n    return pad_eager_fallback(\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\ops\\gen_array_ops.py\", line 6502, in pad_eager_fallback\n    _attr_T, (input,) = _execute.args_to_matching_eager([input], ctx, [])\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\eager\\execute.py\", line 273, in args_to_matching_eager\n    tensor = ops.convert_to_tensor(\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\profiler\\trace.py\", line 163, in wrapped\n    return func(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\ops.py\", line 1566, in convert_to_tensor\n    ret = conversion_func(value, dtype=dtype, name=name, as_ref=as_ref)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\constant_op.py\", line 346, in _constant_tensor_conversion_function\n    return constant(v, dtype=dtype, name=name)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\constant_op.py\", line 271, in constant\n    return _constant_impl(value, dtype, shape, name, verify_shape=False,\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\constant_op.py\", line 283, in _constant_impl\n    return _constant_eager_impl(ctx, value, dtype, shape, verify_shape)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\constant_op.py\", line 308, in _constant_eager_impl\n    t = convert_to_eager_tensor(value, ctx, dtype)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\constant_op.py\", line 106, in convert_to_eager_tensor\n    return ops.EagerTensor(value, ctx.device_name, dtype)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\engine\\keras_tensor.py\", line 244, in __array__\n    raise TypeError(\nTypeError: Cannot convert a symbolic Keras input/output to a numpy array. This error may indicate that you're trying to pass a symbolic value to a NumPy call, which is not supported. Or, you may be trying to pass Keras symbolic inputs/outputs to a TF API that does not register dispatching, preventing Keras from automatically converting the API call to a lambda layer in the Functional Model.\nDuring handling of the above exception, another exception occurred:\nTraceback (most recent call last):\n  File \"<input>\", line 5, in <module>\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\util\\dispatch.py\", line 206, in wrapper\n    return target(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\ops\\array_ops.py\", line 3461, in pad_v2\n    return pad(tensor, paddings, mode, name, constant_values)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\util\\dispatch.py\", line 210, in wrapper\n    result = dispatch(wrapper, args, kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\util\\dispatch.py\", line 126, in dispatch\n    result = dispatcher.handle(op, args, kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\layers\\core.py\", line 1473, in handle\n    return TFOpLambda(op)(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\engine\\base_layer.py\", line 976, in __call__\n    return self._functional_construction_call(inputs, args, kwargs,\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\engine\\base_layer.py\", line 1114, in _functional_construction_call\n    outputs = self._keras_tensor_symbolic_call(\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\engine\\base_layer.py\", line 848, in _keras_tensor_symbolic_call\n    return self._infer_output_signature(inputs, args, kwargs, input_masks)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\engine\\base_layer.py\", line 888, in _infer_output_signature\n    outputs = call_fn(inputs, *args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\layers\\core.py\", line 1350, in _call_wrapper\n    return self._call_wrapper(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\keras\\layers\\core.py\", line 1382, in _call_wrapper\n    result = self.function(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\util\\dispatch.py\", line 206, in wrapper\n    return target(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\ops\\array_ops.py\", line 3528, in pad\n    result = gen_array_ops.pad(tensor, paddings, name=name)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\ops\\gen_array_ops.py\", line 6486, in pad\n    _, _, _op, _outputs = _op_def_library._apply_op_helper(\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\op_def_library.py\", line 497, in _apply_op_helper\n    inferred = ops.convert_to_tensor(\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\profiler\\trace.py\", line 163, in wrapped\n    return func(*args, **kwargs)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\ops.py\", line 1527, in convert_to_tensor\n    return graph.capture(value, name=name)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\func_graph.py\", line 632, in capture\n    return self.capture_eager_tensor(tensor, name)\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\framework\\func_graph.py\", line 739, in capture_eager_tensor\n    tape.record_operation(\"captured_value\", [graph_const], [tensor],\n  File \"D:\\Anaconda\\envs\\tf_2\\lib\\site-packages\\tensorflow\\python\\eager\\tape.py\", line 184, in record_operation\n    pywrap_tfe.TFE_Py_TapeSetRecordOperation(op_type, output_tensors,\nOverflowError: Python int too large to convert to C long\n\n### Standalone code to reproduce the issue\n\n```shell\nt = tf.keras.Input(tf.constant([[1, 2, 3], [4, 5, 6]]).shape)\npaddings = tf.constant([[0,0], [1, 1], [2, 2]])\n# 'constant_values' is 0.\n# rank of 't' is 2.\ntf.pad(t, paddings, \"CONSTANT\")\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug"
+    ],
+    "created_at": "2026-01-07T16:11:41Z",
+    "closed_at": "2026-01-07T17:08:05Z",
+    "updated_at": "2026-01-07T17:08:06Z",
+    "comments_count": 2,
+    "url": "https://github.com/tensorflow/tensorflow/issues/107723",
+    "repository": "tensorflow/tensorflow",
+    "user": "chengdusunny"
+  },
+  {
+    "id": 3787208618,
+    "number": 107670,
+    "title": "A note on numerical preconditions in Softmax gradient translation-invariance testing",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\nTF2.3.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nLinux Ubuntu 22.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.7.12\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\ncuDNN 8.6\n\n### GPU model and memory\n\nTesla V100\n\n### Current behavior?\n\nHello TensorFlow team,\n\nWe’d like to report and clarify an observation from metamorphic testing of operator gradients, focusing on how large constant shifts interact with the numerical preconditions of certain metamorphic relations (MRs).\n\nWe tested three operators under the same “constant shift” stress condition:\n\nAvgPool2D (AP) \n\nMaxPool2D (MP)\n\nSoftmax\n\nWe observed that AvgPool2D consistently satisfies the expected MR, while MaxPool2D and Softmax can exhibit reproducible deviations under large shifts. We have already reported the MaxPool2D case separately; this email summarizes the broader finding and asks for guidance on how best to interpret/document it, especially for Softmax.\n\nBackground (the MRs we tested)\n1) Constant shift transformation\n\n( X' = X + C )\n\nWhere (C) is constant along the MR-relevant axis (e.g., per-window constant for pooling, per-softmax slice constant for Softmax), and may vary across other dimensions via broadcasting.\n\n2) Expected behavior\n\nAvgPool2D:\nForward shifts by a constant; backward should be invariant under the same upstream gradient:\n( gX' ≈ gX )\n\nMaxPool2D (with the precondition that argmax routing is preserved):\n( gX' ≈ gX )\n\nSoftmax (theoretically shift-invariant along the normalization axis):\n( \\mathrm{softmax}(x + c) = \\mathrm{softmax}(x) )\nand, under the same upstream gradient (G),\n( gX' ≈ gX )\n\nWhat we observed\nAvgPool2D\n\nUnder large constant shifts (including magnitudes on the order of 1e4–1e5 in float32), AvgPool2D did not show violations in our metamorphic checks (forward/gradient consistency remained within tolerance).\n\nMaxPool2D\n\nUnder settings such as padding=SAME and stride=1, we observe reproducible MR violations with large violation metrics (vR) on both CPU and GPU when (|c|) is sufficiently large (e.g., hundreds or larger).\nThis MaxPool2D finding has already been reported. https://github.com/tensorflow/tensorflow/issues/107543\n\nSoftmax\n\nUnder large constant shifts (e.g., 1e4–1e5 in float32) applied as a constant along the softmax axis (via broadcasting), we observe reproducible numerical deviations in:\n\nforward output consistency and/or\n\nbackward gradient consistency (gX)\n\nThe effect appears implementation-path sensitive (e.g., CPU vs GPU and/or layout paths), though we can provide exact version/platform matrices and minimal repro scripts.\n\nOur analysis / hypothesis\n\nWe believe the MaxPool2D behavior is expected under finite precision and ties:\n\nFor large (|c|), float32 ULP becomes coarse relative to small differences.\n\nPreviously strictly ordered values can become equal or nearly equal after the shift (implicit ties).\n\nThis can change argmax routing, hence backward routing changes and the MR precondition (“order preserved”) no longer holds.\n\nFor Softmax, we suspect a related but distinct numerical-stability / implementation-path-consistency issue:\n\nSoftmax is mathematically shift-invariant along the normalization axis, but under extreme magnitudes in float32, different kernel paths / reduction orders / stabilization behaviors can potentially lead to observable deviations.\n\nThe fact that AvgPool2D passes under the same stress condition suggests the phenomenon is not a general issue in the test harness, but operator-specific numerical behavior.\n\nQuestions\n\nWe’d like to confirm the following points:\n\nFor MaxPool2D gradients, is it reasonable to treat violations under large constant shifts as Not Applicable (N/A) when the “argmax routing preserved” precondition is broken by finite-precision tie effects?\n\nFor Softmax, is it expected that extremely large constant shifts (float32) may lead to measurable forward/gradient deviations across device/layout implementations, or would you consider this worthy of investigation as an implementation-path consistency / numerical stability issue?\n\nWould it be helpful to add a brief documentation note stating that large constant shifts can affect:\n\nMaxPool gradient routing (due to finite-precision tie effects), and\n\npotentially Softmax numerical consistency in extreme regimes,\neven though the underlying mathematical properties hold in real arithmetic?\n\nReproduction\n\nWe have minimal deterministic scripts and concrete configurations (TF version, CPU/GPU, layout) for:\n\nMaxPool2D (already reported), and\n\nSoftmax (new observation)\n\nWe can provide them in this thread immediately if useful.\n\nThank you for your time and for the continued work on TensorFlow.\n\nBest regards,\nXiaoHuaOvo\n\n### Standalone code to reproduce the issue\n\n```shell\n\"\"\"\nSoftmax Gradient Shift-Invariance Bug - Minimal Repro (Gradient Only)\nTensorFlow 2.3.0+ / CPU\n\nTheory:\n  softmax(x + c) = softmax(x)\n  ⇒ dL/dx(x + c) = dL/dx(x)   (for the same upstream gradient G)\n\nObserved:\n  When c is very large, gradients show numerical discrepancies.\n\"\"\"\n\nimport numpy as np\nimport tensorflow as tf\nimport os\n\n# Force CPU to avoid GPU kernel differences\nos.environ['CUDA_VISIBLE_DEVICES'] = ''\n\nprint(\"\\n\" + \"=\" * 60)\nprint(\"Softmax Gradient Shift-Invariance Bug Reproduction (Gradient Only)\")\nprint(\"=\" * 60)\n\n# 1. Input data\nnp.random.seed(42)\ntf.random.set_seed(42)\n\nx = np.random.uniform(-1, 1, (4, 10, 16, 16)).astype(np.float32)\n\n# 2. Large constant shift\nshift = 1_000_000.0\nx_shifted = x + shift\n\nprint(f\"Input range: [{x.min():.2f}, {x.max():.2f}]\")\nprint(f\"Shift value: {shift:.0f}\")\nprint(f\"Shifted input range: [{x_shifted.min():.0f}, {x_shifted.max():.0f}]\")\n\n# 3. Fixed upstream gradient G (same shape as softmax output)\nG = tf.random.normal(x.shape, dtype=tf.float32)\n\n# Softmax axis (C dimension in NCHW)\naxis = 1\n\n# 4. Compute gradient for original x\nx_tf = tf.Variable(x)\nwith tf.GradientTape() as tape:\n    y = tf.nn.softmax(x_tf, axis=axis)\n    loss = tf.reduce_sum(y * G)\ngrad_x = tape.gradient(loss, x_tf).numpy()\n\n# 5. Compute gradient for shifted input x + c\nx_shift_tf = tf.Variable(x_shifted)\nwith tf.GradientTape() as tape:\n    y_shift = tf.nn.softmax(x_shift_tf, axis=axis)\n    loss_shift = tf.reduce_sum(y_shift * G)\ngrad_x_shift = tape.gradient(loss_shift, x_shift_tf).numpy()\n\n# 6. Gradient difference analysis\ndiff = np.abs(grad_x - grad_x_shift)\nmax_diff = np.max(diff)\nmean_diff = np.mean(diff)\n\nprint(f\"\\nMax gradient difference: {max_diff:.6e}\")\nprint(f\"Mean gradient difference: {mean_diff:.6e}\")\n\n# 7. vR metric (same definition as in the testing framework)\natol, rtol = 1e-5, 1e-3\nscale = np.maximum(np.abs(grad_x.ravel()), np.abs(grad_x_shift.ravel()))\ntolerance = atol + rtol * scale\nr_i = diff.ravel() / (tolerance + 1e-100)\n\nvR = np.max(r_i)\nrho = np.sum(r_i > 1.0) / len(r_i)\n\nprint(f\"\\nvR metric: {vR:.2f}\")\nprint(f\"Violation detected: {vR > 1.0} (threshold = 1.0)\")\nprint(f\"Violation ratio: {rho:.2%}\")\n\nif vR > 1.0:\n    print(\"\\n⚠️  Gradient shift-invariance numerical violation reproduced!\")\n    print(\"   Theory: d/dx softmax(x + c) == d/dx softmax(x)\")\n    print(f\"   Observed: {rho:.1%} of gradient elements exceed tolerance\")\nelse:\n    print(\"\\n✓ No violation detected (try a larger shift value)\")\n\nprint(\"=\" * 60 + \"\\n\")\n```\n\n### Relevant log output\n\n```shell\nMax gradient difference: 1.138362e-02\nMean gradient difference: 1.049445e-03\n\nvR metric: 211.74\nViolation detected: True (threshold = 1.0)\nViolation ratio: 95.42%\n\n⚠️  Gradient shift-invariance numerical violation reproduced!\n   Theory: d/dx softmax(x + c) == d/dx softmax(x)\n   Observed: 95.4% of gradient elements exceed tolerance\n============================================================\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:ops",
+      "TF 2.3"
+    ],
+    "created_at": "2026-01-07T03:22:54Z",
+    "closed_at": "2026-01-09T11:27:41Z",
+    "updated_at": "2026-01-09T11:27:43Z",
+    "comments_count": 3,
+    "url": "https://github.com/tensorflow/tensorflow/issues/107670",
+    "repository": "tensorflow/tensorflow",
+    "user": "XiaoHuaOvo-tech"
+  },
+  {
+    "id": 3764474952,
+    "number": 107125,
+    "title": "bug in TensorFlow when using API `tf.raw_ops.InitializeTableFromDataset`",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntf 2.19\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nI encountered a bug in TensorFlow when I used API `tf.raw_ops.InitializeTableFromDataset`. The code is as follows:\n\n```python\nimport tensorflow as tf\n\n# Create a dummy dataset\ndataset = tf.data.Dataset.from_tensor_slices([1, 2, 3, 4, 5])\ndataset = dataset.map(lambda x: (x, x * 2))\n\n# Create a table\nkeys = tf.constant([1, 2, 3, 4, 5], dtype=tf.int64)\nvalues = tf.constant([0, 0, 0, 0, 0], dtype=tf.int64)\ntable = tf.lookup.StaticHashTable(\n    tf.lookup.KeyValueTensorInitializer(keys, values), default_value=-1\n)\n\n# Initialize table from dataset\ntf.raw_ops.InitializeTableFromDataset(\n    table_handle=table.resource_handle,\n    dataset=dataset._variant_tensor\n)\n```\n\nThe error message was as follows:\n\n```shell\nCheck failed: nullptr == ctx->params_->op_kernel->AsAsync()\nUse OP_REQUIRES_ASYNC in AsyncOpKernel implementations.\nAborted (core dumped)\n```\n\nThe above code causes the TensorFlow runtime to abort instead of raising a Python exception. The issue is reproducible on CPU using TensorFlow 2.19. Here is the [gist](https://colab.research.google.com/drive/1qf92A78AOPH_XqoG5Z9JssB7DXCQsPEw?usp=sharing).\n\n\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\n# Create a dummy dataset\ndataset = tf.data.Dataset.from_tensor_slices([1, 2, 3, 4, 5])\ndataset = dataset.map(lambda x: (x, x * 2))\n\n# Create a table\nkeys = tf.constant([1, 2, 3, 4, 5], dtype=tf.int64)\nvalues = tf.constant([0, 0, 0, 0, 0], dtype=tf.int64)\ntable = tf.lookup.StaticHashTable(\n    tf.lookup.KeyValueTensorInitializer(keys, values), default_value=-1\n)\n\n# Initialize table from dataset\ntf.raw_ops.InitializeTableFromDataset(\n    table_handle=table.resource_handle,\n    dataset=dataset._variant_tensor\n)\n```\n\n### Relevant log output\n\n```shell\nCheck failed: nullptr == ctx->params_->op_kernel->AsAsync()\nUse OP_REQUIRES_ASYNC in AsyncOpKernel implementations.\nAborted (core dumped)\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:ops",
+      "awaiting PR merge",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-27T06:41:39Z",
+    "closed_at": "2026-01-13T17:19:34Z",
+    "updated_at": "2026-01-13T17:19:36Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/107125",
+    "repository": "tensorflow/tensorflow",
+    "user": "KnightGOKU"
+  },
+  {
+    "id": 3764470241,
+    "number": 107123,
+    "title": "crash encountered in TensorFlow when using API `tf.raw_ops.FractionalAvgPoolGrad` .",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntf 2.19\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nI encountered a crash in TensorFlow when I used API `tf.raw_ops.FractionalAvgPoolGrad` .  When the shape of `out_backprop` is modified via a reshape operation, the TensorFlow runtime crashes instead of reporting an invalid argument error.\n\nI have confirmed that above code would crash on `tf-2.19` . Here is the [gist](https://colab.research.google.com/drive/1hm1b_CfmXbxg6EKTMW4ixQCg6wBu96_Q?usp=sharing).\n\n\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\n# Create input tensors\norig_input_tensor_shape = tf.constant([1, 3, 3, 1], dtype=tf.int64)\nout_backprop = tf.constant([[[[1.0], [2.0]], [[3.0], [4.0]]]], dtype=tf.float32)\nrow_pooling_sequence = tf.constant([1, 2, 3], dtype=tf.int64)\ncol_pooling_sequence = tf.constant([1, 2, 3], dtype=tf.int64)\noverlapping = False\n\n# Modify the shape of out_backprop (reshape triggers the crash)\nout_backprop = tf.reshape(out_backprop, [-1, 1, 1, 1])\n\n# Invoke the API\nresult = tf.raw_ops.FractionalAvgPoolGrad(\n    orig_input_tensor_shape=orig_input_tensor_shape,\n    out_backprop=out_backprop,\n    row_pooling_sequence=row_pooling_sequence,\n    col_pooling_sequence=col_pooling_sequence,\n    overlapping=overlapping\n)\n\nprint(result)\n```\n\n### Relevant log output\n\n```shell\ninvalid fastbin entry (free)\n[1] abort (core dumped)\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "comp:ops",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-27T06:34:22Z",
+    "closed_at": "2026-01-05T11:02:59Z",
+    "updated_at": "2026-01-05T11:03:01Z",
+    "comments_count": 3,
+    "url": "https://github.com/tensorflow/tensorflow/issues/107123",
+    "repository": "tensorflow/tensorflow",
+    "user": "KnightGOKU"
+  },
+  {
+    "id": 3744569524,
+    "number": 106684,
+    "title": "Warn users about GPU support on Windows",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.20.0 (behavior applies to all TF versions >= 2.11 on Windows)\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nwindows\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\n### Issue type\nDeveloper Experience / Runtime behavior\n\n### Problem\nStarting from TensorFlow 2.11, native Windows GPU support is no longer available.\nHowever, TensorFlow does not emit any runtime warning when users query GPU-related APIs.\n\nThis leads to a confusing experience where:\n- CUDA and cuDNN are correctly installed\n- TensorFlow runs silently on CPU\n- Users assume a misconfiguration rather than a platform limitation\n\n### Proposal (concrete and minimal)\nWhen running on:\n- OS: Windows 10 or Windows 11\n- TensorFlow version: >= 2.11\n- CUDA backend: disabled\n\nTensorFlow should emit a **runtime warning** when any of the following are accessed:\n\n```python\ntf.test.is_built_with_cuda()\ntf.config.list_physical_devices()\ntf.config.list_physical_devices(\"GPU\")\n```\n\nExample warning (suggestion)\nWARNING: Native Windows GPU support is not available in TensorFlow >= 2.11.\nThis build is CPU-only by design.\nPlease use WSL2 or Linux for GPU acceleration.\n\n### Why this is better than documentation\n- Runtime warnings are actually seen\n- These APIs are commonly used as the first step to verify GPU availability\n- Prevents hours of unnecessary troubleshooting\n\n### Rationale\n\nThis is not a request to restore Windows GPU support.\nIt is a request to clearly communicate an intentional platform limitation\nat the moment users actively query GPU capability.\n\n### Environment\n\nOS: Windows 10 / Windows 11\n\nTensorFlow: >= 2.11\n\nGPU: NVIDIA RTX series\n\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nprint(tf.__version__)\nprint(tf.test.is_built_with_cuda())\nprint(tf.config.list_physical_devices())\n\nRunning this code on Windows 10/11 with TensorFlow >= 2.11 produces no warning,\neven though native Windows GPU support is intentionally unavailable.\n```\n\n### Relevant log output\n\n```shell\n2.20.0\nFalse\n[]\n\nNo warning or informational message is emitted.\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "subtype:windows",
+      "awaiting PR merge",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-18T19:37:03Z",
+    "closed_at": "2026-01-09T18:37:14Z",
+    "updated_at": "2026-01-13T11:53:45Z",
+    "comments_count": 1,
+    "url": "https://github.com/tensorflow/tensorflow/issues/106684",
+    "repository": "tensorflow/tensorflow",
+    "user": "MERT-CKR"
+  },
+  {
+    "id": 3737623870,
+    "number": 106494,
+    "title": "`tf.raw_ops.ResourceSparseApplyAdagradV2` crashes when `grad` shape does not match indices and variable shape",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\ntf-2.19\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nCalling `tf.raw_ops.ResourceSparseApplyAdagradV2` with a grad tensor whose shape is incompatible with indices and the underlying resource variable can lead to a crash, instead of raising a clear Python exception.\n\nThe bug can be reproduced on tf-2.19. Here is the [gist](https://colab.research.google.com/drive/1x5H8BsCo4tBiQLzx5u6nig3RPMKFVU-w?usp=sharing).\n\n### Standalone code to reproduce the issue\n\n```shell\n# BUG: tf.raw_ops.ResourceSparseApplyAdagradV2, grad shape mismatch\nimport tensorflow as tf\n\n# Create resource variable\nvar = tf.Variable(tf.ones([3, 3], dtype=tf.float32))\n# Create accumulators\naccum = tf.Variable(tf.zeros([3, 3], dtype=tf.float32))\n\n# Sparse indices and values\nindices = tf.constant([0, 2], dtype=tf.int64)\nvalues = tf.constant([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=tf.float32)\n\n# Learning rate and epsilon\nlr = tf.constant(0.01, dtype=tf.float32)\nepsilon = tf.constant(1e-8, dtype=tf.float32)\n\n# Invoke the operation\nresult = tf.raw_ops.ResourceSparseApplyAdagradV2(\n    var=var.handle,\n    accum=accum.handle,\n    lr=lr,\n    epsilon=epsilon,\n    grad=tf.reshape(values, [-1]),  # Mismatched shape, crash\n    # grad=values,  # success\n    indices=indices,\n    use_locking=False,\n    update_slots=True\n)\n```\n\n### Relevant log output\n\n```shell\n> 2025-12-17 15:21:00.264948: F tensorflow/core/framework/tensor_shape.cc:357] Check failed: d < dims() (1 vs. 1)\n> [1]    3374216 abort (core dumped)\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "awaiting PR merge",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-17T07:02:00Z",
+    "closed_at": "2026-01-14T23:26:50Z",
+    "updated_at": "2026-01-14T23:26:52Z",
+    "comments_count": 4,
+    "url": "https://github.com/tensorflow/tensorflow/issues/106494",
+    "repository": "tensorflow/tensorflow",
+    "user": "KnightGOKU"
+  },
+  {
+    "id": 3735202753,
+    "number": 106378,
+    "title": "abort  issue found when using `tf.raw_ops.ResourceGather` ",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nsource\n\n### TensorFlow version\n\n2.19\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nI encountered an `abort issue` in TensorFlow when I used API `tf.raw_ops.ResourceGather` . The code is as follows:\n\n```python\ntry:\n\n    import tensorflow as tf\n\n    # Create a resource variable\n    var = tf.Variable([1.0, 2.0, 3.0, 4.0, 5.0])\n\n    # Create indices to gather\n    indices = tf.constant([0, 2, 4])\n\n    # Invoke ResourceGather with mismatched dtype\n    result = tf.raw_ops.ResourceGather(\n        resource=var.handle,\n        indices=indices,\n        dtype=tf.int32,\n        batch_dims=0,\n        validate_indices=True\n    )\n\n    # Execute to see the result\n    print(result.numpy())\n\n    print('success execution')\nexcept Exception as e:\n    print(e)\n    print('failed execution')\n```\n\n> 2025-12-16 23:16:36.118206: F tensorflow/core/framework/tensor.cc:838] Check failed: dtype() == expected_dtype (1 vs. 3) int32 expected, got float\n> [1]    560653 abort (core dumped)  \n\nI have confirmed that the above code would crash on `tf-2.19.0`, here is the [gist](https://colab.research.google.com/drive/1NIcvFa2ihm94600500wTyj7NSvvp1R6X?usp=sharing).\n\n### Standalone code to reproduce the issue\n\n```shell\ntry:\n\n    import tensorflow as tf\n\n    # Create a resource variable\n    var = tf.Variable([1.0, 2.0, 3.0, 4.0, 5.0])\n\n    # Create indices to gather\n    indices = tf.constant([0, 2, 4])\n\n    # Invoke ResourceGather with mismatched dtype\n    result = tf.raw_ops.ResourceGather(\n        resource=var.handle,\n        indices=indices,\n        dtype=tf.int32,\n        batch_dims=0,\n        validate_indices=True\n    )\n\n    # Execute to see the result\n    print(result.numpy())\n\n    print('success execution')\nexcept Exception as e:\n    print(e)\n    print('failed execution')\n```\n\n### Relevant log output\n\n```shell\n> 2025-12-16 23:16:36.118206: F tensorflow/core/framework/tensor.cc:838] Check failed: dtype() == expected_dtype (1 vs. 3) int32 expected, got float\n> [1]    560653 abort (core dumped)\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "comp:ops",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-16T15:08:06Z",
+    "closed_at": "2026-02-19T02:18:12Z",
+    "updated_at": "2026-02-19T02:18:14Z",
+    "comments_count": 5,
+    "url": "https://github.com/tensorflow/tensorflow/issues/106378",
+    "repository": "tensorflow/tensorflow",
+    "user": "Jacob-yen"
+  },
+  {
+    "id": 3707564617,
+    "number": 105870,
+    "title": "TensorFlow 2.20.0 causes mutex crash in HuggingFace tokenizers on macOS ARM without being imported",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nbinary\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nmacOS (Apple Silicon / ARM64) - Mac Studio Tahoe 26.1\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.13.11\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\nClang 17.0.0 (clang-1700.4.4.1)\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\nApple Silicon (MPS backend) M2 Ultra\n\n### Current behavior?\n\nSimply having TensorFlow 2.20.0 installed in a Python environment causes a fatal mutex crash when using HuggingFace tokenizers, even though TensorFlow is never imported in the code.\n\nWhen running code that loads a diffusers FluxPipeline (which uses HuggingFace tokenizers internally), the process crashes with:\n\nlibc++abi: terminating due to uncaught exception of type std::__1::system_error: mutex lock failed: Invalid argument\n\nThis happens at the tokenizer loading stage, specifically when T5TokenizerFast is being initialized.\n\nExpected behavior: TensorFlow being installed but not imported should have no effect on unrelated libraries. The HuggingFace tokenizers library should load normally.\n\nKey findings from debugging:\n1. With TensorFlow installed → crash occurs (TensorFlow is never imported)\n2. Uninstall only TensorFlow → works immediately  \n3. All TensorFlow dependencies (keras, tensorboard, grpcio, h5py, etc.) can remain installed without issue\n4. The issue is specifically the tensorflow package itself, not its dependencies\n5. Downgrading protobuf does not fix the issue\n6. Setting TOKENIZERS_PARALLELISM=false does not fix the issue\n\nThis suggests TensorFlow 2.20.0 may be registering something at the native/shared library level that interferes with the Rust-based tokenizers library's threading primitives on macOS ARM.\n\n### Standalone code to reproduce the issue\n\n```shell\n### **Issue: Transformers/Tokenizers crash with \"mutex lock failed\" when TensorFlow is installed (macOS Python 3.13)**\n\n**Description**\nThe `FluxPipeline` (and likely other pipelines using fast tokenizers) crashes immediately upon loading when `tensorflow` is present in the environment, even if `tensorflow` is never imported in the script.\n\n**System Info**\n\n  * **OS:** macOS (Apple Silicon)\n  * **Python:** 3.13\n  * **TensorFlow:** 2.20.0 (Installed but not imported)\n  * **Transformers:** 4.57.3\n\n**Reproduction Steps**\n\n1.  Install dependencies:\n    `pip install torch torchvision diffusers transformers accelerate safetensors sentencepiece protobuf tensorflow`\n2.  Run the following Python script:\n\n<!-- end list -->\n\n\nimport torch\nfrom diffusers import FluxPipeline\n\n# Crash occurs during this call\npipe = FluxPipeline.from_pretrained(\n    \"black-forest-labs/FLUX.1-dev\",\n    torch_dtype=torch.float16\n)\npipe.to(\"mps\")\n\n\n**Log Output**\n\n\n/Users/username/venv-metal/lib/python3.13/site-packages/torch/amp/autocast_mode.py:270: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling\n  warnings.warn(\nLoading pipeline components...:   0%|                    | 0/7 [00:00<?, ?it/s]\nYou set `add_prefix_space`. The tokenizer needs to be converted from the slow tokenizers\nlibc++abi: terminating due to uncaught exception of type std::__1::system_error: mutex lock failed: Invalid argument\nzsh: abort      python\n\n\n**Workaround / Observation**\n\n  * **The Fix:** `pip uninstall tensorflow` immediately resolves the crash.\n  * **Observation:** The crash appears to be a conflict between the threading/locking mechanisms of TensorFlow and the Rust-based Tokenizers library on Python 3.13.\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "subtype:macOS",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-08T18:34:04Z",
+    "closed_at": "2025-12-24T02:15:21Z",
+    "updated_at": "2025-12-24T02:15:23Z",
+    "comments_count": 5,
+    "url": "https://github.com/tensorflow/tensorflow/issues/105870",
+    "repository": "tensorflow/tensorflow",
+    "user": "dranirbanmukherjee"
+  },
+  {
+    "id": 3706969364,
+    "number": 105858,
+    "title": "Documentation for `tf.ragged.constant` doesn't specify a default `dtype` when there are no scalars in `pylist`",
+    "body": "### Issue type\n\nDocumentation Bug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nbinary\n\n### TensorFlow version\n\nv2.16.1\n\n### Custom code\n\nNo\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n_No response_\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nIn the [documentation for `tf.ragged.constant`](https://www.tensorflow.org/api_docs/python/tf/ragged/constant), we have \"[i]f `pylist` contains no scalar values, then `K` is one greater than the maximum depth of empty lists in `pylist`.\" And, we have \"[i]f [`dtype is] not specified, then a default is chosen based on the scalar values in `pylist`.\" What we are missing is what `dtype` is when (i) it's not explicitly specified and (ii) there are no scalars in `pylist`.\n\n### Standalone code to reproduce the issue\n\n```shell\nN/A\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:docs-bug",
+      "type:bug",
+      "TF 2.16"
+    ],
+    "created_at": "2025-12-08T15:49:45Z",
+    "closed_at": "2025-12-09T17:49:33Z",
+    "updated_at": "2025-12-09T17:49:36Z",
+    "comments_count": 7,
+    "url": "https://github.com/tensorflow/tensorflow/issues/105858",
+    "repository": "tensorflow/tensorflow",
+    "user": "khatchad"
+  },
+  {
+    "id": 3704564319,
+    "number": 105815,
+    "title": "`TFDistilBertForTokenClassification.from_pretrained(\"distilbert-base-uncased\")` hits `TypeError: 'builtins.safe_open' object is not iterable`",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nNo\n\n### Source\n\nbinary\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nUbuntu 25.10\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.13.7\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\n_No response_\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\n```\n    self._model = TFDistilBertForTokenClassification.from_pretrained(\"distilbert-base-uncased\")\n                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/src/Python/pAIthon/.venv/lib/python3.13/site-packages/transformers/modeling_tf_utils.py\", line 2964, in from_pretrained\n    return load_pytorch_state_dict_in_tf2_model(\n        model,\n    ...<6 lines>...\n        tf_to_pt_weight_rename=tf_to_pt_weight_rename,\n    )\n  File \"/usr/src/Python/pAIthon/.venv/lib/python3.13/site-packages/transformers/modeling_tf_pytorch_utils.py\", line 333, in load_pytorch_state_dict_in_tf2_model\n    for key in pt_state_dict:\n               ^^^^^^^^^^^^^\nTypeError: 'builtins.safe_open' object is not iterable\n```\n\n### Standalone code to reproduce the issue\n\n```shell\nfrom transformers import DistilBertTokenizerFast, TFDistilBertForTokenClassification\ndel = TFDistilBertForTokenClassification.from_pretrained(\"distilbert-base-uncased\")\n```\n\n### Relevant log output\n\n```shell\n\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:model",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-08T04:11:32Z",
+    "closed_at": "2025-12-15T16:55:30Z",
+    "updated_at": "2025-12-15T16:55:33Z",
+    "comments_count": 11,
+    "url": "https://github.com/tensorflow/tensorflow/issues/105815",
+    "repository": "tensorflow/tensorflow",
+    "user": "khteh"
+  },
+  {
+    "id": 3698956481,
+    "number": 105729,
+    "title": "XLA compiled function returns tuple and breaks shape access (AttributeError: 'tuple' object has no attribute 'shape')",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nbinary\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\n_No response_\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.9\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\nCUDA Version 13.0\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nA NeRF-style model returns a tuple (rgb, sigma) in eager mode without issues.\nHowever, when wrapped with:\n\n@tf.function(jit_compile=True)\n\nthe XLA-compiled function outputs the same tuple, but accessing compiled_out.shape causes:\n\nAttributeError: 'tuple' object has no attribute 'shape'\n\nFull stack trace ends with:\n\nAttributeError: 'tuple' object has no attribute 'shape'\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass NeRF(tf.keras.layers.Layer):\n\n    def __init__(self, hidden_dim=256, position_L=10, direction_L=4):\n        super(NeRF, self).__init__()\n        self.hidden_dim = hidden_dim\n        self.position_L = position_L\n        self.direction_L = direction_L\n        self.dense1 = tf.keras.layers.Dense(hidden_dim, activation='relu')\n        self.dense2 = tf.keras.layers.Dense(hidden_dim, activation='relu')\n        self.dense3 = tf.keras.layers.Dense(hidden_dim, activation='relu')\n        self.dense4 = tf.keras.layers.Dense(hidden_dim, activation='relu')\n        self.dense5 = tf.keras.layers.Dense(hidden_dim, activation='relu')\n        self.dense6 = tf.keras.layers.Dense(hidden_dim + 1)\n        self.dense7 = tf.keras.layers.Dense(hidden_dim // 2, activation='relu')\n        self.rgb_output = tf.keras.layers.Dense(3, activation='sigmoid')\n        self.sigma_output = tf.keras.layers.Dense(1, activation='relu')\n\n    def positional_encoding(self, x, L):\n        encodings = []\n        for i in range(L):\n            encodings.append(tf.sin(2.0 ** i * tf.constant(3.1415926535, dtype=tf.float32) * x))\n            encodings.append(tf.cos(2.0 ** i * tf.constant(3.1415926535, dtype=tf.float32) * x))\n        return tf.concat(encodings, axis=-1)\n\n    def call(self, inputs, training=False):\n        (positions, directions) = inputs\n        pos_encoded = self.positional_encoding(positions, self.position_L)\n        dir_encoded = self.positional_encoding(directions, self.direction_L)\n        x = self.dense1(pos_encoded)\n        x = self.dense2(x)\n        x = self.dense3(x)\n        x = self.dense4(x)\n        x = self.dense5(x)\n        x = self.dense6(x)\n        sigma = self.sigma_output(x[:, :1])\n        feature = x[:, 1:]\n        combined = tf.concat([feature, dir_encoded], axis=-1)\n        x = self.dense7(combined)\n        rgb = self.rgb_output(x)\n        return (rgb, sigma)\n\nclass TestModel(tf.keras.Model):\n\n    def __init__(self):\n        super(TestModel, self).__init__()\n        self.nerf = NeRF()\n\n    def call(self, inputs, training=False):\n        output = self.nerf(inputs, training=training)\n        return output\n\ndef get_default_model():\n    return TestModel()\n\ndef get_sample_inputs():\n    tf.config.set_visible_devices([], 'GPU')\n    positions = tf.random.normal([8, 3])\n    directions = tf.random.normal([8, 3])\n    return ((positions, directions),)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    (rgb, sigma) = model(*inputs)\n    print(f'positions shape: {inputs[0][0].shape}')\n    print(f'directions shape: {inputs[0][1].shape}')\n    print(f'rgb shape: {rgb.shape}')\n    print(f'sigma shape: {sigma.shape}')\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out.shape)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\npositions shape: (8, 3)\ndirections shape: (8, 3)\nrgb shape: (8, 3)\nsigma shape: (8, 1)\n2025-12-05 21:14:04.117057: I external/local_xla/xla/service/service.cc:163] XLA service 0x632acefed600 initialized for platform Host (this does not guarantee that XLA will be used). Devices:\n2025-12-05 21:14:04.117070: I external/local_xla/xla/service/service.cc:171]   StreamExecutor device (0): Host, Default Version\n2025-12-05 21:14:04.122367: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1764940444.203647  143456 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.\nTraceback (most recent call last):\nline 75, in main\n    print('XLA Output shape:', compiled_out.shape)\nAttributeError: 'tuple' object has no attribute 'shape'\n```",
+    "state": "closed",
+    "labels": [
+      "stat:awaiting response",
+      "type:bug",
+      "stale",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-05T13:17:43Z",
+    "closed_at": "2025-12-23T02:15:40Z",
+    "updated_at": "2025-12-23T02:15:42Z",
+    "comments_count": 5,
+    "url": "https://github.com/tensorflow/tensorflow/issues/105729",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  },
+  {
+    "id": 3698941734,
+    "number": 105728,
+    "title": "XLA: tf.function(jit_compile=True) fails when calling a tf.function-decorated method inside a Keras Layer, raising NotImplementedError (numpy() only available in eager mode)",
+    "body": "### Issue type\n\nBug\n\n### Have you reproduced the bug with TensorFlow Nightly?\n\nYes\n\n### Source\n\nbinary\n\n### TensorFlow version\n\n2.20.0\n\n### Custom code\n\nYes\n\n### OS platform and distribution\n\nlinux ubuntu 24.04\n\n### Mobile device\n\n_No response_\n\n### Python version\n\n3.9\n\n### Bazel version\n\n_No response_\n\n### GCC/compiler version\n\n_No response_\n\n### CUDA/cuDNN version\n\nCUDA Version 13.0\n\n### GPU model and memory\n\n_No response_\n\n### Current behavior?\n\nWhen compiling the model with @tf.function(jit_compile=True), TensorFlow fails during tracing because a tf.function-decorated method (MemoryNetwork.attention) is invoked inside a Layer.call().\n\nThe compiled execution path crashes with the following error:\n\nNotImplementedError: numpy() is only available when eager execution is enabled.\n\nArguments received by MemoryNetwork.call():\n  • x=tf.Tensor(shape=(8, 20), dtype=float32)\n  • training=False\n\n\nFull stack trace shows failure in:\n\ntrace_type_builder.py: ndarray = value.__array__()\n\n\nThis indicates that XLA tries to interpret a symbolic tensor as a NumPy array during tracing, meaning the type-specialization system incorrectly attempts to use __array__() on a TF resource variable or symbolic tensor.\n\nEager mode works correctly.\nOnly the XLA-compiled function (jit_compile=True) triggers the crash.\n\n### Standalone code to reproduce the issue\n\n```shell\nimport tensorflow as tf\n\nclass MemoryNetwork(tf.keras.layers.Layer):\n\n    def __init__(self, memory_size=128, memory_dim=64, output_dim=10):\n        super(MemoryNetwork, self).__init__()\n        self.memory_size = memory_size\n        self.memory_dim = memory_dim\n        self.output_dim = output_dim\n        self.input_projection = tf.keras.layers.Dense(memory_dim)\n        self.output_layer = tf.keras.layers.Dense(output_dim)\n\n    def build(self, input_shape):\n        self.memory = self.add_weight(shape=(self.memory_size, self.memory_dim), initializer='random_normal', trainable=True, name='memory')\n\n    @tf.function\n    def attention(self, query, memory):\n        query_expanded = tf.expand_dims(query, axis=1)\n        memory_expanded = tf.expand_dims(memory, axis=0)\n        scores = tf.reduce_sum(query_expanded * memory_expanded, axis=-1)\n        attention_weights = tf.nn.softmax(scores, axis=-1)\n        attention_output = tf.matmul(attention_weights, memory)\n        return (attention_output, attention_weights)\n\n    def call(self, x, training=False):\n        query = self.input_projection(x)\n        (attention_output, attention_weights) = self.attention(query, self.memory)\n        combined = query + attention_output\n        output = self.output_layer(combined)\n        return output\n\nclass TestModel(tf.keras.Model):\n\n    def __init__(self):\n        super(TestModel, self).__init__()\n        self.memory_network = MemoryNetwork()\n\n    def call(self, x, training=False):\n        output = self.memory_network(x, training=training)\n        return output\n\ndef get_default_model():\n    return TestModel()\n\ndef get_sample_inputs():\n    x = tf.random.normal([8, 20])\n    return (x,)\n\ndef main():\n    model = get_default_model()\n    inputs = get_sample_inputs()\n    output = model(*inputs)\n    print(f'input shape: {inputs[0].shape}')\n    print(f'output shape: {output.shape}')\n    @tf.function(jit_compile=True)\n    def compiled_forward(*args):\n        return model(*args)\n    compiled_out = compiled_forward(*inputs)\n    print('XLA Output shape:', compiled_out.shape)\n\nif __name__ == '__main__':\n    main()\n```\n\n### Relevant log output\n\n```shell\ninput shape: (8, 20)\noutput shape: (8, 10)\nTraceback (most recent call last):\n\n    NotImplementedError: Exception encountered when calling MemoryNetwork.call().\n    \n    numpy() is only available when eager execution is enabled.\n    \n    Arguments received by MemoryNetwork.call():\n      • x=tf.Tensor(shape=(8, 20), dtype=float32)\n      • training=False\n```",
+    "state": "closed",
+    "labels": [
+      "type:bug",
+      "comp:xla",
+      "TF 2.19"
+    ],
+    "created_at": "2025-12-05T13:12:37Z",
+    "closed_at": "2026-01-20T18:28:30Z",
+    "updated_at": "2026-01-20T18:28:31Z",
+    "comments_count": 1,
+    "url": "https://github.com/tensorflow/tensorflow/issues/105728",
+    "repository": "tensorflow/tensorflow",
+    "user": "Blooming-Tree"
+  }
+]
