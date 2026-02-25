@@ -3,17 +3,19 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
 python-multipart==0.0.6
-dotenv==0.9.9
 
 # Database
 sqlalchemy==2.0.23
 alembic==1.12.1
 
-# AI/ML
-openai==1.6.1
-langchain==0.0.335
-langchain-openai==0.0.2
+# AI/ML - Updated for Groq
+groq==0.4.1
 python-dotenv==1.0.0
+
+# Optional alternatives
+openai==1.3.5  # Fallback
+langchain==0.1.0  # Optional
+ollama==0.1.6  # Local fallback
 
 # Data Processing
 pandas==2.1.3
@@ -24,7 +26,3 @@ regex==2023.10.3
 pytest==7.4.3
 pytest-cov==4.1.0
 httpx==0.25.2
-
-# Optional (for embeddings - Week 6)
-# sentence-transformers==2.2.2
-# faiss-cpu==1.7.4
