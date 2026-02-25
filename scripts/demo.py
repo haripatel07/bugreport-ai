@@ -254,9 +254,9 @@ def demo_before_after():
 
 if __name__ == "__main__":
     print("\n" + "="*80)
-    print(" "*20 + "BugReport AI - Demo")
-    print(" "*10 + "Using Real Bugs from VS Code, TensorFlow, and more")
-    print(" "*18 + "30% Project Completion - First Review")
+    print("-"*80 + "BugReport AI - Demo")
+    print("-"*80 + "Using Real Bugs from VS Code, TensorFlow, and more")
+    print("-"*80 + "30% Project Completion - First Review")
     print("="*80)
     
     # Check if data exists

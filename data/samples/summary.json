@@ -1,0 +1,18 @@
+{
+  "total_samples": 30,
+  "repositories": {
+    "rust-lang/rust": 6,
+    "tensorflow/tensorflow": 6,
+    "scikit-learn/scikit-learn": 6,
+    "python/cpython": 6,
+    "facebook/react": 2,
+    "microsoft/vscode": 1,
+    "pandas-dev/pandas": 2,
+    "nodejs/node": 1
+  },
+  "states": {
+    "closed": 30
+  },
+  "average_body_length": 6412,
+  "average_comments": 5
+}
