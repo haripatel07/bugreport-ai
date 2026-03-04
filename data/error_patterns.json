@@ -1,0 +1,273 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-04",
+  "patterns": {
+    "NullPointerException": {
+      "language": "java",
+      "category": "null_reference",
+      "causes": [
+        {
+          "cause": "Attempting to access method or property on null object",
+          "confidence": 0.9,
+          "recommendation": "Add null check before accessing the object",
+          "code_example": "if (object != null) { object.method(); }"
+        },
+        {
+          "cause": "Uninitialized variable",
+          "confidence": 0.7,
+          "recommendation": "Initialize variable before use or check for null"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": [
+        "Add null validation",
+        "Use Optional<> pattern",
+        "Initialize with default value"
+      ]
+    },
+    "AttributeError": {
+      "language": "python",
+      "category": "attribute_access",
+      "causes": [
+        {
+          "cause": "Accessing attribute on None object",
+          "confidence": 0.85,
+          "recommendation": "Add None check: if obj is not None: obj.attribute",
+          "code_example": "if user is not None:\n    name = user.name"
+        },
+        {
+          "cause": "Typo in attribute name",
+          "confidence": 0.5,
+          "recommendation": "Check spelling of attribute name"
+        },
+        {
+          "cause": "Object does not have expected attribute",
+          "confidence": 0.6,
+          "recommendation": "Verify object type and available attributes"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": [
+        "Add None checks",
+        "Use hasattr() before accessing",
+        "Use getattr() with default value"
+      ]
+    },
+    "TypeError": {
+      "language": ["python", "javascript"],
+      "category": "type_mismatch",
+      "causes": [
+        {
+          "cause": "Operating on incompatible data types",
+          "confidence": 0.8,
+          "recommendation": "Ensure correct type conversion or type checking"
+        },
+        {
+          "cause": "Missing or incorrect number of function arguments",
+          "confidence": 0.7,
+          "recommendation": "Check function signature and call parameters"
+        },
+        {
+          "cause": "Attempting to call non-callable object",
+          "confidence": 0.6,
+          "recommendation": "Verify object is a function before calling"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": [
+        "Add type checking",
+        "Use type hints/annotations",
+        "Validate function arguments"
+      ]
+    },
+    "ReferenceError": {
+      "language": "javascript",
+      "category": "undefined_variable",
+      "causes": [
+        {
+          "cause": "Using undeclared variable",
+          "confidence": 0.9,
+          "recommendation": "Declare variable with let/const before use"
+        },
+        {
+          "cause": "Variable used outside its scope",
+          "confidence": 0.7,
+          "recommendation": "Check variable scope and closure issues"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": [
+        "Declare variables properly",
+        "Use strict mode",
+        "Check variable scope"
+      ]
+    },
+    "ConnectionRefusedError": {
+      "language": "all",
+      "category": "network",
+      "causes": [
+        {
+          "cause": "Service not running on target host/port",
+          "confidence": 0.9,
+          "recommendation": "Start the service or verify it's running"
+        },
+        {
+          "cause": "Firewall blocking connection",
+          "confidence": 0.6,
+          "recommendation": "Check firewall rules and network configuration"
+        },
+        {
+          "cause": "Incorrect host or port number",
+          "confidence": 0.7,
+          "recommendation": "Verify connection parameters"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": [
+        "Start the required service",
+        "Check firewall settings",
+        "Verify host:port configuration"
+      ]
+    },
+    "ImportError": {
+      "language": "python",
+      "category": "dependency",
+      "causes": [
+        {
+          "cause": "Missing dependency not installed",
+          "confidence": 0.9,
+          "recommendation": "Install package with pip: pip install <package>",
+          "code_example": "pip install missing_package"
+        },
+        {
+          "cause": "Circular import dependency",
+          "confidence": 0.5,
+          "recommendation": "Restructure imports to avoid circular dependencies"
+        },
+        {
+          "cause": "Module not in Python path",
+          "confidence": 0.6,
+          "recommendation": "Add module directory to PYTHONPATH"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": [
+        "Install missing packages",
+        "Check requirements.txt",
+        "Fix circular imports"
+      ]
+    },
+    "MemoryError": {
+      "language": "all",
+      "category": "resource",
+      "causes": [
+        {
+          "cause": "Insufficient system memory",
+          "confidence": 0.8,
+          "recommendation": "Optimize memory usage or increase available RAM"
+        },
+        {
+          "cause": "Memory leak in application",
+          "confidence": 0.7,
+          "recommendation": "Profile application for memory leaks"
+        },
+        {
+          "cause": "Processing excessively large data",
+          "confidence": 0.6,
+          "recommendation": "Process data in chunks or streams"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": [
+        "Optimize data structures",
+        "Use generators/iterators",
+        "Implement pagination"
+      ]
+    },
+    "IndexError": {
+      "language": ["python", "javascript"],
+      "category": "array_access",
+      "causes": [
+        {
+          "cause": "Accessing index beyond array/list length",
+          "confidence": 0.9,
+          "recommendation": "Check array length before accessing index",
+          "code_example": "if index < len(array): value = array[index]"
+        },
+        {
+          "cause": "Empty array/list access",
+          "confidence": 0.7,
+          "recommendation": "Verify array is not empty before access"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": [
+        "Add bounds checking",
+        "Validate array length",
+        "Use try-except blocks"
+      ]
+    },
+    "KeyError": {
+      "language": "python",
+      "category": "dictionary_access",
+      "causes": [
+        {
+          "cause": "Accessing non-existent dictionary key",
+          "confidence": 0.9,
+          "recommendation": "Use dict.get() with default or check if key exists",
+          "code_example": "value = dict.get('key', default_value)"
+        },
+        {
+          "cause": "Typo in key name",
+          "confidence": 0.5,
+          "recommendation": "Verify key spelling and case sensitivity"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": [
+        "Use .get() method",
+        "Check 'key in dict'",
+        "Use defaultdict"
+      ]
+    },
+    "FileNotFoundError": {
+      "language": "all",
+      "category": "file_system",
+      "causes": [
+        {
+          "cause": "File path is incorrect or file doesn't exist",
+          "confidence": 0.9,
+          "recommendation": "Verify file path and ensure file exists"
+        },
+        {
+          "cause": "Incorrect working directory",
+          "confidence": 0.6,
+          "recommendation": "Use absolute paths or check current directory"
+        },
+        {
+          "cause": "Missing file permissions",
+          "confidence": 0.5,
+          "recommendation": "Check file read permissions"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": [
+        "Check file path",
+        "Use Path().exists()",
+        "Handle with try-except"
+      ]
+    }
+  },
+  "categories": {
+    "null_reference": "Attempting to use null/None/undefined values",
+    "type_mismatch": "Operations on incompatible types",
+    "undefined_variable": "Using variables before declaration",
+    "network": "Network connectivity and service issues",
+    "dependency": "Missing or problematic dependencies",
+    "resource": "System resource exhaustion",
+    "array_access": "Invalid array/list indexing",
+    "dictionary_access": "Invalid key access in dictionaries/objects",
+    "attribute_access": "Accessing non-existent attributes/properties",
+    "file_system": "File system access issues"
+  }
+}

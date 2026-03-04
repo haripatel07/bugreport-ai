@@ -1,4 +1,6 @@
-"""BugReport AI - FastAPI Application"""
+"""BugReport AI - FastAPI Application
+Updated for Week 5: RCA Integration
+"""
 import os
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,11 +10,12 @@ from typing import Optional
 from app.models.bug_input import BugInputRequest
 from app.services.input_processor import process_bug_input
 from app.services.report_generator import generate_bug_report
+from app.services.rca_engine import analyze_root_cause
 
 app = FastAPI(
     title="BugReport AI API",
     description="AI-powered bug report generation and root cause analysis",
-    version="0.3.0"
+    version="0.4.0"
 )
 
 # CORS middleware
@@ -39,12 +42,14 @@ async def root():
     return {
         "message": "BugReport AI API",
         "status": "running",
-        "version": "0.3.0",
-        "progress": "30% - First Review Ready",
+        "version": "0.4.0",
+        "progress": "40% - Week 5 Complete",
         "features": {
-            "input_processing": "Available",
-            "report_generation": "Available",
-            "root_cause_analysis": "In Development"
+            "input_processing": "✅ Available (Week 2)",
+            "report_generation": "✅ Available (Week 3)",
+            "root_cause_analysis": "✅ Available (Week 5)",
+            "database": "⏳ Coming in Week 7",
+            "frontend": "⏳ Coming in Week 9"
         }
     }
 
@@ -54,6 +59,8 @@ async def root():
 async def health_check():
     """Detailed health check"""
     
+    from app.services.rca_engine import RCAEngine
+    
     # Detect LLM provider
     if os.getenv("GROQ_API_KEY"):
         llm_status = "groq (free, fast)"
@@ -62,21 +69,30 @@ async def health_check():
     else:
         llm_status = "ollama/fallback"
     
+    # Check RCA engine
+    try:
+        engine = RCAEngine()
+        stats = engine.get_statistics()
+        rca_status = f"operational ({stats['total_patterns']} patterns)"
+    except Exception as e:
+        rca_status = f"error: {str(e)}"
+    
     return {
         "status": "healthy",
         "services": {
             "api": "operational",
             "input_processor": "operational",
             "report_generator": "operational",
+            "rca_engine": rca_status,
             "llm_provider": llm_status,
-            "database": "pending",
-            "rca_engine": "pending"
+            "database": "pending"
         },
         "llm_info": {
             "provider": llm_status,
             "free_tier": "groq" in llm_status,
             "models_available": ["llama3-70b", "llama3-8b", "gemma"] if "groq" in llm_status else []
-        }
+        },
+        "weeks_completed": ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"]
     }
 
 
@@ -151,15 +167,47 @@ async def generate_report_endpoint(request: AnalyzeRequest):
         )
 
 
+@app.post("/api/analyze-root-cause")
+async def analyze_root_cause_endpoint(request: AnalyzeRequest):
+    """
+    Analyze root cause of a bug (Week 5 feature)
+    
+    Takes processed bug input and returns probable causes with recommendations.
+    """
+    
+    try:
+        # Process input first
+        processed = process_bug_input(
+            raw_input=request.description,
+            input_type=request.input_type
+        )
+        
+        if request.environment:
+            processed["environment"] = request.environment
+        
+        # Perform RCA
+        rca_result = analyze_root_cause(processed)
+        
+        return {
+            "success": True,
+            "message": "Root cause analysis complete",
+            "processed_input": processed,
+            "root_cause_analysis": rca_result
+        }
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error analyzing root cause: {str(e)}"
+        )
+
+
 @app.post("/api/analyze")
 async def analyze_full(request: AnalyzeRequest):
     """
     MAIN ENDPOINT: Complete bug analysis
     
-    Combines:
-    - Input processing
-    - Report generation
-    - Root cause analysis (in development)
+    NOW INCLUDES ROOT CAUSE ANALYSIS (Week 5)
     """
     
     try:
@@ -175,20 +223,17 @@ async def analyze_full(request: AnalyzeRequest):
         # Step 2: Generate report
         report = generate_bug_report(processed, model=request.model)
         
-        # Step 3: Root cause analysis (placeholder)
-        root_cause = {
-            "status": "not_implemented",
-            "message": "Root cause analysis is in development",
-            "placeholder_causes": ["Coming soon"]
-        }
+        # Step 3: Root cause analysis (NOW REAL!)
+        root_cause = analyze_root_cause(processed)
         
         return {
             "success": True,
-            "message": "Analysis complete",
+            "message": "Complete analysis finished (40% project milestone)",
             "data": {
                 "processed_input": processed,
                 "bug_report": report,
-                "root_cause_analysis": root_cause
+                "root_cause_analysis": root_cause,
+                "completion_status": "40% - Week 5 Complete"
             }
         }
     
@@ -211,6 +256,26 @@ async def get_supported_languages():
     }
 
 
+@app.get("/api/rca/statistics")
+async def get_rca_statistics():
+    """Get RCA engine statistics (Week 5 feature)"""
+    
+    try:
+        from app.services.rca_engine import RCAEngine
+        engine = RCAEngine()
+        stats = engine.get_statistics()
+        
+        return {
+            "success": True,
+            "statistics": stats
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error getting RCA statistics: {str(e)}"
+        )
+
+
 @app.get("/api/stats")
 async def get_stats():
     """Get project statistics"""
@@ -218,18 +283,20 @@ async def get_stats():
         "features_ready": [
             "Data collection (200+ bugs)",
             "Input processing (7 languages)",
-            "LLM-based report generation"
+            "LLM-based report generation",
+            "Root cause analysis (10 error patterns)"
         ],
         "coming_soon": [
-            "Root cause analysis",
+            "Database integration",
             "Web dashboard",
             "Deployment"
         ],
         "metrics": {
             "bugs_collected": "200+",
             "test_cases": 30,
-            "api_endpoints": 7,
-            "test_coverage": "85%"
+            "api_endpoints": 9,
+            "test_coverage": "85%",
+            "rca_patterns": 10
         }
     }
 
