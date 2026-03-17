@@ -1,6 +1,6 @@
 {
   "collection_date": "2026-02-20T10:10:54.042024",
-  "total_issues": 177,
+  "total_issues": 218,
   "successful_repositories": 9,
   "total_repositories": 10,
   "repositories": [
@@ -16,5 +16,7 @@
     "rust-lang/rust"
   ],
   "output_directory": "data/raw/github_issues",
-  "github_token_used": true
+  "github_token_used": true,
+  "last_updated": "2026-03-06T22:04:21.983116",
+  "new_issues_this_run": 41
 }

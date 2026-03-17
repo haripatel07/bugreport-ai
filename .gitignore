@@ -2,6 +2,8 @@
 .env
 .env.local
 *.env
+.venv
+backend/.venv/
 
 # Python
 __pycache__/
@@ -22,6 +24,16 @@ build/
 *.swp
 *.swo
 *~
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+frontend/src/**/*.js
+frontend/src/**/*.js.map
+frontend/src/**/*.d.ts
+frontend/src/**/*.d.ts.map
 
 # Data (exclude raw data, keep samples)
 data/raw/github_issues/*.json
@@ -60,3 +72,5 @@ models/*.pt
 .pytest_cache/
 .coverage
 htmlcov/
+
+CONTEXT.md

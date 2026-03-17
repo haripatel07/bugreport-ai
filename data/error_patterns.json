@@ -1,273 +1,686 @@
 {
-  "version": "1.0",
-  "last_updated": "2026-03-04",
+  "version": "2.0",
+  "last_updated": "2026-03-06",
   "patterns": {
     "NullPointerException": {
       "language": "java",
       "category": "null_reference",
       "causes": [
         {
-          "cause": "Attempting to access method or property on null object",
+          "cause": "Calling a method on an uninitialised or null object reference",
           "confidence": 0.9,
-          "recommendation": "Add null check before accessing the object",
+          "recommendation": "Add an explicit null-check before dereferencing",
           "code_example": "if (object != null) { object.method(); }"
         },
         {
-          "cause": "Uninitialized variable",
-          "confidence": 0.7,
-          "recommendation": "Initialize variable before use or check for null"
+          "cause": "Returning null from a method that callers do not guard against",
+          "confidence": 0.75,
+          "recommendation": "Return Optional<T> instead of raw null",
+          "code_example": "Optional<User> findUser(int id) { ... }"
+        },
+        {
+          "cause": "Uninitialised field accessed before the constructor completes",
+          "confidence": 0.6,
+          "recommendation": "Initialise all fields in the constructor or with field defaults"
         }
       ],
       "severity": "high",
-      "common_fixes": [
-        "Add null validation",
-        "Use Optional<> pattern",
-        "Initialize with default value"
-      ]
+      "common_fixes": ["Null-check before use", "Use Optional<>", "Initialise with defaults"]
     },
     "AttributeError": {
       "language": "python",
       "category": "attribute_access",
       "causes": [
         {
-          "cause": "Accessing attribute on None object",
+          "cause": "Accessing an attribute on a None object",
           "confidence": 0.85,
-          "recommendation": "Add None check: if obj is not None: obj.attribute",
+          "recommendation": "Guard with: if obj is not None: obj.attribute",
           "code_example": "if user is not None:\n    name = user.name"
         },
         {
-          "cause": "Typo in attribute name",
+          "cause": "Typo in the attribute name",
           "confidence": 0.5,
-          "recommendation": "Check spelling of attribute name"
+          "recommendation": "Use dir(obj) or IDE auto-complete to verify the correct name"
         },
         {
-          "cause": "Object does not have expected attribute",
+          "cause": "Object type does not have the expected attribute at runtime",
           "confidence": 0.6,
-          "recommendation": "Verify object type and available attributes"
+          "recommendation": "Use hasattr(obj, 'attr') before access, or getattr(obj, 'attr', default)"
         }
       ],
       "severity": "high",
-      "common_fixes": [
-        "Add None checks",
-        "Use hasattr() before accessing",
-        "Use getattr() with default value"
-      ]
+      "common_fixes": ["None-check before access", "hasattr() guard", "getattr() with default"]
     },
     "TypeError": {
       "language": ["python", "javascript"],
       "category": "type_mismatch",
       "causes": [
         {
-          "cause": "Operating on incompatible data types",
+          "cause": "Performing an operation on incompatible data types",
           "confidence": 0.8,
-          "recommendation": "Ensure correct type conversion or type checking"
+          "recommendation": "Ensure explicit type conversion before the operation"
         },
         {
-          "cause": "Missing or incorrect number of function arguments",
+          "cause": "Calling a function with wrong number or type of arguments",
           "confidence": 0.7,
-          "recommendation": "Check function signature and call parameters"
+          "recommendation": "Check the function signature and match the call parameters"
         },
         {
-          "cause": "Attempting to call non-callable object",
+          "cause": "Treating a non-callable object as a function",
           "confidence": 0.6,
-          "recommendation": "Verify object is a function before calling"
+          "recommendation": "Verify the variable holds a callable before invoking it"
         }
       ],
       "severity": "medium",
-      "common_fixes": [
-        "Add type checking",
-        "Use type hints/annotations",
-        "Validate function arguments"
-      ]
+      "common_fixes": ["Add type checks", "Use type annotations", "Validate arguments"]
+    },
+    "ValueError": {
+      "language": "python",
+      "category": "invalid_value",
+      "causes": [
+        {
+          "cause": "Passing a value that is the right type but semantically invalid (e.g. int('abc'))",
+          "confidence": 0.85,
+          "recommendation": "Validate input before conversion using try/except or a regex check",
+          "code_example": "try:\n    n = int(user_input)\nexcept ValueError:\n    n = 0"
+        },
+        {
+          "cause": "Unpacking a sequence into the wrong number of variables",
+          "confidence": 0.75,
+          "recommendation": "Ensure the sequence length matches the number of unpack targets",
+          "code_example": "a, b, c = some_list  # raises if len(some_list) != 3"
+        },
+        {
+          "cause": "Providing an out-of-range argument to a maths or conversion function",
+          "confidence": 0.6,
+          "recommendation": "Clamp or validate values before passing to math/conversion functions"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Validate before conversion", "try/except ValueError", "Check sequence length"]
+    },
+    "RuntimeError": {
+      "language": "python",
+      "category": "runtime_state",
+      "causes": [
+        {
+          "cause": "Dictionary changed size during iteration",
+          "confidence": 0.8,
+          "recommendation": "Iterate over a copy: for k in list(d): ...",
+          "code_example": "for key in list(dictionary.keys()):\n    del dictionary[key]"
+        },
+        {
+          "cause": "Generator raised StopIteration inside a generator body (Python 3.7+ RuntimeError)",
+          "confidence": 0.6,
+          "recommendation": "Replace bare StopIteration raises with a return statement inside generators"
+        },
+        {
+          "cause": "asyncio coroutine called outside a running event loop",
+          "confidence": 0.7,
+          "recommendation": "Use asyncio.run() at the top level or await inside an async context"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Iterate over copy", "Use asyncio.run()", "Check generator semantics"]
+    },
+    "RecursionError": {
+      "language": "python",
+      "category": "stack_overflow",
+      "causes": [
+        {
+          "cause": "Missing or incorrect base case in a recursive function",
+          "confidence": 0.9,
+          "recommendation": "Add a terminating base case and verify it is reached for all inputs",
+          "code_example": "def factorial(n):\n    if n <= 1:  # base case\n        return 1\n    return n * factorial(n - 1)"
+        },
+        {
+          "cause": "Accidental mutual or self-recursion in dunder methods (__repr__, __eq__)",
+          "confidence": 0.65,
+          "recommendation": "Check __repr__, __str__, __eq__ for calls that trigger themselves"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Add base case", "Convert to iterative loop", "Increase recursion limit with care"]
+    },
+    "PermissionError": {
+      "language": "all",
+      "category": "file_system",
+      "causes": [
+        {
+          "cause": "OS file/directory permissions deny read, write, or execute access",
+          "confidence": 0.9,
+          "recommendation": "Run chmod/chown to fix permissions, or run the process as the correct user"
+        },
+        {
+          "cause": "Attempting to write to a read-only filesystem or protected system directory",
+          "confidence": 0.7,
+          "recommendation": "Write to a user-writable path (e.g. /tmp or user home directory)"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Fix file permissions (chmod)", "Use user-writable path", "Run as correct user"]
+    },
+    "TimeoutError": {
+      "language": "all",
+      "category": "network",
+      "causes": [
+        {
+          "cause": "Remote service or database did not respond within the configured timeout",
+          "confidence": 0.85,
+          "recommendation": "Increase timeout threshold and add retry with exponential back-off"
+        },
+        {
+          "cause": "Slow query or CPU-bound task blocking the event loop",
+          "confidence": 0.7,
+          "recommendation": "Move heavy work to a thread-pool executor or a background worker"
+        },
+        {
+          "cause": "Network congestion or packet loss causing connection delay",
+          "confidence": 0.6,
+          "recommendation": "Check network health and implement the circuit-breaker pattern"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Adjust timeout values", "Add retry logic with back-off", "Move work to background"]
+    },
+    "SyntaxError": {
+      "language": ["python", "javascript"],
+      "category": "parse_error",
+      "causes": [
+        {
+          "cause": "Missing closing bracket, parenthesis, or quotation mark",
+          "confidence": 0.85,
+          "recommendation": "Use an editor with bracket matching to locate the unclosed delimiter"
+        },
+        {
+          "cause": "Reserved keyword used as a variable or function name",
+          "confidence": 0.7,
+          "recommendation": "Rename the identifier to avoid collision with a language keyword"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": ["Check brackets/quotes", "Lint before running", "Rename conflicting identifiers"]
+    },
+    "NameError": {
+      "language": "python",
+      "category": "undefined_variable",
+      "causes": [
+        {
+          "cause": "Variable referenced before it is assigned in the current scope",
+          "confidence": 0.85,
+          "recommendation": "Ensure the variable is assigned before first use in all code paths"
+        },
+        {
+          "cause": "Typo in the variable name",
+          "confidence": 0.65,
+          "recommendation": "Check spelling; use IDE auto-complete to avoid typos"
+        },
+        {
+          "cause": "Variable defined inside a conditional block and used outside when the condition was false",
+          "confidence": 0.6,
+          "recommendation": "Initialise the variable with a default value before the conditional block"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Initialise before use", "Fix typo", "Assign default at outer scope"]
+    },
+    "UnicodeDecodeError": {
+      "language": "python",
+      "category": "encoding",
+      "causes": [
+        {
+          "cause": "Reading a file opened with the wrong encoding (e.g. ASCII vs UTF-8)",
+          "confidence": 0.9,
+          "recommendation": "Open with explicit encoding: open(path, encoding='utf-8')",
+          "code_example": "with open('file.txt', encoding='utf-8', errors='replace') as f:\n    content = f.read()"
+        },
+        {
+          "cause": "Binary HTTP response not decoded before text processing",
+          "confidence": 0.7,
+          "recommendation": "Use response.text instead of response.content, or decode manually"
+        },
+        {
+          "cause": "File contains mixed or legacy encoding (Latin-1, Windows-1252)",
+          "confidence": 0.6,
+          "recommendation": "Detect encoding with chardet, then open with the detected codec"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Specify encoding= parameter", "Use errors='replace'", "Detect with chardet"]
+    },
+    "ZeroDivisionError": {
+      "language": ["python", "javascript", "all"],
+      "category": "arithmetic",
+      "causes": [
+        {
+          "cause": "Denominator is zero with no guard at the call site",
+          "confidence": 0.95,
+          "recommendation": "Check divisor before division",
+          "code_example": "result = numerator / denominator if denominator != 0 else 0"
+        },
+        {
+          "cause": "User-supplied input accepted without validation and used directly as a divisor",
+          "confidence": 0.7,
+          "recommendation": "Validate and sanitise user inputs; reject zero values explicitly"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Guard divisor != 0", "Validate inputs", "Catch ArithmeticError"]
+    },
+    "StackOverflowError": {
+      "language": ["java", "javascript"],
+      "category": "stack_overflow",
+      "causes": [
+        {
+          "cause": "Infinitely recursive call — base case missing or unreachable",
+          "confidence": 0.9,
+          "recommendation": "Add a base case or convert the recursion to an iterative loop"
+        },
+        {
+          "cause": "Circular object serialisation (e.g. JSON.stringify on a circular structure)",
+          "confidence": 0.65,
+          "recommendation": "Break circular references or use a replacer function in JSON.stringify"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": ["Add base case", "Convert to iteration", "Break circular references"]
+    },
+    "ClassNotFoundException": {
+      "language": "java",
+      "category": "dependency",
+      "causes": [
+        {
+          "cause": "JAR or class file absent from the runtime classpath",
+          "confidence": 0.9,
+          "recommendation": "Add the missing dependency to pom.xml / build.gradle"
+        },
+        {
+          "cause": "Fully-qualified class name passed to Class.forName() contains a typo",
+          "confidence": 0.7,
+          "recommendation": "Verify the class name string including the full package path"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Fix dependency in build config", "Check classpath", "Verify class name spelling"]
+    },
+    "IllegalArgumentException": {
+      "language": "java",
+      "category": "invalid_value",
+      "causes": [
+        {
+          "cause": "Method received an argument that violates its documented contract",
+          "confidence": 0.85,
+          "recommendation": "Read the method Javadoc for preconditions and validate before calling"
+        },
+        {
+          "cause": "Negative value passed where only positive is allowed",
+          "confidence": 0.7,
+          "recommendation": "Add input validation: Preconditions.checkArgument(n > 0) or a manual if-throw"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Validate before calling", "Read API Javadoc", "Use Preconditions.checkArgument"]
+    },
+    "OutOfMemoryError": {
+      "language": "java",
+      "category": "resource",
+      "causes": [
+        {
+          "cause": "Heap space exhausted by unbounded object creation or loading a large dataset at once",
+          "confidence": 0.8,
+          "recommendation": "Increase -Xmx JVM flag or switch to streaming / pagination"
+        },
+        {
+          "cause": "Memory leak — objects held in static collections or caches without eviction",
+          "confidence": 0.7,
+          "recommendation": "Use WeakReference, SoftReference, or a cache with an eviction policy (Caffeine, Guava)"
+        },
+        {
+          "cause": "Metaspace exhausted by classloader leaks (dynamic class generation)",
+          "confidence": 0.55,
+          "recommendation": "Increase -XX:MaxMetaspaceSize and profile classloaders for leaks"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": ["Increase heap (-Xmx)", "Fix memory leaks with profiler", "Use streaming/pagination"]
     },
     "ReferenceError": {
       "language": "javascript",
       "category": "undefined_variable",
       "causes": [
         {
-          "cause": "Using undeclared variable",
+          "cause": "Using an undeclared variable — var/let/const declaration is missing",
           "confidence": 0.9,
-          "recommendation": "Declare variable with let/const before use"
+          "recommendation": "Declare all variables with let or const before use"
         },
         {
-          "cause": "Variable used outside its scope",
+          "cause": "Variable accessed inside the temporal dead zone (TDZ) of a let/const declaration",
           "confidence": 0.7,
-          "recommendation": "Check variable scope and closure issues"
+          "recommendation": "Move the let/const declaration above the first point of use"
         }
       ],
       "severity": "high",
-      "common_fixes": [
-        "Declare variables properly",
-        "Use strict mode",
-        "Check variable scope"
-      ]
+      "common_fixes": ["Declare with let/const", "Enable strict mode", "Check variable scope"]
+    },
+    "RangeError": {
+      "language": "javascript",
+      "category": "invalid_value",
+      "causes": [
+        {
+          "cause": "Creating an Array with a negative, non-finite, or non-integer length",
+          "confidence": 0.85,
+          "recommendation": "Validate the value before passing it to new Array(n)"
+        },
+        {
+          "cause": "Number.toFixed() or toPrecision() called with an out-of-range argument",
+          "confidence": 0.65,
+          "recommendation": "Clamp precision to the valid range [0, 100] before calling"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Validate numeric bounds", "Clamp to valid range", "Check MDN for arg constraints"]
+    },
+    "UnhandledPromiseRejection": {
+      "language": ["javascript", "nodejs"],
+      "category": "async_error",
+      "causes": [
+        {
+          "cause": "await is missing — Promise rejection propagates without being caught",
+          "confidence": 0.85,
+          "recommendation": "Wrap async calls in try/catch or add .catch() to the Promise chain",
+          "code_example": "try {\n  const data = await fetchData();\n} catch (err) {\n  console.error(err);\n}"
+        },
+        {
+          "cause": "Error thrown inside a Promise executor without calling reject()",
+          "confidence": 0.7,
+          "recommendation": "Always call reject(err) inside the catch branch of Promise executors"
+        },
+        {
+          "cause": "Event handler returns a Promise that is not awaited by the calling framework",
+          "confidence": 0.6,
+          "recommendation": "Make the event handler async and await all inner Promises"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Add .catch() or try/catch", "Await all async calls", "Add process.on('unhandledRejection')"]
+    },
+    "SegmentationFault": {
+      "language": ["c", "cpp"],
+      "category": "memory_access",
+      "causes": [
+        {
+          "cause": "Dereferencing a null or uninitialised pointer",
+          "confidence": 0.85,
+          "recommendation": "Initialise all pointers to NULL and check before dereferencing",
+          "code_example": "if (ptr != NULL) { *ptr = value; }"
+        },
+        {
+          "cause": "Heap buffer overflow — writing past the end of a malloc'd block",
+          "confidence": 0.7,
+          "recommendation": "Use bounds-checked functions (strncpy, snprintf) and validate sizes before writes"
+        },
+        {
+          "cause": "Stack buffer overflow from a large VLA or deep recursion exceeding stack size",
+          "confidence": 0.6,
+          "recommendation": "Use heap allocation for large buffers; limit recursion depth"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": ["Initialise pointers", "Run valgrind / AddressSanitizer", "Bounds-check all writes"]
     },
     "ConnectionRefusedError": {
       "language": "all",
       "category": "network",
       "causes": [
         {
-          "cause": "Service not running on target host/port",
+          "cause": "Target service is not running or is bound to a different port",
           "confidence": 0.9,
-          "recommendation": "Start the service or verify it's running"
+          "recommendation": "Start the service and confirm the correct host:port"
         },
         {
-          "cause": "Firewall blocking connection",
+          "cause": "Firewall or security group rule blocking the outbound connection",
           "confidence": 0.6,
-          "recommendation": "Check firewall rules and network configuration"
+          "recommendation": "Check iptables / cloud security-group rules; open the required port"
         },
         {
-          "cause": "Incorrect host or port number",
+          "cause": "Incorrect host or port in the application configuration",
           "confidence": 0.7,
-          "recommendation": "Verify connection parameters"
+          "recommendation": "Verify host:port in config file or environment variable"
         }
       ],
       "severity": "critical",
-      "common_fixes": [
-        "Start the required service",
-        "Check firewall settings",
-        "Verify host:port configuration"
-      ]
+      "common_fixes": ["Start the service", "Check firewall rules", "Verify connection config"]
     },
     "ImportError": {
       "language": "python",
       "category": "dependency",
       "causes": [
         {
-          "cause": "Missing dependency not installed",
+          "cause": "Package is not installed in the active Python environment",
           "confidence": 0.9,
-          "recommendation": "Install package with pip: pip install <package>",
-          "code_example": "pip install missing_package"
+          "recommendation": "pip install <package> or reinstall from requirements.txt",
+          "code_example": "pip install -r requirements.txt"
         },
         {
-          "cause": "Circular import dependency",
+          "cause": "Circular import between two modules",
           "confidence": 0.5,
-          "recommendation": "Restructure imports to avoid circular dependencies"
+          "recommendation": "Move the import inside the function body or extract a shared module"
         },
         {
-          "cause": "Module not in Python path",
+          "cause": "Module directory is not on sys.path / PYTHONPATH",
           "confidence": 0.6,
-          "recommendation": "Add module directory to PYTHONPATH"
+          "recommendation": "Activate the virtual environment or add the project root to PYTHONPATH"
         }
       ],
       "severity": "high",
-      "common_fixes": [
-        "Install missing packages",
-        "Check requirements.txt",
-        "Fix circular imports"
-      ]
+      "common_fixes": ["pip install missing package", "Fix circular imports", "Activate venv"]
+    },
+    "ModuleNotFoundError": {
+      "language": "python",
+      "category": "dependency",
+      "causes": [
+        {
+          "cause": "Package name typo in the import statement",
+          "confidence": 0.75,
+          "recommendation": "Check the exact package name on PyPI and correct the import"
+        },
+        {
+          "cause": "Package installed in a different Python environment than the one running the script",
+          "confidence": 0.8,
+          "recommendation": "Run 'which python' and 'pip show <package>' to confirm the active environment"
+        }
+      ],
+      "severity": "high",
+      "common_fixes": ["Verify venv is activated", "Check import spelling", "pip install <package>"]
     },
     "MemoryError": {
       "language": "all",
       "category": "resource",
       "causes": [
         {
-          "cause": "Insufficient system memory",
+          "cause": "Loading an entire large file or dataset into memory at once",
           "confidence": 0.8,
-          "recommendation": "Optimize memory usage or increase available RAM"
+          "recommendation": "Stream or chunk the data: pandas read_csv(chunksize=) or Python generators"
         },
         {
-          "cause": "Memory leak in application",
+          "cause": "Memory leak — objects accumulating in collections without being freed",
           "confidence": 0.7,
-          "recommendation": "Profile application for memory leaks"
+          "recommendation": "Profile with tracemalloc or memory_profiler to locate the leak"
         },
         {
-          "cause": "Processing excessively large data",
+          "cause": "Producing an extremely large intermediate data structure (Cartesian product, etc.)",
           "confidence": 0.6,
-          "recommendation": "Process data in chunks or streams"
+          "recommendation": "Replace with lazy iterators (itertools) to avoid materialising huge structures"
         }
       ],
       "severity": "critical",
-      "common_fixes": [
-        "Optimize data structures",
-        "Use generators/iterators",
-        "Implement pagination"
-      ]
+      "common_fixes": ["Stream data in chunks", "Use generators/iterators", "Profile with tracemalloc"]
     },
     "IndexError": {
       "language": ["python", "javascript"],
       "category": "array_access",
       "causes": [
         {
-          "cause": "Accessing index beyond array/list length",
+          "cause": "Index out of range — accessing a position beyond the list/array length",
           "confidence": 0.9,
-          "recommendation": "Check array length before accessing index",
-          "code_example": "if index < len(array): value = array[index]"
+          "recommendation": "Bounds-check before indexing",
+          "code_example": "if 0 <= index < len(array):\n    value = array[index]"
         },
         {
-          "cause": "Empty array/list access",
-          "confidence": 0.7,
-          "recommendation": "Verify array is not empty before access"
+          "cause": "Simultaneously iterating and deleting elements, shifting remaining indices",
+          "confidence": 0.65,
+          "recommendation": "Iterate over a copy or use list comprehension instead"
         }
       ],
       "severity": "medium",
-      "common_fixes": [
-        "Add bounds checking",
-        "Validate array length",
-        "Use try-except blocks"
-      ]
+      "common_fixes": ["Add bounds check", "Iterate over a copy", "Use try/except IndexError"]
     },
     "KeyError": {
       "language": "python",
       "category": "dictionary_access",
       "causes": [
         {
-          "cause": "Accessing non-existent dictionary key",
+          "cause": "Accessing a key that does not exist in the dictionary",
           "confidence": 0.9,
-          "recommendation": "Use dict.get() with default or check if key exists",
-          "code_example": "value = dict.get('key', default_value)"
+          "recommendation": "Use dict.get('key', default) or check 'key' in dict first",
+          "code_example": "value = data.get('expected_key', default_value)"
         },
         {
-          "cause": "Typo in key name",
+          "cause": "Key name typo or case-sensitivity mismatch",
           "confidence": 0.5,
-          "recommendation": "Verify key spelling and case sensitivity"
+          "recommendation": "Print dict.keys() at runtime to verify available keys"
         }
       ],
       "severity": "medium",
-      "common_fixes": [
-        "Use .get() method",
-        "Check 'key in dict'",
-        "Use defaultdict"
-      ]
+      "common_fixes": ["Use .get()", "Check key existence first", "Use defaultdict"]
     },
     "FileNotFoundError": {
       "language": "all",
       "category": "file_system",
       "causes": [
         {
-          "cause": "File path is incorrect or file doesn't exist",
+          "cause": "File path is wrong or the file has not been created yet",
           "confidence": 0.9,
-          "recommendation": "Verify file path and ensure file exists"
+          "recommendation": "Use Path.exists() before opening and log the resolved absolute path"
         },
         {
-          "cause": "Incorrect working directory",
+          "cause": "Relative path resolves differently depending on the working directory",
           "confidence": 0.6,
-          "recommendation": "Use absolute paths or check current directory"
+          "recommendation": "Use Path(__file__).parent / 'relative/path' for script-relative paths"
         },
         {
-          "cause": "Missing file permissions",
-          "confidence": 0.5,
-          "recommendation": "Check file read permissions"
+          "cause": "File was deleted or moved by another process during execution",
+          "confidence": 0.45,
+          "recommendation": "Use file locking or re-check existence inside the critical section"
         }
       ],
       "severity": "high",
-      "common_fixes": [
-        "Check file path",
-        "Use Path().exists()",
-        "Handle with try-except"
-      ]
+      "common_fixes": ["Use Path.exists()", "Use absolute paths", "Handle with try/except"]
+    },
+    "JSONDecodeError": {
+      "language": "python",
+      "category": "parse_error",
+      "causes": [
+        {
+          "cause": "HTTP response is not JSON (HTML error page or empty body returned instead)",
+          "confidence": 0.85,
+          "recommendation": "Check response.status_code and Content-Type before calling .json()",
+          "code_example": "if response.headers.get('Content-Type','').startswith('application/json'):\n    data = response.json()"
+        },
+        {
+          "cause": "JSON file has a trailing comma or JavaScript-style comments — both are invalid JSON",
+          "confidence": 0.7,
+          "recommendation": "Validate with a JSON linter; use commentjson library for commented config files"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Check Content-Type before .json()", "Lint JSON file", "Wrap in try/except"]
+    },
+    "DatabaseError": {
+      "language": "all",
+      "category": "database",
+      "causes": [
+        {
+          "cause": "Connection string is wrong or database server is unreachable",
+          "confidence": 0.85,
+          "recommendation": "Verify DATABASE_URL and check that the DB server is running"
+        },
+        {
+          "cause": "Schema mismatch — column or table does not exist because migration was not run",
+          "confidence": 0.75,
+          "recommendation": "Run database migrations: alembic upgrade head (or equivalent)"
+        },
+        {
+          "cause": "Connection pool exhausted by too many concurrent queries",
+          "confidence": 0.6,
+          "recommendation": "Increase pool_size in SQLAlchemy or set a connection limit on the DB server"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": ["Run pending migrations", "Verify DATABASE_URL", "Increase connection pool size"]
+    },
+    "PanicError": {
+      "language": ["rust", "go"],
+      "category": "runtime_state",
+      "causes": [
+        {
+          "cause": "Unwrapping a None/Err value with .unwrap() in Rust, or nil pointer dereference in Go",
+          "confidence": 0.9,
+          "recommendation": "Use pattern matching (if let / match) in Rust; nil-check before use in Go",
+          "code_example": "// Rust\nif let Some(value) = option {\n    process(value);\n}"
+        },
+        {
+          "cause": "Slice/array index out of bounds at runtime",
+          "confidence": 0.75,
+          "recommendation": "Bounds-check before indexing, or use .get() which returns Option in Rust"
+        }
+      ],
+      "severity": "critical",
+      "common_fixes": ["Replace .unwrap() with match/if let", "Nil-check in Go", "Use bounds-safe accessors"]
+    },
+    "ValidationError": {
+      "language": ["python", "javascript"],
+      "category": "invalid_value",
+      "causes": [
+        {
+          "cause": "API request body does not conform to the expected Pydantic / JSON schema",
+          "confidence": 0.85,
+          "recommendation": "Read the validation error detail to find exactly which field failed and why"
+        },
+        {
+          "cause": "Enum or Literal field receives a value not declared in the schema",
+          "confidence": 0.7,
+          "recommendation": "Update the Enum definition or sanitise the value upstream"
+        },
+        {
+          "cause": "A nested model has a required field missing from the incoming payload",
+          "confidence": 0.65,
+          "recommendation": "Make the field Optional with a default, or ensure the upstream service sends it"
+        }
+      ],
+      "severity": "medium",
+      "common_fixes": ["Read Pydantic error detail", "Update schema definition", "Add Optional with defaults"]
     }
   },
   "categories": {
-    "null_reference": "Attempting to use null/None/undefined values",
+    "null_reference": "Using null/None/undefined references",
     "type_mismatch": "Operations on incompatible types",
-    "undefined_variable": "Using variables before declaration",
-    "network": "Network connectivity and service issues",
-    "dependency": "Missing or problematic dependencies",
-    "resource": "System resource exhaustion",
-    "array_access": "Invalid array/list indexing",
-    "dictionary_access": "Invalid key access in dictionaries/objects",
-    "attribute_access": "Accessing non-existent attributes/properties",
-    "file_system": "File system access issues"
+    "invalid_value": "Correct type but semantically invalid value",
+    "undefined_variable": "Using variables before declaration or out of scope",
+    "runtime_state": "Error caused by inconsistent program state at runtime",
+    "network": "Network connectivity and service availability issues",
+    "dependency": "Missing, misconfigured, or circular dependencies",
+    "resource": "System resource exhaustion (memory, file descriptors, thread pool)",
+    "array_access": "Invalid array, list, or slice indexing",
+    "dictionary_access": "Invalid key access in dict/map/object",
+    "attribute_access": "Accessing non-existent attributes or properties",
+    "file_system": "File system access, path resolution, and permission issues",
+    "encoding": "Character encoding and decoding errors",
+    "arithmetic": "Mathematical operation errors (division, overflow)",
+    "stack_overflow": "Call stack depth exceeded",
+    "memory_access": "Invalid memory read/write in native languages",
+    "async_error": "Errors in asynchronous or Promise-based code",
+    "parse_error": "Syntax or data-format parsing failures",
+    "database": "Database connectivity, schema, and query errors"
   }
 }

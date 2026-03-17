@@ -80,6 +80,8 @@ class BugReportGenerator:
   "expected_behavior": "What should happen normally",
   "actual_behavior": "What actually happened (the bug)",
   "severity": "critical|high|medium|low",
+  "priority": "P0|P1|P2|P3",
+  "root_cause": "One-sentence technical explanation of the underlying cause",
   "affected_components": ["file1.py", "module2", "component3"],
   "environment": {
     "os": "Operating system if known",
@@ -97,9 +99,15 @@ class BugReportGenerator:
    - high: Major feature broken, blocks users
    - medium: Feature partially broken, workaround exists
    - low: Minor issue, cosmetic, rare edge case
-5. If information is missing, make reasonable inferences
-6. Keep title under 80 characters
-7. ONLY output valid JSON, no extra text
+5. Priority levels (business impact, independent of severity):
+   - P0: Must fix immediately — production is down or data is at risk
+   - P1: Fix in current sprint — significant user-facing impact
+   - P2: Fix in next sprint — moderate impact, workaround exists
+   - P3: Fix when convenient — minor or cosmetic issue
+6. root_cause: one sentence, technically precise (e.g. "get_user() returns None when the session has expired but the caller does not check for None before calling .name")
+7. If information is missing, make reasonable inferences
+8. Keep title under 80 characters
+9. ONLY output valid JSON, no extra text
 
 **Return ONLY the JSON object, nothing else.**"""
     
@@ -307,6 +315,8 @@ class BugReportGenerator:
             "expected_behavior": "The application should handle the situation gracefully without errors",
             "actual_behavior": f"{error_type} was raised: {error_msg}",
             "severity": "medium",
+            "priority": "P2",
+            "root_cause": f"{error_type} raised — likely caused by unvalidated input or missing guard condition",
             "affected_components": [f.get("path", "unknown") for f in files[:3]] or ["unknown"],
             "environment": {
                 "language": language,
@@ -331,6 +341,8 @@ class BugReportGenerator:
             "expected_behavior": "Application should work without errors",
             "actual_behavior": "An error occurred",
             "severity": "medium",
+            "priority": "P2",
+            "root_cause": "Root cause could not be automatically determined — manual investigation required",
             "affected_components": ["unknown"],
             "environment": {"language": extracted.get("language", "unknown")}
         }
@@ -355,7 +367,9 @@ class BugReportGenerator:
             "steps_to_reproduce",
             "expected_behavior",
             "actual_behavior",
-            "severity"
+            "severity",
+            "priority",
+            "root_cause"
         ]
         
         missing = []
