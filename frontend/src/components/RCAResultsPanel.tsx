@@ -19,6 +19,7 @@ interface RCAResultsPanelProps {
 
 const RCAResultsPanel: React.FC<RCAResultsPanelProps> = ({ rca }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const probableCauses = Array.isArray(rca?.probable_causes) ? rca.probable_causes : [];
 
   const toggleExpand = (idx: number) => {
     setExpandedIndex(expandedIndex === idx ? null : idx);
@@ -82,7 +83,14 @@ const RCAResultsPanel: React.FC<RCAResultsPanelProps> = ({ rca }) => {
 
       {/* Probable Causes */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {rca.probable_causes.map((cause, idx) => (
+        {probableCauses.length === 0 && (
+          <Paper sx={{ p: 2, bgcolor: '#fff8e1', borderLeft: '4px solid #ffc715' }}>
+            <Typography variant="body2" sx={{ color: '#5f370e' }}>
+              No probable causes available for this input.
+            </Typography>
+          </Paper>
+        )}
+        {probableCauses.map((cause, idx) => (
           <Card
             key={idx}
             sx={{

@@ -42,7 +42,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ open }) => {
             maxWidth: 300,
           }}
         >
-          Processing input, running RCA, searching similar bugs, and generating recommendations...
+          Processing input, running RCA, and generating recommendations...
         </Typography>
       </Box>
     </Backdrop>

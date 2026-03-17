@@ -11,11 +11,11 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { apiService } from '../services/api';
-import { AnalysisResult, SimilarBug, InputType } from '../types';
+import { AnalysisResult, InputType } from '../types';
 
 interface ErrorFormProps {
   onAnalysisStart: () => void;
-  onAnalysisComplete: (result: AnalysisResult, bugs: SimilarBug[]) => void;
+  onAnalysisComplete: (result: AnalysisResult) => void;
   onError: (message: string) => void;
 }
 
@@ -61,20 +61,12 @@ const ErrorForm: React.FC<ErrorFormProps> = ({ onAnalysisStart, onAnalysisComple
       }
 
       const result = await apiService.analyzeError({
-        error_input: errorInput,
+        description: errorInput,
         input_type: inputType,
         environment: envMap,
       });
 
-      // Fetch similar bugs
-      let bugs: SimilarBug[] = [];
-      try {
-        bugs = await apiService.searchSimilarBugs(errorInput, 5);
-      } catch (searchError) {
-        console.warn('Failed to fetch similar bugs:', searchError);
-      }
-
-      onAnalysisComplete(result, bugs);
+      onAnalysisComplete(result);
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to analyze error';
       onError(errorMsg);

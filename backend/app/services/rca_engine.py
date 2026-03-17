@@ -99,8 +99,11 @@ class RCAEngine:
         # Take top 3
         top_causes = root_causes[:3]
         
+        normalized_causes = [cause.to_dict() for cause in top_causes]
+
         return {
-            "root_causes": [cause.to_dict() for cause in top_causes],
+            "probable_causes": normalized_causes,
+            "root_causes": normalized_causes,
             "category": self._determine_category(error_types),
             "severity": self._determine_severity(error_types),
             "common_fixes": self._get_common_fixes(error_types),

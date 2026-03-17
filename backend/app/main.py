@@ -5,7 +5,7 @@ and recommendation engine.
 import os
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from typing import Any, Dict, List, Optional
 
 from app.models.bug_input import BugInputRequest
@@ -31,10 +31,19 @@ app.add_middleware(
 
 class AnalyzeRequest(BaseModel):
     """Request for full analysis (processing + report generation)"""
-    description: str
+    description: Optional[str] = None
+    error_input: Optional[str] = None
+    query: Optional[str] = None
     input_type: str = "text"
     environment: Optional[dict] = None
     model: Optional[str] = None  # Optional: specify LLM model
+
+    @model_validator(mode="after")
+    def populate_description(self):
+        self.description = self.description or self.error_input or self.query
+        if not self.description:
+            raise ValueError("description is required")
+        return self
 
 
 @app.get("/")
@@ -158,11 +167,20 @@ async def get_search_stats():
 
 class RecommendRequest(BaseModel):
     """Request body for the recommend-fix endpoint"""
-    description: str
+    description: Optional[str] = None
+    error_input: Optional[str] = None
+    query: Optional[str] = None
     input_type: str = "text"
     environment: Optional[Dict[str, Any]] = None
     model: Optional[str] = None
     use_search: bool = True  # whether to enrich with semantic search context
+
+    @model_validator(mode="after")
+    def populate_description(self):
+        self.description = self.description or self.error_input or self.query
+        if not self.description:
+            raise ValueError("description is required")
+        return self
 
 
 @app.post("/api/recommend-fix")

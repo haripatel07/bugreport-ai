@@ -65,20 +65,10 @@ export interface AnalysisResult {
   recommendations?: RecommendationResult;
 }
 
-export interface SimilarBug {
-  title: string;
-  body: string;
-  similarity_score: number;
-  labels: string[];
-  repository: string;
-  url: string;
-}
-
 // Form Types
 export interface AnalysisState {
   loading: boolean;
   result: AnalysisResult | null;
-  similarBugs: SimilarBug[];
   error: string | null;
   currentTab: number;
 }

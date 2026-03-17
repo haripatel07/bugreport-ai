@@ -5,10 +5,29 @@ import {
   RecommendationResult,
   ProcessedInput,
   AnalysisResult,
-  SimilarBug,
 } from '../types';
 
 const API_BASE = '/api';
+
+interface AnalyzeEndpointResponse {
+  success: boolean;
+  message: string;
+  data: {
+    processed_input: ProcessedInput;
+    bug_report: BugReport;
+    root_cause_analysis: RCAResult;
+  };
+}
+
+interface RecommendEndpointResponse {
+  success: boolean;
+  message: string;
+  data: {
+    processed_input: ProcessedInput;
+    root_cause_analysis: RCAResult;
+    recommendations: RecommendationResult;
+  };
+}
 
 class BugReportApiService {
   private client: AxiosInstance;
@@ -22,27 +41,42 @@ class BugReportApiService {
     });
   }
 
+  private normalizeRca(rca: RCAResult | (RCAResult & { root_causes?: RCAResult['probable_causes'] })): RCAResult {
+    const probableCauses =
+      rca?.probable_causes ??
+      (rca as { root_causes?: RCAResult['probable_causes'] })?.root_causes ??
+      [];
+
+    return {
+      ...rca,
+      probable_causes: probableCauses,
+    };
+  }
+
   async analyzeError(input: {
-    error_input: string;
+    description: string;
     input_type: 'text' | 'stack_trace' | 'log' | 'json';
     environment?: Record<string, string>;
   }): Promise<AnalysisResult> {
-    const response = await this.client.post<AnalysisResult>('/recommend-fix', {
-      error_input: input.error_input,
-      input_type: input.input_type,
-      environment: input.environment || {},
-      use_search: true,
-    });
-    return response.data;
-  }
+    const [analysisResponse, recommendationResponse] = await Promise.all([
+      this.client.post<AnalyzeEndpointResponse>('/analyze', {
+        description: input.description,
+        input_type: input.input_type,
+        environment: input.environment || {},
+      }),
+      this.client.post<RecommendEndpointResponse>('/recommend-fix', {
+        description: input.description,
+        input_type: input.input_type,
+        environment: input.environment || {},
+        use_search: false,
+      }),
+    ]);
 
-  async searchSimilarBugs(query: string, k: number = 5): Promise<SimilarBug[]> {
-    const response = await this.client.post<{ results: SimilarBug[] }>('/search/similar', {
-      query,
-      k,
-      min_score: 0.3,
-    });
-    return response.data.results;
+    return {
+      ...analysisResponse.data.data,
+      root_cause_analysis: this.normalizeRca(analysisResponse.data.data.root_cause_analysis),
+      recommendations: recommendationResponse.data.data.recommendations,
+    };
   }
 
   async getSupportedLanguages(): Promise<string[]> {
@@ -67,4 +101,4 @@ class BugReportApiService {
 }
 
 export const apiService = new BugReportApiService();
-export type { BugReport, RCAResult, RecommendationResult, ProcessedInput, AnalysisResult, SimilarBug };
+export type { BugReport, RCAResult, RecommendationResult, ProcessedInput, AnalysisResult };

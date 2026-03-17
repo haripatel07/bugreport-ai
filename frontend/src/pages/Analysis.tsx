@@ -7,11 +7,10 @@ import {
   Typography,
   Container,
 } from '@mui/material';
-import { AnalysisResult, SimilarBug } from '../types';
+import { AnalysisResult } from '../types';
 import ErrorForm from '../components/ErrorForm';
 import BugReportViewer from '../components/BugReportViewer';
 import RCAResultsPanel from '../components/RCAResultsPanel';
-import SimilarBugsPanel from '../components/SimilarBugsPanel';
 import LoadingOverlay from '../components/LoadingOverlay';
 
 interface TabPanelProps {
@@ -40,16 +39,14 @@ const AnalysisPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [similarBugs, setSimilarBugs] = useState<SimilarBug[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  const handleAnalysisComplete = (result: AnalysisResult, bugs: SimilarBug[]) => {
+  const handleAnalysisComplete = (result: AnalysisResult) => {
     setAnalysisResult(result);
-    setSimilarBugs(bugs);
     setError(null);
     setTabValue(1);
   };
@@ -57,13 +54,11 @@ const AnalysisPage: React.FC = () => {
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
     setAnalysisResult(null);
-    setSimilarBugs([]);
   };
 
   const handleNewAnalysis = () => {
     setTabValue(0);
     setAnalysisResult(null);
-    setSimilarBugs([]);
     setError(null);
   };
 
@@ -113,9 +108,9 @@ const AnalysisPage: React.FC = () => {
             <TabPanel value={tabValue} index={0}>
               <ErrorForm
                 onAnalysisStart={() => setLoading(true)}
-                onAnalysisComplete={(result, bugs) => {
+                onAnalysisComplete={(result) => {
                   setLoading(false);
-                  handleAnalysisComplete(result, bugs);
+                  handleAnalysisComplete(result);
                 }}
                 onError={(msg) => {
                   setLoading(false);
@@ -205,7 +200,6 @@ const AnalysisPage: React.FC = () => {
                     </Box>
                   )}
 
-                  {similarBugs.length > 0 && <SimilarBugsPanel bugs={similarBugs} />}
                 </Box>
               )}
             </TabPanel>
