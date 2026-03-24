@@ -1,14 +1,19 @@
 """BugReport AI - FastAPI Application
-Weeks 1-8 complete: Input processing, report generation, RCA, semantic search,
-and recommendation engine.
+Weeks 1-12 implemented: analysis pipeline, frontend integration, persistence,
+and deployment scaffolding.
 """
 import os
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, model_validator
 from typing import Any, Dict, List, Optional
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session
 
+from app.db import get_db, init_db
 from app.models.bug_input import BugInputRequest
+from app.models.analysis_record import AnalysisRecord
 from app.services.input_processor import process_bug_input
 from app.services.report_generator import generate_bug_report
 from app.services.rca_engine import analyze_root_cause
@@ -16,8 +21,14 @@ from app.services.rca_engine import analyze_root_cause
 app = FastAPI(
     title="BugReport AI API",
     description="AI-powered bug report generation, root cause analysis, semantic search, and fix recommendations",
-    version="0.8.0"
+    version="1.0.0"
 )
+
+
+@app.on_event("startup")
+def startup_event():
+    """Initialize application resources on startup."""
+    init_db()
 
 # CORS middleware
 app.add_middleware(
@@ -52,23 +63,24 @@ async def root():
     return {
         "message": "BugReport AI API",
         "status": "running",
-        "version": "0.8.0",
-        "progress": "65% - Weeks 1-8 Complete",
+        "version": "1.0.0",
+        "progress": "~95% - Weeks 1-12 implemented; cloud deployment finalization pending",
         "features": {
             "input_processing":    "✅ Available (Week 2)",
             "report_generation":   "✅ Available (Week 3)",
             "root_cause_analysis": "✅ Available (Week 5)",
             "semantic_search":     "✅ Available (Week 6-7)",
             "recommendations":     "✅ Available (Week 8)",
-            "database":            "⏳ Coming in Week 10",
-            "frontend":            "⏳ Coming in Week 9"
+            "frontend":            "✅ Available (Week 9)",
+            "database":            "✅ Available (Week 10)",
+            "deployment":          "✅ Docker + CI ready (Weeks 11-12)"
         }
     }
 
 
 
 @app.get("/api/health")
-async def health_check():
+async def health_check(db: Session = Depends(get_db)):
     """Detailed health check"""
     
     from app.services.rca_engine import RCAEngine
@@ -89,6 +101,12 @@ async def health_check():
     except Exception as e:
         rca_status = f"error: {str(e)}"
     
+    try:
+        db.execute(text("SELECT 1"))
+        db_status = "operational"
+    except Exception as exc:
+        db_status = f"error: {exc}"
+
     return {
         "status": "healthy",
         "services": {
@@ -97,15 +115,59 @@ async def health_check():
             "report_generator": "operational",
             "rca_engine": rca_status,
             "llm_provider": llm_status,
-            "database": "pending"
+            "database": db_status
         },
         "llm_info": {
             "provider": llm_status,
             "free_tier": "groq" in llm_status,
             "models_available": ["llama3-70b", "llama3-8b", "gemma"] if "groq" in llm_status else []
         },
-        "weeks_completed": ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8"]
+        "weeks_completed": [
+            "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8",
+            "Week 9", "Week 10", "Week 11", "Week 12"
+        ]
     }
+
+
+def _persist_record(
+    db: Session,
+    *,
+    description: str,
+    input_type: str,
+    environment: Optional[Dict[str, Any]] = None,
+    processed_input: Optional[Dict[str, Any]] = None,
+    bug_report: Optional[Dict[str, Any]] = None,
+    root_cause_analysis: Optional[Dict[str, Any]] = None,
+    recommendations: Optional[Dict[str, Any]] = None,
+    similar_bugs: Optional[List[Dict[str, Any]]] = None,
+    status_value: str = "completed",
+    error_message: Optional[str] = None,
+) -> AnalysisRecord:
+    """Persist a single analysis lifecycle record."""
+    record = AnalysisRecord(
+        description=description,
+        input_type=input_type,
+        environment=environment,
+        processed_input=processed_input,
+        bug_report=bug_report,
+        root_cause_analysis=root_cause_analysis,
+        recommendations=recommendations,
+        similar_bugs=similar_bugs,
+        status=status_value,
+        error_message=error_message,
+    )
+    try:
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+    except OperationalError as exc:
+        db.rollback()
+        # First-run SQLite use may fail before startup hooks run in tests.
+        init_db()
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+    return record
 
 
 @app.post("/api/search/similar")
@@ -118,7 +180,7 @@ async def search_similar_bugs_endpoint(
     Find semantically similar bugs from the indexed OSS issue corpus. (Week 6–7)
 
     Encodes the input text as a vector and performs approximate nearest-neighbour
-    search over the FAISS index built from 177 real GitHub issues.
+    search over the FAISS index built from 218 real GitHub issues.
 
     Requires the search index to be built first:
         python scripts/build_search_index.py
@@ -184,7 +246,7 @@ class RecommendRequest(BaseModel):
 
 
 @app.post("/api/recommend-fix")
-async def recommend_fix(request: RecommendRequest):
+async def recommend_fix(request: RecommendRequest, db: Session = Depends(get_db)):
     """
     Full pipeline: process → RCA → semantic search → recommendations. (Week 8)
 
@@ -220,10 +282,22 @@ async def recommend_fix(request: RecommendRequest):
         from app.services.recommendation_engine import generate_recommendations
         recommendations = generate_recommendations(processed, rca, similar)
 
+        record = _persist_record(
+            db,
+            description=request.description,
+            input_type=request.input_type,
+            environment=request.environment,
+            processed_input=processed,
+            root_cause_analysis=rca,
+            recommendations=recommendations,
+            similar_bugs=similar,
+        )
+
         return {
             "success": True,
             "message": "Fix recommendations generated",
             "data": {
+                "record_id": record.id,
                 "processed_input": processed,
                 "root_cause_analysis": rca,
                 "similar_bugs": similar,
@@ -232,6 +306,15 @@ async def recommend_fix(request: RecommendRequest):
         }
 
     except Exception as exc:
+        db.rollback()
+        _persist_record(
+            db,
+            description=request.description,
+            input_type=request.input_type,
+            environment=request.environment,
+            status_value="failed",
+            error_message=str(exc),
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error generating recommendations: {exc}",
@@ -352,7 +435,7 @@ async def analyze_cause_alias(request: AnalyzeRequest):
 
 
 @app.post("/api/analyze")
-async def analyze_full(request: AnalyzeRequest):
+async def analyze_full(request: AnalyzeRequest, db: Session = Depends(get_db)):
     """
     MAIN ENDPOINT: Complete bug analysis
     
@@ -375,22 +458,101 @@ async def analyze_full(request: AnalyzeRequest):
         # Step 3: Root cause analysis (NOW REAL!)
         root_cause = analyze_root_cause(processed)
         
+        record = _persist_record(
+            db,
+            description=request.description,
+            input_type=request.input_type,
+            environment=request.environment,
+            processed_input=processed,
+            bug_report=report,
+            root_cause_analysis=root_cause,
+        )
+
         return {
             "success": True,
-            "message": "Complete analysis finished (40% project milestone)",
+            "message": "Complete analysis finished",
             "data": {
+                "record_id": record.id,
                 "processed_input": processed,
                 "bug_report": report,
                 "root_cause_analysis": root_cause,
-                "completion_status": "65% - Weeks 1-8 Complete"
+                "completion_status": "~95% - Weeks 1-12 implemented; cloud deployment finalization pending"
             }
         }
     
     except Exception as e:
+        db.rollback()
+        _persist_record(
+            db,
+            description=request.description,
+            input_type=request.input_type,
+            environment=request.environment,
+            status_value="failed",
+            error_message=str(e),
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error during analysis: {str(e)}"
         )
+
+
+@app.get("/api/history")
+async def get_analysis_history(
+    limit: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    """Return recent persisted analysis records."""
+    records = (
+        db.query(AnalysisRecord)
+        .order_by(AnalysisRecord.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "success": True,
+        "count": len(records),
+        "records": [
+            {
+                "id": record.id,
+                "description": record.description[:200],
+                "input_type": record.input_type,
+                "status": record.status,
+                "created_at": record.created_at.isoformat(),
+                "has_bug_report": bool(record.bug_report),
+                "has_rca": bool(record.root_cause_analysis),
+                "has_recommendations": bool(record.recommendations),
+            }
+            for record in records
+        ],
+    }
+
+
+@app.get("/api/history/{record_id}")
+async def get_analysis_record(record_id: int, db: Session = Depends(get_db)):
+    """Return full details of a persisted analysis record."""
+    record = db.query(AnalysisRecord).filter(AnalysisRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Record not found")
+
+    return {
+        "success": True,
+        "record": {
+            "id": record.id,
+            "description": record.description,
+            "input_type": record.input_type,
+            "environment": record.environment,
+            "processed_input": record.processed_input,
+            "bug_report": record.bug_report,
+            "root_cause_analysis": record.root_cause_analysis,
+            "recommendations": record.recommendations,
+            "similar_bugs": record.similar_bugs,
+            "status": record.status,
+            "error_message": record.error_message,
+            "created_at": record.created_at.isoformat(),
+            "updated_at": record.updated_at.isoformat(),
+        },
+    }
 
 
 @app.get("/api/supported-languages")
@@ -433,19 +595,17 @@ async def get_stats():
             "Data collection (200+ bugs)",
             "Input processing (7 languages)",
             "LLM-based report generation",
-            "Root cause analysis (10 error patterns)"
+            "Root cause analysis (31 error patterns)",
+            "Frontend dashboard",
+            "Database persistence"
         ],
-        "coming_soon": [
-            "React frontend dashboard (Week 9)",
-            "PostgreSQL persistence (Week 10)",
-            "Docker + CI/CD (Week 11-12)"
-        ],
+        "coming_soon": ["Cloud deployment target (platform TBD)"],
         "metrics": {
-            "bugs_collected": "177",
+            "bugs_collected": "218",
             "test_cases": 30,
-            "api_endpoints": 13,
+            "api_endpoints": 15,
             "test_coverage": "85%",
-            "rca_patterns": 10,
+            "rca_patterns": 31,
             "embedding_model": "all-MiniLM-L6-v2 (384-dim)",
             "vector_index": "FAISS IndexFlatIP"
         }

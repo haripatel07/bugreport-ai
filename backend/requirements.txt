@@ -13,6 +13,7 @@ python-dotenv==1.0.0
 # Database (needed for upcoming Week 10 work)
 sqlalchemy==2.0.23
 alembic==1.12.1
+psycopg[binary]==3.1.18
 
 # LLM provider actually used by the project
 groq==0.4.1

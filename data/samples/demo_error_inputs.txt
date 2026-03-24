@@ -1,0 +1,113 @@
+BugReport AI Demo Error Inputs
+=============================
+
+Use any section below as input in the frontend demo.
+Recommended order for review demo:
+1) Python stack trace
+2) JavaScript error
+3) Network/database log
+4) JSON structured error
+
+------------------------------------------------------------
+[DEMO 1] Python Stack Trace (AttributeError)
+Input type: stack_trace
+------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/main.py", line 45, in process_user
+    normalized = user.profile.name.strip()
+  File "/app/services/user_service.py", line 102, in build_profile
+    return profile.name.upper()
+AttributeError: 'NoneType' object has no attribute 'name'
+
+
+------------------------------------------------------------
+[DEMO 2] JavaScript Runtime Error (TypeError)
+Input type: stack_trace
+------------------------------------------------------------
+TypeError: Cannot read properties of undefined (reading 'map')
+    at renderItems (src/components/ItemList.tsx:42:19)
+    at App (src/App.tsx:88:11)
+    at commitHookEffectListMount (react-dom.development.js:23150:26)
+
+
+------------------------------------------------------------
+[DEMO 3] Backend Connection Failure Log
+Input type: log
+------------------------------------------------------------
+[2026-03-19 10:02:11] INFO  Starting API server on port 8000
+[2026-03-19 10:02:14] ERROR ConnectionRefusedError: [Errno 111] Connection refused to 127.0.0.1:5432
+[2026-03-19 10:02:14] WARNING Retrying database connection (attempt 1/3)
+[2026-03-19 10:02:16] ERROR ConnectionRefusedError: [Errno 111] Connection refused to 127.0.0.1:5432
+[2026-03-19 10:02:19] CRITICAL Database unavailable after 3 retries, shutting down startup sequence
+
+
+------------------------------------------------------------
+[DEMO 4] Import Error (Python)
+Input type: text
+------------------------------------------------------------
+ImportError: No module named 'sentence_transformers'
+Application failed at startup while importing embedding service module.
+
+
+------------------------------------------------------------
+[DEMO 5] File Not Found Error
+Input type: text
+------------------------------------------------------------
+FileNotFoundError: [Errno 2] No such file or directory: 'data/processed/search_index/index.faiss'
+The semantic search index file is missing. Please run index build before search.
+
+
+------------------------------------------------------------
+[DEMO 6] Structured JSON Error Payload
+Input type: json
+------------------------------------------------------------
+{
+  "error_type": "ValidationError",
+  "message": "Request body missing required field: description",
+  "status_code": 422,
+  "endpoint": "/api/recommend-fix",
+  "details": {
+    "field": "description",
+    "received": null,
+    "expected": "string"
+  },
+  "trace_id": "demo-trace-422-001"
+}
+
+
+------------------------------------------------------------
+[DEMO 7] KeyError from Processing Pipeline
+Input type: stack_trace
+------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/services/parser.py", line 67, in parse_payload
+    user_id = payload['user']['id']
+KeyError: 'user'
+
+
+------------------------------------------------------------
+[DEMO 8] TimeoutError for External API
+Input type: text
+------------------------------------------------------------
+TimeoutError: External service did not respond within 30 seconds while fetching issue metadata.
+Request URL: https://api.example.com/issues/1234
+Retry policy exhausted after 5 attempts.
+
+
+------------------------------------------------------------
+[DEMO 9] Index Error from List Access
+Input type: text
+------------------------------------------------------------
+IndexError: list index out of range in recommendation_engine.py line 210
+Attempted to access recommendations[0] when recommendations list was empty.
+
+
+------------------------------------------------------------
+[DEMO 10] Mixed Realistic Frontend + API Error
+Input type: log
+------------------------------------------------------------
+[2026-03-19 11:20:10] INFO  POST /api/analyze 200 OK
+[2026-03-19 11:20:11] INFO  POST /api/recommend-fix 200 OK
+[2026-03-19 11:20:11] ERROR Frontend render exception: TypeError: Cannot read properties of undefined (reading 'map') at RCAResultsPanel.tsx:85
+[2026-03-19 11:20:12] INFO  Applied compatibility adapter for root_causes/probable_causes
+[2026-03-19 11:20:13] INFO  Re-analysis successful

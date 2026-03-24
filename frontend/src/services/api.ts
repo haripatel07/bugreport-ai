@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import {
   BugReport,
   RCAResult,
+  Recommendation,
   RecommendationResult,
   ProcessedInput,
   AnalysisResult,
@@ -25,7 +26,19 @@ interface RecommendEndpointResponse {
   data: {
     processed_input: ProcessedInput;
     root_cause_analysis: RCAResult;
-    recommendations: RecommendationResult;
+    recommendations: RecommendationResult | {
+      recommendations: Array<Recommendation | {
+        fix?: string;
+        code?: string;
+        difficulty?: string;
+        reason?: string;
+      }>;
+      recommendation_source?: string;
+      generation_time_ms?: number;
+      context_used?: string[];
+      similar_bugs_consulted?: number;
+      rca_causes_consulted?: number;
+    };
   };
 }
 
@@ -53,6 +66,42 @@ class BugReportApiService {
     };
   }
 
+  private normalizeRecommendations(
+    recommendationResult: RecommendEndpointResponse['data']['recommendations']
+  ): RecommendationResult {
+    const recommendations = (recommendationResult?.recommendations ?? []).map((item, idx): Recommendation => {
+      const candidate = item as Recommendation & {
+        fix?: string;
+        code?: string;
+        reason?: string;
+      };
+
+      if (candidate.title || candidate.description || candidate.implementation_steps) {
+        return {
+          title: candidate.title || `Recommendation ${idx + 1}`,
+          description: candidate.description || candidate.reason || 'Suggested fix from analysis pipeline.',
+          difficulty: candidate.difficulty || 'medium',
+          implementation_steps: candidate.implementation_steps || [],
+          code_example: candidate.code_example,
+        };
+      }
+
+      return {
+        title: `Recommendation ${idx + 1}`,
+        description: candidate.fix || candidate.reason || 'Suggested fix from analysis pipeline.',
+        difficulty: candidate.difficulty || 'medium',
+        implementation_steps: candidate.fix ? [candidate.fix] : [],
+        code_example: candidate.code,
+      };
+    });
+
+    return {
+      recommendations,
+      recommendation_source: recommendationResult?.recommendation_source || 'unknown',
+      generation_time_ms: recommendationResult?.generation_time_ms || 0,
+    };
+  }
+
   async analyzeError(input: {
     description: string;
     input_type: 'text' | 'stack_trace' | 'log' | 'json';
@@ -75,7 +124,7 @@ class BugReportApiService {
     return {
       ...analysisResponse.data.data,
       root_cause_analysis: this.normalizeRca(analysisResponse.data.data.root_cause_analysis),
-      recommendations: recommendationResponse.data.data.recommendations,
+      recommendations: this.normalizeRecommendations(recommendationResponse.data.data.recommendations),
     };
   }
 
