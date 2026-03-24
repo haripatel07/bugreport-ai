@@ -32,7 +32,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ open }) => {
             textShadow: '0 2px 4px rgba(0,0,0,0.3)',
           }}
         >
-          🔍 Analyzing Error
+          Analyzing Error
         </Typography>
         <Typography
           variant="caption"

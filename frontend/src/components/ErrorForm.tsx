@@ -7,9 +7,10 @@ import {
   Paper,
   ToggleButton,
   ToggleButtonGroup,
-  Grid,
   CircularProgress,
+  Grid,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { apiService } from '../services/api';
 import { AnalysisResult, InputType } from '../types';
 
@@ -100,7 +101,7 @@ KeyError: 'key'`,
         {/* Header */}
         <Box>
           <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-            🐛 Submit an Error
+            Submit an Error
           </Typography>
           <Typography variant="body2" sx={{ color: '#666' }}>
             Paste your error message, stack trace, logs, or structured error data. Our AI will analyze it for root cause
@@ -115,16 +116,16 @@ KeyError: 'key'`,
           </Typography>
           <ToggleButtonGroup value={inputType} exclusive onChange={handleInputTypeChange} fullWidth>
             <ToggleButton value="text" aria-label="text">
-              📝 Text
+              Text
             </ToggleButton>
             <ToggleButton value="stack_trace" aria-label="stack_trace">
-              📋 Stack Trace
+              Stack Trace
             </ToggleButton>
             <ToggleButton value="log" aria-label="log">
-              📊 Log
+              Log
             </ToggleButton>
             <ToggleButton value="json" aria-label="json">
-              {'{}'} JSON
+              JSON
             </ToggleButton>
           </ToggleButtonGroup>
           <Typography variant="caption" sx={{ mt: 1, display: 'block', color: '#888' }}>
@@ -162,7 +163,7 @@ KeyError: 'key'`,
         {/* Environment Variables (Optional) */}
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            📦 Environment (Optional)
+            Environment (Optional)
           </Typography>
           <TextField
             fullWidth
@@ -190,7 +191,7 @@ KeyError: 'key'`,
             variant="contained"
             size="large"
             disabled={submitting || !errorInput.trim()}
-            startIcon={submitting ? <CircularProgress size={20} /> : '🔍'}
+            startIcon={submitting ? <CircularProgress size={20} /> : <SearchIcon />}
             sx={{
               px: 4,
               fontWeight: 600,
@@ -203,7 +204,7 @@ KeyError: 'key'`,
         {/* Quick Examples */}
         <Box sx={{ bgcolor: '#f0f8ff', p: 2, borderRadius: 1, borderLeft: '4px solid #0047ab' }}>
           <Typography variant="caption" sx={{ fontWeight: 600, color: '#0047ab', display: 'block', mb: 1 }}>
-            💡 Examples
+            Examples
           </Typography>
           <Grid container spacing={1}>
             {(['Python Exception', 'JavaScript Error', 'Network Error'] as const).map((example, idx) => (

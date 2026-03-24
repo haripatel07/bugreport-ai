@@ -84,7 +84,7 @@ const BugReportViewer: React.FC<BugReportViewerProps> = ({ report }) => {
             }}
           >
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5, color: '#664d03' }}>
-              🎯 Root Cause
+              Root Cause
             </Typography>
             <Typography variant="body2" sx={{ color: '#664d03' }}>
               {report.root_cause}
@@ -108,7 +108,7 @@ const BugReportViewer: React.FC<BugReportViewerProps> = ({ report }) => {
                 gap: 0.5,
               }}
             >
-              ✅ Expected Behavior
+              Expected Behavior
             </Typography>
             <Paper
               sx={{
@@ -138,7 +138,7 @@ const BugReportViewer: React.FC<BugReportViewerProps> = ({ report }) => {
                 gap: 0.5,
               }}
             >
-              ❌ Actual Behavior
+              Actual Behavior
             </Typography>
             <Paper
               sx={{
@@ -165,7 +165,7 @@ const BugReportViewer: React.FC<BugReportViewerProps> = ({ report }) => {
                 color: '#0047ab',
               }}
             >
-              📋 Steps to Reproduce
+              Steps to Reproduce
             </Typography>
             <Paper
               sx={{
@@ -198,7 +198,7 @@ const BugReportViewer: React.FC<BugReportViewerProps> = ({ report }) => {
                   mb: 1,
                 }}
               >
-                🔧 Affected Components
+                Affected Components
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {report.affected_components.map((component, idx) => (
@@ -227,7 +227,7 @@ const BugReportViewer: React.FC<BugReportViewerProps> = ({ report }) => {
                   mb: 1,
                 }}
               >
-                🌍 Environment
+                Environment
               </Typography>
               <Paper
                 sx={{

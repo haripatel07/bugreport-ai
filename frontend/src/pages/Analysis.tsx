@@ -95,9 +95,9 @@ const AnalysisPage: React.FC = () => {
               bgcolor: '#fafafa',
             }}
           >
-            <Tab label="📥 Error Input" id="tab-0" aria-controls="tabpanel-0" />
+            <Tab label="Error Input" id="tab-0" aria-controls="tabpanel-0" />
             <Tab
-              label="🔍 Analysis Results"
+              label="Analysis Results"
               id="tab-1"
               aria-controls="tabpanel-1"
               disabled={!analysisResult}
@@ -137,7 +137,7 @@ const AnalysisPage: React.FC = () => {
                       }}
                     >
                       <Typography variant="h5" sx={{ mb: 2 }}>
-                        💡 Fix Recommendations
+                        Fix Recommendations
                       </Typography>
                       {analysisResult.recommendations.recommendations.map((rec, idx) => (
                         <Paper key={idx} sx={{ p: 2, bgcolor: '#f0f8ff', borderLeft: '4px solid #0047ab' }}>

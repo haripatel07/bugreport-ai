@@ -49,7 +49,7 @@ const RCAResultsPanel: React.FC<RCAResultsPanelProps> = ({ rca }) => {
   return (
     <Box sx={{ gridColumn: { xs: '1', md: '1' } }}>
       <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
-        🔍 Root Cause Analysis
+        Root Cause Analysis
       </Typography>
 
       {/* Error Type and Severity Summary */}
@@ -173,7 +173,7 @@ const RCAResultsPanel: React.FC<RCAResultsPanelProps> = ({ rca }) => {
                   {/* Recommendation */}
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="caption" sx={{ fontWeight: 600, color: '#666', display: 'block', mb: 0.5 }}>
-                      💡 Recommendation
+                      Recommendation
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#333' }}>
                       {cause.recommendation}
@@ -184,7 +184,7 @@ const RCAResultsPanel: React.FC<RCAResultsPanelProps> = ({ rca }) => {
                   {cause.code_example && (
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="caption" sx={{ fontWeight: 600, color: '#666', display: 'block', mb: 0.5 }}>
-                        📝 Code Example
+                        Code Example
                       </Typography>
                       <Box
                         sx={{
@@ -207,7 +207,7 @@ const RCAResultsPanel: React.FC<RCAResultsPanelProps> = ({ rca }) => {
                   {cause.evidence && cause.evidence.length > 0 && (
                     <Box>
                       <Typography variant="caption" sx={{ fontWeight: 600, color: '#666', display: 'block', mb: 0.75 }}>
-                        🔎 Evidence
+                        Evidence
                       </Typography>
                       <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
                         {cause.evidence.map((ev, evIdx) => (
