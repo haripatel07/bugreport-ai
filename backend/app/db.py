@@ -1,6 +1,8 @@
 """Database configuration and session helpers for BugReport AI."""
 
 import os
+import subprocess
+from pathlib import Path
 from typing import Generator
 
 from sqlalchemy import create_engine
@@ -27,8 +29,20 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    """Create all database tables if they do not exist."""
-    # Import models here to avoid circular imports and ensure metadata registration.
+    """Apply Alembic migrations to bring DB schema to latest revision."""
+    # Import models so metadata is complete for autogenerate workflows.
+    from app.auth.models import User  # noqa: F401
     from app.models.analysis_record import AnalysisRecord  # noqa: F401
 
-    Base.metadata.create_all(bind=engine)
+    backend_root = Path(__file__).resolve().parent.parent
+    alembic_ini = backend_root / "alembic.ini"
+    if not alembic_ini.exists():
+        # Local dev fallback before migrations are initialized.
+        Base.metadata.create_all(bind=engine)
+        return
+
+    subprocess.run(
+        ["alembic", "-c", str(alembic_ini), "upgrade", "head"],
+        cwd=str(backend_root),
+        check=True,
+    )

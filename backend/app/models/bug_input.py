@@ -1,8 +1,6 @@
-"""
-Pydantic models for bug input validation
-"""
+"""Pydantic models for bug input validation."""
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -63,16 +61,34 @@ class FileReference(BaseModel):
 class BugInputRequest(BaseModel):
     """Request model for bug input submission"""
     
-    description: str = Field(..., min_length=10, description="Bug description")
+    description: str = Field(..., min_length=10, max_length=50000, description="Bug description")
+    stack_trace: Optional[str] = Field(None, max_length=100000, description="Optional stack trace payload")
     input_type: InputType = Field(InputType.TEXT, description="Type of input")
     environment: Optional[EnvironmentInfo] = None
     additional_context: Optional[str] = Field(None, max_length=2000)
-    
-    @validator('description')
-    def description_must_be_meaningful(cls, v):
-        if len(v.strip()) < 10:
-            raise ValueError('Description must be at least 10 characters')
-        return v.strip()
+
+    @field_validator("description")
+    @classmethod
+    def description_must_be_meaningful(cls, value: str) -> str:
+        trimmed = value.strip()
+        if len(trimmed) < 10:
+            raise ValueError("Description must be at least 10 characters")
+        if len(trimmed) > 50000:
+            raise ValueError("Description must not exceed 50000 characters")
+        return trimmed
+
+    @field_validator("stack_trace")
+    @classmethod
+    def validate_stack_trace_length(cls, value: Optional[str]) -> Optional[str]:
+        if value and len(value) > 100000:
+            raise ValueError("Stack trace must not exceed 100000 characters")
+        return value
+
+    @model_validator(mode="after")
+    def populate_description_from_stack_trace(self):
+        if self.input_type == InputType.STACK_TRACE and self.stack_trace and not self.description:
+            self.description = self.stack_trace
+        return self
     
     class Config:
         schema_extra = {

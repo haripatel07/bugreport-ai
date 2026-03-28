@@ -1,408 +1,294 @@
-"""
-Recommendation Engine
-Produces targeted fix suggestions by combining three evidence sources:
+"""Recommendation engine that blends RCA, semantic search, and LLM synthesis."""
 
-  1. RCA Engine output   — rule-based probable causes with confidence scores
-  2. Semantic Search     — historically similar bugs from real OSS projects
-  3. LLM synthesis       — Groq/OpenAI/Ollama used to produce concrete fixes
-                           (falls back to rule-based synthesis when no LLM key present)
-
-Public interface
-----------------
-  generate_recommendations(processed_input, rca_results, similar_bugs) -> dict
-"""
-
-import logging
+import json
 import os
-import re
 import time
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger(__name__)
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# LLM helpers (mirrors patterns from report_generator.py)
-# ──────────────────────────────────────────────────────────────────────────────
-
-def _try_groq(prompt: str, system: str) -> Optional[str]:
+def _try_groq(prompt: str, system: str, preferred_model: Optional[str] = None) -> tuple[Optional[str], str, str]:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        return None
+        return None, "groq", "none"
     try:
         from groq import Groq
+
+        model_map = {
+            "llama3-70b": "llama-3.3-70b-versatile",
+            "llama3-8b": "llama-3.1-8b-instant",
+            "gemma": "gemma2-9b-it",
+        }
+        model_name = model_map.get(preferred_model or "", "llama-3.3-70b-versatile")
         client = Groq(api_key=api_key)
         resp = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=model_name,
             messages=[
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt},
             ],
-            temperature=0.3,
-            max_tokens=800,
+            temperature=0.2,
+            max_tokens=1200,
+            response_format={"type": "json_object"},
         )
-        return resp.choices[0].message.content.strip()
+        return resp.choices[0].message.content.strip(), "groq", model_name
     except Exception as exc:
-        logger.warning("Groq call failed: %s", exc)
-        return None
+        logger.warning("recommendation_llm_failed", provider="groq", error=str(exc))
+        return None, "groq", "none"
 
 
-def _try_openai(prompt: str, system: str) -> Optional[str]:
+def _try_openai(prompt: str, system: str, preferred_model: Optional[str] = None) -> tuple[Optional[str], str, str]:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        return None
+        return None, "openai", "none"
     try:
         import openai
+
+        model_name = preferred_model or "gpt-4o-mini"
         client = openai.OpenAI(api_key=api_key)
         resp = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=model_name,
             messages=[
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt},
             ],
-            temperature=0.3,
-            max_tokens=800,
+            temperature=0.2,
+            max_tokens=1200,
+            response_format={"type": "json_object"},
         )
-        return resp.choices[0].message.content.strip()
+        return resp.choices[0].message.content.strip(), "openai", model_name
     except Exception as exc:
-        logger.warning("OpenAI call failed: %s", exc)
-        return None
+        logger.warning("recommendation_llm_failed", provider="openai", error=str(exc))
+        return None, "openai", "none"
 
-
-def _call_llm(prompt: str, system: str) -> Optional[str]:
-    """Try every provider in priority order; return first success or None."""
-    return _try_groq(prompt, system) or _try_openai(prompt, system)
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Context builders
-# ──────────────────────────────────────────────────────────────────────────────
 
 def _build_prompt(
     processed_input: Dict[str, Any],
     rca_results: Dict[str, Any],
     similar_bugs: List[Dict[str, Any]],
 ) -> str:
-    """Construct a rich, structured prompt for the LLM."""
-
-    lines: List[str] = ["# Bug Fix Recommendation Request\n"]
-
-    # ── Error context ──────────────────────────────────────────────────────
-    raw = (processed_input.get("raw_input") or "")[:500]
-    if raw:
-        lines.append(f"## Error Description\n{raw}\n")
-
     extracted = processed_input.get("extracted_data", {})
     error_info = extracted.get("error_info", {})
-    error_types = error_info.get("error_types", [])
-    if error_types:
-        lines.append(f"Error types detected: {', '.join(error_types)}\n")
 
-    lang = extracted.get("language")
-    if lang:
-        lines.append(f"Language: {lang}\n")
-
-    # ── RCA summary ────────────────────────────────────────────────────────
-    causes = rca_results.get("probable_causes", [])[:3]
-    if causes:
-        lines.append("## Root Cause Analysis (automated)")
-        for i, c in enumerate(causes, 1):
-            conf = int(c.get("confidence", 0) * 100)
-            lines.append(f"  {i}. [{conf}% confidence] {c.get('cause', '')}")
-            rec = c.get("recommendation", "")
-            if rec:
-                lines.append(f"     Hint: {rec}")
-        lines.append("")
-
-    # ── Similar historical bugs ────────────────────────────────────────────
-    if similar_bugs:
-        lines.append("## Similar Historical Bugs (from OSS issue tracker)")
-        for bug in similar_bugs[:3]:
-            sim = bug.get("similarity_pct", "?")
-            repo = bug.get("repository", "?")
-            title = bug.get("title", "")
-            snippet = (bug.get("body_snippet") or "")[:200].replace("\n", " ")
-            lines.append(f"  - [{sim} match] {repo}: {title}")
-            if snippet:
-                lines.append(f"    Context: {snippet}")
-        lines.append("")
-
-    lines.append(
-        "## Task\n"
-        "Provide 3 concrete, actionable fix recommendations.\n"
-        "For each fix include:\n"
-        "  - A plain-English explanation of WHY this fixes the bug\n"
-        "  - A specific code snippet or command (language-appropriate)\n"
-        "  - Difficulty: easy / medium / hard\n\n"
-        "Be specific. Avoid generic advice.\n"
-        "Format as plain numbered list — no markdown headers inside the fix text."
+    return (
+        "Generate concrete debugging recommendations from this context.\n"
+        f"Error input: {(processed_input.get('raw_input') or '')[:1200]}\n"
+        f"Error types: {error_info.get('error_types', [])}\n"
+        f"Language: {extracted.get('language')}\n"
+        f"Top RCA causes: {rca_results.get('probable_causes', [])[:3]}\n"
+        f"Similar bugs: {similar_bugs[:3]}\n\n"
+        "Return strict JSON with this shape:\n"
+        "{\n"
+        '  "recommendations": [\n'
+        "    {\n"
+        '      "title": "short fix title",\n'
+        '      "description": "why this fix works",\n'
+        '      "implementation_steps": ["step 1", "step 2"],\n'
+        '      "code_example": "optional code snippet or null",\n'
+        '      "difficulty": "easy|medium|hard"\n'
+        "    }\n"
+        "  ]\n"
+        "}\n"
+        "Return 3 recommendations."
     )
-
-    return "\n".join(lines)
 
 
 _SYSTEM_PROMPT = (
-    "You are a senior software engineer specialising in debugging production systems. "
-    "Given an automated root cause analysis and a shortlist of similar historical bugs, "
-    "you produce concise, implementable fix recommendations. "
-    "Be direct and technically precise. Never hallucinate library names or APIs."
+    "You are a senior software engineer. Provide practical, high-signal fixes only. "
+    "If uncertain, provide the safest deterministic remediation path."
 )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Rule-based fallback (no LLM required)
-# ──────────────────────────────────────────────────────────────────────────────
+def _normalize_item(item: Dict[str, Any], index: int) -> Dict[str, Any]:
+    difficulty = str(item.get("difficulty") or "medium").lower()
+    if difficulty not in {"easy", "medium", "hard"}:
+        difficulty = "medium"
 
-_FALLBACK_RULES: Dict[str, List[Dict[str, str]]] = {
+    steps = item.get("implementation_steps")
+    if not isinstance(steps, list):
+        steps = [s.strip() for s in str(steps or "").split("\n") if s.strip()]
+
+    code_example = item.get("code_example")
+    if code_example == "":
+        code_example = None
+
+    return {
+        "title": str(item.get("title") or f"Recommendation {index + 1}")[:140],
+        "description": str(item.get("description") or "Apply this targeted fix and verify with tests.")[:600],
+        "implementation_steps": [str(step)[:220] for step in steps][:6],
+        "code_example": str(code_example)[:1200] if code_example is not None else None,
+        "difficulty": difficulty,
+    }
+
+
+def _parse_llm_recommendations(raw: str) -> List[Dict[str, Any]]:
+    try:
+        payload = json.loads(raw)
+    except Exception:
+        return []
+
+    recs = payload.get("recommendations", []) if isinstance(payload, dict) else []
+    if not isinstance(recs, list):
+        return []
+
+    normalized = []
+    for index, item in enumerate(recs[:5]):
+        if isinstance(item, dict):
+            normalized.append(_normalize_item(item, index))
+    return normalized
+
+
+_FALLBACK_RULES: Dict[str, List[Dict[str, Any]]] = {
     "AttributeError": [
         {
-            "fix": "Guard attribute access with hasattr() or getattr(obj, 'attr', None)",
-            "code": "value = getattr(obj, 'attribute_name', None)\nif value is not None:\n    result = value.compute()",
+            "title": "Guard object attribute access",
+            "description": "The crash indicates an attribute is accessed on None or on an object without that field.",
+            "implementation_steps": [
+                "Use getattr(obj, 'attribute', None) when reading optional fields.",
+                "Add a guard clause before invoking methods on the object.",
+                "Write a regression test for the missing-attribute path.",
+            ],
+            "code_example": "value = getattr(obj, 'attribute_name', None)\nif value is None:\n    return None\nreturn value.compute()",
             "difficulty": "easy",
-            "reason": "Prevents AttributeError when the attribute doesn't exist or the object is None",
-        },
-        {
-            "fix": "Add a None-check before method calls on the object",
-            "code": "if obj is not None:\n    result = obj.compute()\nelse:\n    logger.warning('obj was None, skipping compute')",
-            "difficulty": "easy",
-            "reason": "NoneType objects have no user-defined attributes; guarding eliminates the crash",
-        },
+        }
     ],
     "TypeError": [
         {
-            "fix": "Validate input type before the operation",
-            "code": "if not isinstance(value, expected_type):\n    raise TypeError(f'Expected {expected_type}, got {type(value).__name__}')",
+            "title": "Validate and coerce boundary input types",
+            "description": "TypeError usually comes from implicit type assumptions across function boundaries.",
+            "implementation_steps": [
+                "Validate argument types at API/service boundaries.",
+                "Convert incoming values to expected types before use.",
+                "Raise descriptive errors when coercion fails.",
+            ],
+            "code_example": "if not isinstance(payload.get('count'), int):\n    raise TypeError('count must be int')",
             "difficulty": "easy",
-            "reason": "Surfaces the type mismatch earlier with a descriptive message",
-        },
-        {
-            "fix": "Add explicit type conversion at the call site",
-            "code": "result = process(str(value))  # or int(), float(), list() as needed",
-            "difficulty": "easy",
-            "reason": "Many TypeErrors arise from implicitly mismatched types at function boundaries",
-        },
+        }
     ],
     "ImportError": [
         {
-            "fix": "Install the missing package",
-            "code": "pip install <package-name>\n# or, if using a virtual environment:\npip install -r requirements.txt",
+            "title": "Stabilize dependency resolution",
+            "description": "Import errors are commonly caused by missing packages or inconsistent environments.",
+            "implementation_steps": [
+                "Pin and install dependencies from requirements.txt.",
+                "Run imports during startup checks to fail fast.",
+                "Add optional import guards for truly optional packages.",
+            ],
+            "code_example": "pip install -r requirements.txt",
             "difficulty": "easy",
-            "reason": "ImportError most often means the package is absent from the environment",
-        },
-        {
-            "fix": "Use a try/except import guard for optional dependencies",
-            "code": "try:\n    import optional_lib\n    HAS_OPTIONAL = True\nexcept ImportError:\n    HAS_OPTIONAL = False",
-            "difficulty": "easy",
-            "reason": "Makes optional dependencies graceful so the module loads regardless",
-        },
-    ],
-    "KeyError": [
-        {
-            "fix": "Use dict.get() with a sensible default instead of direct key access",
-            "code": "value = my_dict.get('expected_key', default_value)",
-            "difficulty": "easy",
-            "reason": "dict.get() returns None (or the default) when the key is absent, no exception",
-        },
-        {
-            "fix": "Log and validate dictionary keys before accessing them",
-            "code": "if 'expected_key' not in my_dict:\n    logger.error('Missing key: %s. Available: %s', 'expected_key', list(my_dict.keys()))\n    return",
-            "difficulty": "easy",
-            "reason": "Makes the failure point explicit with actionable debug output",
-        },
-    ],
-    "IndexError": [
-        {
-            "fix": "Check list length before indexing",
-            "code": "if index < len(my_list):\n    item = my_list[index]\nelse:\n    item = None  # or a safe default",
-            "difficulty": "easy",
-            "reason": "IndexError happens when accessing a position that doesn't exist in the sequence",
-        },
-    ],
-    "ConnectionRefusedError": [
-        {
-            "fix": "Add retry logic with exponential back-off",
-            "code": (
-                "import time\nfor attempt in range(5):\n"
-                "    try:\n        conn = connect_to_service()\n        break\n"
-                "    except ConnectionRefusedError:\n"
-                "        wait = 2 ** attempt\n        time.sleep(wait)"
-            ),
-            "difficulty": "medium",
-            "reason": "Services may be temporarily unavailable; retrying with back-off handles transient failures",
-        },
-        {
-            "fix": "Verify the service is running and the port/host are correct",
-            "code": "# Check service\ncurl -s http://localhost:YOUR_PORT/health\n# or\nnetstat -tlnp | grep YOUR_PORT",
-            "difficulty": "easy",
-            "reason": "ConnectionRefused often means the target process isn't running or is listening on a different port",
-        },
+        }
     ],
 }
 
-_GENERIC_FALLBACK = [
+_GENERIC_FALLBACK: List[Dict[str, Any]] = [
     {
-        "fix": "Add detailed logging around the failing code path",
-        "code": "import logging\nlogger = logging.getLogger(__name__)\nlogger.debug('State before operation: %s', locals())",
+        "title": "Add focused diagnostics around the failure",
+        "description": "Capture critical state before the failing operation so the exact trigger is visible.",
+        "implementation_steps": [
+            "Log key inputs right before the error path.",
+            "Capture exception stack traces with context.",
+            "Verify with a reproducible test case.",
+        ],
+        "code_example": "logger.info('pre_failure_state', payload=payload)",
         "difficulty": "easy",
-        "reason": "Visibility into the state at the point of failure is the fastest path to a root cause",
     },
     {
-        "fix": "Wrap the operation in a try/except and surface a meaningful error message",
-        "code": (
-            "try:\n    result = risky_operation()\nexcept Exception as exc:\n"
-            "    logger.exception('risky_operation failed: %s', exc)\n    raise"
-        ),
-        "difficulty": "easy",
-        "reason": "Catching the raw exception prevents silent failures and makes the stack trace actionable",
-    },
-    {
-        "fix": "Write a small unit test that reproduces the failure",
-        "code": (
-            "def test_reproduce_bug():\n"
-            "    # Arrange — set up the minimal state that triggers the error\n"
-            "    # Act\n"
-            "    with pytest.raises(ExpectedException):\n"
-            "        broken_function(bad_input)"
-        ),
+        "title": "Create a regression test and patch the guard path",
+        "description": "A failing test for the known bad input prevents future regressions after the fix.",
+        "implementation_steps": [
+            "Write a test that reproduces the current failure.",
+            "Apply the smallest code guard/fix to make the test pass.",
+            "Run full test suite to ensure no collateral breakage.",
+        ],
+        "code_example": "def test_regression_case():\n    with pytest.raises(ExpectedError):\n        handler(bad_input)",
         "difficulty": "medium",
-        "reason": "A failing test gives you a fast feedback loop and prevents regression once fixed",
     },
 ]
 
 
-def _rule_based_recommendations(
-    processed_input: Dict[str, Any],
-    rca_results: Dict[str, Any],
-    similar_bugs: List[Dict[str, Any]],
-) -> List[Dict[str, str]]:
-    """Produce fix suggestions without an LLM by matching error types to a lookup table."""
-    extracted = processed_input.get("extracted_data", {})
-    error_types = extracted.get("error_info", {}).get("error_types", [])
-
+def _rule_based_recommendations(processed_input: Dict[str, Any], rca_results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    error_types = processed_input.get("extracted_data", {}).get("error_info", {}).get("error_types", [])
     for err_type in error_types:
         for key, fixes in _FALLBACK_RULES.items():
-            if key.lower() in err_type.lower():
+            if key.lower() in str(err_type).lower():
                 return fixes
 
-    # Augment generic fallback with the top RCA recommendation if available
-    causes = rca_results.get("probable_causes", [])
-    if causes:
-        top_rec = causes[0].get("recommendation", "")
-        if top_rec:
-            augmented = [
-                {
-                    "fix": top_rec,
-                    "code": causes[0].get("code_example") or "# See recommendation above",
-                    "difficulty": "medium",
-                    "reason": "Derived from automated root cause analysis",
-                }
-            ]
-            augmented.extend(_GENERIC_FALLBACK[:2])
-            return augmented
+    probable_causes = rca_results.get("probable_causes", [])
+    if probable_causes:
+        top = probable_causes[0]
+        enriched = {
+            "title": "Address top RCA probable cause",
+            "description": str(top.get("recommendation") or top.get("cause") or "Apply RCA recommendation."),
+            "implementation_steps": [
+                "Apply the RCA recommendation in the failing code path.",
+                "Add or update tests for this failure mode.",
+                "Re-run analysis to confirm confidence decreases for the old cause.",
+            ],
+            "code_example": top.get("code_example"),
+            "difficulty": "medium",
+        }
+        return [enriched, *_GENERIC_FALLBACK][:3]
 
     return _GENERIC_FALLBACK
 
-
-def _parse_llm_recommendations(raw: str) -> List[Dict[str, str]]:
-    """
-    Parse a free-form numbered list from the LLM into structured dicts.
-    Tolerates a wide range of formatting styles.
-    """
-    items: List[Dict[str, str]] = []
-
-    # Split on blank lines or numbered-list starters
-    blocks = re.split(r"\n(?=\d+[\.\)])", raw.strip())
-    for block in blocks:
-        if not block.strip():
-            continue
-        # Strip leading number
-        text = re.sub(r"^\d+[\.\)]\s*", "", block.strip())
-
-        # Extract code block if present
-        code_match = re.search(r"```[\w]*\n(.*?)```", text, re.DOTALL)
-        code = code_match.group(1).strip() if code_match else ""
-        if code_match:
-            text = text[: code_match.start()] + text[code_match.end() :]
-
-        # Extract difficulty tag
-        diff_match = re.search(r"\bdifficulty[:\s]+(easy|medium|hard)\b", text, re.IGNORECASE)
-        difficulty = diff_match.group(1).lower() if diff_match else "medium"
-        if diff_match:
-            text = text[: diff_match.start()] + text[diff_match.end() :]
-
-        fix_text = text.strip()
-        if len(fix_text) < 10:
-            continue
-
-        items.append(
-            {
-                "fix": fix_text[:400],
-                "code": code[:600] if code else "",
-                "difficulty": difficulty,
-                "reason": "",  # LLM weaves reason into the fix text
-            }
-        )
-
-    return items or [{"fix": raw[:600], "code": "", "difficulty": "medium", "reason": ""}]
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Public API
-# ──────────────────────────────────────────────────────────────────────────────
 
 def generate_recommendations(
     processed_input: Dict[str, Any],
     rca_results: Dict[str, Any],
     similar_bugs: Optional[List[Dict[str, Any]]] = None,
+    preferred_model: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """
-    Generate fix recommendations for a bug.
+    """Generate recommendations with unified schema for frontend consumption."""
 
-    Args:
-        processed_input: Output from InputProcessor.process()
-        rca_results:     Output from RCAEngine.analyze()
-        similar_bugs:    Output from SearchEngine.search_similar_bugs() (optional)
-
-    Returns:
-        Dict with keys:
-            recommendations       — list of fix dicts (fix, code, difficulty, reason)
-            recommendation_source — 'llm_groq' | 'llm_openai' | 'rule_based'
-            context_used          — summary of evidence sources consulted
-            generation_time_ms    — wall-clock time in milliseconds
-    """
     similar_bugs = similar_bugs or []
-    t0 = time.perf_counter()
+    started = time.perf_counter()
 
     prompt = _build_prompt(processed_input, rca_results, similar_bugs)
-    llm_response = _call_llm(prompt, _SYSTEM_PROMPT)
 
-    if llm_response:
-        recommendations = _parse_llm_recommendations(llm_response)
-        provider_key = "GROQ_API_KEY"
-        source = "llm_groq" if os.getenv("GROQ_API_KEY") else "llm_openai"
+    llm_raw = None
+    llm_provider = "none"
+    llm_model = "none"
+
+    for caller in (_try_groq, _try_openai):
+        llm_raw, llm_provider, llm_model = caller(prompt, _SYSTEM_PROMPT, preferred_model)
+        if llm_raw:
+            break
+
+    recommendations: List[Dict[str, Any]]
+    source: str
+
+    if llm_raw:
+        recommendations = _parse_llm_recommendations(llm_raw)
+        if recommendations:
+            source = f"llm_{llm_provider}"
+        else:
+            recommendations = _rule_based_recommendations(processed_input, rca_results)
+            source = "rule_based"
     else:
-        recommendations = _rule_based_recommendations(processed_input, rca_results, similar_bugs)
+        recommendations = _rule_based_recommendations(processed_input, rca_results)
         source = "rule_based"
 
-    elapsed_ms = int((time.perf_counter() - t0) * 1000)
-
-    # Build a human-readable summary of what context drove the recommendations
-    context_summary: List[str] = []
-    causes = rca_results.get("probable_causes", [])
-    if causes:
-        context_summary.append(f"Top RCA cause: {causes[0].get('cause', '')[:100]}")
-    if similar_bugs:
-        top = similar_bugs[0]
-        context_summary.append(
-            f"Closest match: {top.get('repository', '?')} #{top.get('number', '?')} "
-            f"({top.get('similarity_pct', '?')} similar)"
-        )
+    duration_ms = int((time.perf_counter() - started) * 1000)
+    logger.info(
+        "recommendation_generation",
+        provider=llm_provider,
+        model=llm_model,
+        duration_ms=duration_ms,
+        success=bool(recommendations),
+        source=source,
+    )
 
     return {
         "recommendations": recommendations[:5],
         "recommendation_source": source,
-        "context_used": context_summary,
-        "generation_time_ms": elapsed_ms,
+        "context_used": [
+            f"rca_causes={len(rca_results.get('probable_causes', []))}",
+            f"similar_bugs={len(similar_bugs)}",
+        ],
+        "generation_time_ms": duration_ms,
         "similar_bugs_consulted": len(similar_bugs),
-        "rca_causes_consulted": len(causes),
+        "rca_causes_consulted": len(rca_results.get("probable_causes", [])),
     }

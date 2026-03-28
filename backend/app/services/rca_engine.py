@@ -7,6 +7,9 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -51,10 +54,10 @@ class RCAEngine:
             with open(patterns_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            print(f"Pattern file not found: {patterns_file}")
+            logger.error("pattern_file_not_found", patterns_file=str(patterns_file))
             return {"patterns": {}, "categories": {}}
         except json.JSONDecodeError as e:
-            print(f"Error parsing patterns file: {e}")
+            logger.error("pattern_file_parse_error", error=str(e), patterns_file=str(patterns_file))
             return {"patterns": {}, "categories": {}}
     
     def analyze(self, processed_input: Dict[str, Any]) -> Dict[str, Any]:

@@ -177,6 +177,7 @@ def search_similar_bugs(
         List of result dicts sorted by descending similarity.
     """
     index, metadata = _get_index()
+    k = max(1, min(k, 20))
 
     query_vec = embed_text(query).reshape(1, -1)  # (1, 384)
 

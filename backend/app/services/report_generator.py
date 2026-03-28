@@ -2,11 +2,14 @@
 
 import os
 import json
+import time
 from typing import Dict, Any, Optional
 from datetime import datetime
 from dotenv import load_dotenv
+import structlog
 
 load_dotenv()
+logger = structlog.get_logger(__name__)
 
 # Check available LLM providers
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -130,12 +133,21 @@ class BugReportGenerator:
         
         # Generate with appropriate provider
         try:
+            started = time.perf_counter()
             if self.provider == "groq":
                 report = self._generate_groq(context)
             elif self.provider == "openai":
                 report = self._generate_openai(context)
             else:  # ollama
                 report = self._generate_ollama(context)
+            duration_ms = int((time.perf_counter() - started) * 1000)
+            logger.info(
+                "llm_report_generation",
+                provider=self.provider,
+                model=self.model,
+                duration_ms=duration_ms,
+                success=True,
+            )
             
             # Validate and add metadata
             is_valid, missing = self.validate_report(report)
@@ -153,6 +165,13 @@ class BugReportGenerator:
             return report
             
         except Exception as e:
+            logger.exception(
+                "llm_report_generation",
+                provider=self.provider,
+                model=self.model,
+                success=False,
+                error=str(e),
+            )
             return self._generate_fallback_report(processed_input)
     
     def _build_context(self, processed_input: Dict[str, Any]) -> str:
