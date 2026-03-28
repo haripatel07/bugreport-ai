@@ -16,7 +16,17 @@ The project includes a FastAPI backend, a React TypeScript frontend, persisted a
 
 - Core implementation: complete (Weeks 1-12)
 - Academic/demo readiness: complete
-- Remaining production step: final cloud target deployment selection and wiring
+- Production hardening: complete (auth, rate limits, migrations, logging, integration tests)
+- Cloud target selected: Render (free) + Neon (free PostgreSQL)
+
+## Documentation
+
+- [Documentation Index](docs/README.md)
+- [Project Highlights](docs/PROJECT_HIGHLIGHTS.md)
+- [User Guide](docs/USER_GUIDE.md)
+- [API Reference](docs/API_REFERENCE.md)
+- [Deployment (Render + Neon)](docs/deployment_render_neon.md)
+- [Data Collection Guide](docs/data_collection.md)
 
 ## Key Capabilities
 
@@ -73,23 +83,33 @@ bugreport-ai/
 
 - `GET /`
 - `GET /api/health`
-- `GET /api/models`
 - `GET /api/stats`
-- `GET /api/supported-languages`
-- `GET /api/rca/statistics`
-- `GET /api/search/stats`
-- `GET /api/history`
-- `GET /api/history/{record_id}`
-- `POST /api/process-input`
-- `POST /api/generate-report`
-- `POST /api/analyze-root-cause`
-- `POST /api/analyze`
-- `POST /api/search/similar`
-- `POST /api/recommend-fix`
 
-### Compatibility Alias
+### Versioned Application Endpoints (`/api/v1`)
 
-- `POST /api/analyze-cause` (hidden alias for backwards compatibility)
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/auth/me`
+- `GET /api/v1/health`
+- `GET /api/v1/models`
+- `GET /api/v1/stats`
+- `GET /api/v1/supported-languages`
+- `GET /api/v1/rca/statistics`
+- `GET /api/v1/search/stats`
+- `GET /api/v1/history` (authenticated)
+- `GET /api/v1/history/{record_id}` (authenticated)
+- `DELETE /api/v1/history/{record_id}` (authenticated)
+- `POST /api/v1/process-input` (authenticated)
+- `POST /api/v1/generate-report` (authenticated)
+- `POST /api/v1/analyze-root-cause` (authenticated)
+- `POST /api/v1/analyze` (authenticated)
+- `POST /api/v1/search/similar` (authenticated)
+- `POST /api/v1/recommend-fix` (authenticated)
+- `POST /api/v1/analyze-free` (guest mode, rate-limited, no history persistence)
+
+### Deprecated Compatibility Alias
+
+- `POST /api/analyze-cause` (deprecated redirect to `/api/v1/analyze-root-cause`)
 
 ## Data and Evaluation Snapshot
 
@@ -137,6 +157,17 @@ The backend reads `DATABASE_URL` from environment variables.
 - Default local fallback: SQLite (`sqlite:///./bugreport_ai.db`)
 - Postgres supported in containerized setup via `docker-compose.yml`
 
+## Environment Variables
+
+Backend:
+
+- `DATABASE_URL`: database connection string (optional locally, required for cloud Postgres)
+- `JWT_SECRET_KEY`: JWT signing secret (set a long random value for non-local environments)
+
+Frontend:
+
+- `VITE_API_BASE_URL`: backend base URL, typically ending with `/api/v1` in cloud deployments
+
 ## Testing
 
 Run backend tests:
@@ -145,6 +176,14 @@ Run backend tests:
 cd backend
 source .venv/bin/activate
 pytest tests/test_input_processor.py tests/test_rca_engine.py -v
+```
+
+Run backend integration tests:
+
+```bash
+cd backend
+source .venv/bin/activate
+pytest tests/integration -v
 ```
 
 Run frontend production build check:
@@ -177,13 +216,39 @@ GitHub Actions workflow is provided at:
 It validates:
 
 - backend unit tests,
+- backend integration tests,
 - frontend production build.
+
+## Free Cloud Deployment
+
+Recommended free-tier deployment stack:
+
+- Render free web service for backend
+- Render static site for frontend
+- Neon free PostgreSQL for persistent database
+
+Repository includes:
+
+- `render.yaml` blueprint
+- `docs/deployment_render_neon.md` deployment steps
+
+Frontend cloud note:
+
+- Set `VITE_API_BASE_URL` to your deployed backend URL with `/api/v1` suffix.
 
 ## Notes for Review/Demo
 
 - Frontend review mode currently focuses on analyze + RCA + recommendations.
 - Semantic search remains available at backend API level.
 - Analysis records are persisted and can be queried through history endpoints.
+
+## Demo Walkthrough (5 Minutes)
+
+1. Open Analyze and submit a stack trace as guest.
+2. Show generated bug report + RCA + recommendations.
+3. Register/login and run a second analysis.
+4. Open History and show persisted record management.
+5. Open Settings and show runtime/model preference controls.
 
 ## License
 

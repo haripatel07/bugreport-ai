@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: bugreport-ai-backend
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: 60
+      - key: CORS_ORIGINS
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FORMAT
+        value: json
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: static
+    name: bugreport-ai-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false

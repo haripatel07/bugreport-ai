@@ -1,18 +1,76 @@
 # Data Collection Guide
 
 ## Overview
-This project uses real-world bug reports from open-source GitHub repositories.
 
-## Collected Dataset Statistics
-- **Total Issues:** 200+
-- **Repositories:** 10 major open-source projects
-- **Date Collected:** [Your date]
-- **Size:** ~15-20 MB
+BugReport AI uses real-world open-source issues to support semantic search and recommendation context.
 
-## How to Reproduce
+Data is collected from major GitHub repositories, normalized, and then indexed for similarity retrieval.
 
-### Step 1: Get GitHub Token
+## Dataset Snapshot
+
+- Total issues collected: 200+
+- Source repositories: major OSS projects (for example language runtimes, frameworks, and tooling)
+- Output location: data/raw/github_issues
+- Processed artifacts: data/processed and data/samples
+
+## Prerequisites
+
+- Python environment with backend dependencies installed
+- GitHub token with read access to public repositories
+
+## Reproduction Steps
+
+### 1) Export GitHub token
+
 ```bash
-# Get token from: https://github.com/settings/tokens
-# Permissions needed: public_repo (read-only)
 export GITHUB_TOKEN="your_token_here"
+```
+
+### 2) Run base collection
+
+```bash
+cd scripts
+python collect_data.py
+```
+
+### 3) Optional: run extended collection
+
+```bash
+python collect_more_data.py
+```
+
+### 4) Build semantic search index
+
+```bash
+python build_search_index.py
+```
+
+### 5) Regenerate demo/sample inputs (optional)
+
+```bash
+python create_samples.py
+```
+
+## Output Files
+
+Common output files include:
+
+- data/raw/github_issues/combined_dataset.json
+- data/raw/github_issues/collection_summary.json
+- data/samples/test_cases.json
+- data/samples/summary.json
+
+## Validation Checklist
+
+After collection, verify:
+
+1. collection_summary.json exists and has non-zero counts
+2. combined_dataset.json exists and is valid JSON
+3. search index build script completes successfully
+4. /api/v1/search/similar returns results when index is available
+
+## Notes
+
+- API rate limits may affect collection speed.
+- Keep the token private and avoid committing environment secrets.
+- Collection can be re-run safely to refresh data snapshots.
