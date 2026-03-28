@@ -1,16 +1,4 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  ToggleButton,
-  ToggleButtonGroup,
-  CircularProgress,
-  Grid,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import React, { useEffect, useMemo, useState } from 'react';
 import { apiService } from '../services/api';
 import { AnalysisResult, InputType } from '../types';
 
@@ -18,32 +6,136 @@ interface ErrorFormProps {
   onAnalysisStart: () => void;
   onAnalysisComplete: (result: AnalysisResult) => void;
   onError: (message: string) => void;
+  onAuthStateChange?: (isAuthenticated: boolean) => void;
 }
 
 const inputTypeDescriptions: Record<InputType, string> = {
-  text: 'Plain text error description',
-  stack_trace: 'Full stack trace (Python, JavaScript, Java, etc.)',
-  log: 'Log file content with error messages',
-  json: 'Structured JSON error object',
+  text: 'Plain text bug description',
+  stack_trace: 'Stack trace payload',
+  log: 'Log file fragment',
+  json: 'JSON error object',
 };
 
-const ErrorForm: React.FC<ErrorFormProps> = ({ onAnalysisStart, onAnalysisComplete, onError }) => {
+const exampleInputs: Record<InputType, string> = {
+  text: 'NullPointerException in UserController.getUserProfile when user.address is null',
+  stack_trace: `Traceback (most recent call last):\n  File "/app/main.py", line 45, in process_data\n    result = processor.handle(data)\nKeyError: \"key\"`,
+  log: `[2026-03-17 14:23:45] ERROR Connection refused to localhost:5432\n[2026-03-17 14:23:47] CRITICAL Fallback exhausted`,
+  json: `{"error_type":"TypeError","message":"Cannot read property map of undefined","file":"src/components/List.tsx","line":42}`,
+};
+
+const quickExamples = [
+  {
+    label: 'Python Exception',
+    value: `AttributeError: 'NoneType' object has no attribute 'split'\nFile \"/app/parser.py\", line 42, in parse`,
+  },
+  {
+    label: 'JavaScript Error',
+    value: `TypeError: Cannot read property 'map' of undefined\nat processItems (app.js:45:12)`,
+  },
+  {
+    label: 'Network Error',
+    value: `ConnectionRefusedError: [Errno 111] Connection refused\nFailed to connect to 127.0.0.1:5432`,
+  },
+];
+
+const ErrorForm: React.FC<ErrorFormProps> = ({
+  onAnalysisStart,
+  onAnalysisComplete,
+  onError,
+  onAuthStateChange,
+}) => {
   const [errorInput, setErrorInput] = useState('');
   const [inputType, setInputType] = useState<InputType>('text');
   const [environment, setEnvironment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showEnvironment, setShowEnvironment] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authUserEmail, setAuthUserEmail] = useState<string | null>(null);
+  const [modeNotice, setModeNotice] = useState('Guest mode active. Limited free analysis is available without login.');
 
-  const handleInputTypeChange = (_event: React.MouseEvent<HTMLElement>, newType: InputType | null) => {
-    if (newType!== null) {
-      setInputType(newType);
+  const hasToken = useMemo(() => Boolean(apiService.getToken()), []);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!hasToken) {
+      onAuthStateChange?.(false);
+      return;
+    }
+
+    setAuthLoading(true);
+    apiService
+      .getCurrentUser()
+      .then((user) => {
+        if (mounted) {
+          setAuthUserEmail(user.email);
+          onAuthStateChange?.(true);
+          setModeNotice('Signed in. Full history and management features are enabled.');
+        }
+      })
+      .catch(() => {
+        apiService.clearToken();
+        if (mounted) {
+          onAuthStateChange?.(false);
+          setModeNotice('Guest mode active. Limited free analysis is available without login.');
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setAuthLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [hasToken]);
+
+  const handleAuthSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!authEmail.trim() || !authPassword.trim()) {
+      onError('Email and password are required for authentication.');
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      if (authMode === 'register') {
+        await apiService.register({ email: authEmail.trim(), password: authPassword });
+      }
+      await apiService.login({ email: authEmail.trim(), password: authPassword });
+      const user = await apiService.getCurrentUser();
+      setAuthUserEmail(user.email);
+      onAuthStateChange?.(true);
+      setModeNotice('Signed in. Full history and management features are enabled.');
+      onError('');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const response = (error as { response?: { data?: { detail?: string } } }).response;
+        onError(response?.data?.detail || 'Authentication failed.');
+      } else {
+        onError(error instanceof Error ? error.message : 'Authentication failed.');
+      }
+    } finally {
+      setAuthLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogout = () => {
+    apiService.clearToken();
+    setAuthUserEmail(null);
+    onAuthStateChange?.(false);
+    setModeNotice('Guest mode active. Limited free analysis is available without login.');
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     if (!errorInput.trim()) {
-      onError('Please enter an error message or stack trace');
+      onError('Please enter an error message or stack trace.');
       return;
     }
 
@@ -54,11 +146,22 @@ const ErrorForm: React.FC<ErrorFormProps> = ({ onAnalysisStart, onAnalysisComple
       const envMap: Record<string, string> = {};
       if (environment.trim()) {
         environment.split('\n').forEach((line) => {
-          const [key, value] = line.split('=').map((s) => s.trim());
+          const [key, value] = line.split('=').map((segment) => segment.trim());
           if (key && value) {
             envMap[key] = value;
           }
         });
+      }
+
+      if (!authUserEmail) {
+        const guestResult = await apiService.analyzeErrorFree({
+          description: errorInput,
+          input_type: inputType,
+          environment: envMap,
+        });
+        onAnalysisComplete(guestResult);
+        setModeNotice('Analysis completed in guest mode. Sign in to save and manage history.');
+        return;
       }
 
       const result = await apiService.analyzeError({
@@ -66,177 +169,149 @@ const ErrorForm: React.FC<ErrorFormProps> = ({ onAnalysisStart, onAnalysisComple
         input_type: inputType,
         environment: envMap,
       });
-
       onAnalysisComplete(result);
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to analyze error';
-      onError(errorMsg);
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const response = (error as { response?: { data?: { detail?: string } } }).response;
+        const detail = response?.data?.detail;
+        onError(detail || 'Analysis failed. Please try again in a moment.');
+      } else {
+        onError(error instanceof Error ? error.message : 'Failed to analyze error.');
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
-  const exampleInputs: Record<InputType, string> = {
-    text: 'NullPointerException in UserController.getUserProfile when accessing user.address.street',
-    stack_trace: `Traceback (most recent call last):
-  File "/app/main.py", line 45, in process_data
-    result = processor.handle(data)
-  File "/app/services/processor.py", line 102, in handle
-    value = data['key']
-KeyError: 'key'`,
-    log: `[2024-03-17 14:23:45] ERROR: Connection refused to database at localhost:5432
-[2024-03-17 14:23:46] CRITICAL: Failed to establish connection after 3 retries
-[2024-03-17 14:23:47] ERROR: Falling back to cached configuration`,
-    json: `{
-  "error_type": "TypeError",
-  "message": "Cannot read property 'map' of undefined",
-  "file": "src/components/List.js",
-  "line": 42
-}`,
-  };
-
   return (
-    <Paper sx={{ p: 4, bgcolor: '#white', borderRadius: 2 }}>
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {/* Header */}
-        <Box>
-          <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-            Submit an Error
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            Paste your error message, stack trace, logs, or structured error data. Our AI will analyze it for root cause
-            and suggest fixes.
-          </Typography>
-        </Box>
+    <section className="panel reveal">
+      <h2 className="card-title" style={{ fontSize: 22 }}>Analyze Error</h2>
+      <p style={{ color: 'var(--text-secondary)', marginTop: 0 }}>
+        Paste logs or stack traces and get a structured report, root cause analysis, recommendations, and similar incidents.
+      </p>
 
-        {/* Input Type Selection */}
-        <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
-            Error Format
-          </Typography>
-          <ToggleButtonGroup value={inputType} exclusive onChange={handleInputTypeChange} fullWidth>
-            <ToggleButton value="text" aria-label="text">
-              Text
-            </ToggleButton>
-            <ToggleButton value="stack_trace" aria-label="stack_trace">
-              Stack Trace
-            </ToggleButton>
-            <ToggleButton value="log" aria-label="log">
-              Log
-            </ToggleButton>
-            <ToggleButton value="json" aria-label="json">
-              JSON
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <Typography variant="caption" sx={{ mt: 1, display: 'block', color: '#888' }}>
-            {inputTypeDescriptions[inputType]}
-          </Typography>
-        </Box>
-
-        {/* Error Input */}
-        <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            Error Details
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows={10}
-            placeholder={exampleInputs[inputType]}
-            value={errorInput}
-            onChange={(e) => setErrorInput(e.target.value)}
-            variant="outlined"
-            sx={{
-              bgcolor: '#f5f5f5',
-              '& .MuiOutlinedInput-root': {
-                fontFamily: 'monospace',
-                fontSize: '13px',
-              },
-            }}
-            disabled={submitting}
-          />
-          <Typography variant="caption" sx={{ mt: 1, display: 'block', color: '#888' }}>
-            {errorInput.length} characters
-          </Typography>
-        </Box>
-
-        {/* Environment Variables (Optional) */}
-        <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            Environment (Optional)
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            placeholder="KEY=value (one per line)&#10;PYTHON_VERSION=3.11&#10;FRAMEWORK=FastAPI"
-            value={environment}
-            onChange={(e) => setEnvironment(e.target.value)}
-            variant="outlined"
-            sx={{
-              bgcolor: '#f5f5f5',
-              '& .MuiOutlinedInput-root': {
-                fontFamily: 'monospace',
-                fontSize: '12px',
-              },
-            }}
-            disabled={submitting}
-          />
-        </Box>
-
-        {/* Submit Button */}
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            disabled={submitting || !errorInput.trim()}
-            startIcon={submitting ? <CircularProgress size={20} /> : <SearchIcon />}
-            sx={{
-              px: 4,
-              fontWeight: 600,
-            }}
-          >
-            {submitting ? 'Analyzing...' : 'Analyze Error'}
-          </Button>
-        </Box>
-
-        {/* Quick Examples */}
-        <Box sx={{ bgcolor: '#f0f8ff', p: 2, borderRadius: 1, borderLeft: '4px solid #0047ab' }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, color: '#0047ab', display: 'block', mb: 1 }}>
-            Examples
-          </Typography>
-          <Grid container spacing={1}>
-            {(['Python Exception', 'JavaScript Error', 'Network Error'] as const).map((example, idx) => (
-              <Grid item xs={12} sm={6} key={idx}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  fullWidth
-                  sx={{ textTransform: 'none', justifyContent: 'flex-start' }}
-                  onClick={() => {
-                    const examples = [
-                      `AttributeError: 'NoneType' object has no attribute 'split'
-File "/app/parser.py", line 42, in parse
-    parts = text.strip().split(',')`,
-                      `TypeError: Cannot read property 'map' of undefined
-at processItems (app.js:45:12)
-at Array.forEach (<anonymous>)`,
-                      `ConnectionRefusedError: [Errno 111] Connection refused
-Failed to connect to 127.0.0.1:5432
-Database connection timeout after 30s`,
-                    ];
-                    setErrorInput(examples[idx]);
-                  }}
+      <div className="auth-box" style={{ marginBottom: 14 }}>
+        {!authUserEmail ? (
+          <form onSubmit={handleAuthSubmit}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <strong style={{ fontSize: 13 }}>Authentication required</strong>
+              <div className="pill-row" style={{ gap: 6 }}>
+                <button
+                  type="button"
+                  className={`pill-btn ${authMode === 'login' ? 'active' : ''}`}
+                  onClick={() => setAuthMode('login')}
                 >
-                  {example}
-                </Button>
-              </Grid>
+                  Login
+                </button>
+                <button
+                  type="button"
+                  className={`pill-btn ${authMode === 'register' ? 'active' : ''}`}
+                  onClick={() => setAuthMode('register')}
+                >
+                  Register
+                </button>
+              </div>
+            </div>
+            <div className="auth-grid">
+              <input
+                className="auth-input"
+                type="email"
+                placeholder="you@example.com"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                autoComplete="username"
+              />
+              <input
+                className="auth-input"
+                type="password"
+                placeholder="Password (min 8 chars)"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+              />
+            </div>
+            <button className="pill-btn" type="submit" disabled={authLoading} style={{ marginTop: 8 }}>
+              {authLoading ? 'Authenticating...' : authMode === 'login' ? 'Login' : 'Create account'}
+            </button>
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{modeNotice}</div>
+          </form>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+              Signed in as <span style={{ color: 'var(--text-primary)' }}>{authUserEmail}</span>
+            </div>
+            <button className="pill-btn" type="button" onClick={handleLogout}>Logout</button>
+            <div style={{ width: '100%', fontSize: 12, color: 'var(--text-secondary)' }}>{modeNotice}</div>
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="pill-row" style={{ marginBottom: 10 }}>
+          {(['text', 'stack_trace', 'log', 'json'] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={`pill-btn ${inputType === option ? 'active' : ''}`}
+              onClick={() => setInputType(option)}
+            >
+              {option === 'stack_trace' ? 'Stack Trace' : option.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10 }}>
+          {inputTypeDescriptions[inputType]}
+        </div>
+
+        <textarea
+          className="textarea"
+          placeholder={exampleInputs[inputType]}
+          value={errorInput}
+          onChange={(event) => setErrorInput(event.target.value)}
+          disabled={submitting}
+        />
+
+        <div className="actions-row" style={{ marginTop: 8, marginBottom: 14 }}>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{errorInput.length} characters</span>
+          <button
+            type="button"
+            className="pill-btn"
+            onClick={() => setShowEnvironment((open) => !open)}
+          >
+            {showEnvironment ? 'Hide Environment' : 'Environment'}
+          </button>
+        </div>
+
+        {showEnvironment && (
+          <div style={{ marginBottom: 12 }}>
+            <textarea
+              className="textarea"
+              style={{ minHeight: 110 }}
+              placeholder={'OS=Ubuntu 22.04\nPYTHON_VERSION=3.12\nFRAMEWORK=FastAPI'}
+              value={environment}
+              onChange={(event) => setEnvironment(event.target.value)}
+              disabled={submitting}
+            />
+          </div>
+        )}
+
+        <button className={`btn-primary ${submitting ? 'pulse-once' : ''}`} type="submit" disabled={submitting || !errorInput.trim()}>
+          {submitting ? 'Analyzing...' : authUserEmail ? 'Analyze Error' : 'Analyze for Free'}
+        </button>
+
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>Quick examples</div>
+          <div className="pill-row">
+            {quickExamples.map((example) => (
+              <button key={example.label} type="button" className="pill-btn" onClick={() => setErrorInput(example.value)}>
+                {example.label}
+              </button>
             ))}
-          </Grid>
-        </Box>
-      </Box>
-    </Paper>
+          </div>
+        </div>
+      </form>
+    </section>
   );
 };
 

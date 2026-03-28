@@ -1,93 +1,99 @@
-import {
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-} from '@mui/material';
-import BugIcon from '@mui/icons-material/BugReport';
+import { useEffect, useMemo, useState } from 'react';
 import AnalysisPage from './pages/Analysis';
+import HistoryPage from './pages/History';
+import SearchPage from './pages/Search';
+import SettingsPage from './pages/Settings';
+import { apiService } from './services/api';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#0047ab',
-      light: '#1084d7',
-      dark: '#003478',
-    },
-    secondary: {
-      main: '#00a8e1',
-      light: '#50d4ff',
-      dark: '#00769f',
-    },
-    success: {
-      main: '#00b050',
-    },
-    warning: {
-      main: '#ffc715',
-    },
-    error: {
-      main: '#e81123',
-    },
-    background: {
-      default: '#f6f6f6',
-      paper: '#ffffff',
-    },
-  },
-  typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif',
-    h4: {
-      fontWeight: 600,
-    },
-    h5: {
-      fontWeight: 600,
-    },
-    h6: {
-      fontWeight: 600,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          fontWeight: 500,
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        },
-      },
-    },
-  },
-});
+type AppSection = 'analyze' | 'history' | 'search' | 'settings';
 
 function App() {
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      
-      <AppBar position="sticky" sx={{ mb: 0 }}>
-        <Toolbar>
-          <BugIcon sx={{ mr: 2, fontSize: 28 }} />
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              BugReport AI
-            </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.9 }}>
-              Intelligent Bug Analysis & Root Cause Engine
-            </Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
+  const [section, setSection] = useState<AppSection>('analyze');
+  const [llmLabel, setLlmLabel] = useState('LLM: unavailable');
+  const [llmDotColor, setLlmDotColor] = useState('var(--accent-red)');
+  const [dbLabel, setDbLabel] = useState('DB: unavailable');
+  const [dbDotColor, setDbDotColor] = useState('var(--accent-red)');
+  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(apiService.getToken()));
 
-      <AnalysisPage />
-    </ThemeProvider>
+  const headerMeta = useMemo(() => {
+    if (section === 'history') return { breadcrumb: 'Workspace / History', title: 'Analysis History' };
+    if (section === 'search') return { breadcrumb: 'Workspace / Search', title: 'Search Workspace' };
+    if (section === 'settings') return { breadcrumb: 'Workspace / Settings', title: 'Project Settings' };
+    return { breadcrumb: 'Workspace / Analysis', title: 'Error Analysis' };
+  }, [section]);
+
+  useEffect(() => {
+    apiService
+      .getInfrastructureHealth()
+      .then((payload) => {
+        const services = (payload.services || {}) as Record<string, string>;
+        const provider = services.llm_provider || 'fallback';
+        const database = services.database || 'unknown';
+
+        setLlmLabel(`LLM: ${provider}`);
+        setLlmDotColor(provider === 'fallback' ? 'var(--accent-amber)' : 'var(--accent-green)');
+
+        const dbHealthy = String(database).toLowerCase().includes('operational');
+        setDbLabel(`DB: ${database}`);
+        setDbDotColor(dbHealthy ? 'var(--accent-green)' : 'var(--accent-red)');
+      })
+      .catch(() => {
+        setLlmLabel('LLM: unavailable');
+        setLlmDotColor('var(--accent-red)');
+        setDbLabel('DB: unavailable');
+        setDbDotColor('var(--accent-red)');
+      });
+  }, []);
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div>
+          <div className="logo">BugReport AI</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>Precision debugging assistant</div>
+        </div>
+
+        <nav className="sidebar-nav" aria-label="Primary navigation">
+          <button className={section === 'analyze' ? 'active' : ''} type="button" onClick={() => setSection('analyze')}>Analyze</button>
+          <button className={section === 'history' ? 'active' : ''} type="button" onClick={() => setSection('history')}>History</button>
+          <button className={section === 'search' ? 'active' : ''} type="button" onClick={() => setSection('search')}>Search</button>
+          <button className={section === 'settings' ? 'active' : ''} type="button" onClick={() => setSection('settings')}>Settings</button>
+        </nav>
+
+        <div className="sidebar-status">
+          <div className="status-item">
+            <span className="status-dot" style={{ background: llmDotColor }} />
+            {llmLabel}
+          </div>
+          <div className="status-item">
+            <span className="status-dot" style={{ background: dbDotColor }} />
+            {dbLabel}
+          </div>
+        </div>
+      </aside>
+
+      <main className="main">
+        <header className="topbar">
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{headerMeta.breadcrumb}</div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>{headerMeta.title}</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className={`badge ${isAuthenticated ? 'badge-low' : 'badge-medium'}`}>
+              {isAuthenticated ? 'SIGNED IN' : 'GUEST MODE'}
+            </span>
+            <div className="avatar" aria-label="user avatar" />
+          </div>
+        </header>
+
+        <div className="main-content">
+          {section === 'analyze' && <AnalysisPage onAuthStateChange={setIsAuthenticated} />}
+          {section === 'history' && <HistoryPage />}
+          {section === 'search' && <SearchPage />}
+          {section === 'settings' && <SettingsPage />}
+        </div>
+      </main>
+    </div>
   );
 }
 

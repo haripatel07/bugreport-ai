@@ -14,7 +14,7 @@ A modern, responsive React dashboard for analyzing software errors and generatin
 
 - **React 18** with TypeScript
 - **Vite** for fast development and building
-- **Material-UI** for polished components
+- **Custom CSS design system** (tokens, layout, components, animations)
 - **Axios** for API communication
 
 ## Getting Started
@@ -49,6 +49,11 @@ src/
 │   ├── RCAResultsPanel.tsx
 │   ├── SimilarBugsPanel.tsx
 │   └── LoadingOverlay.tsx
+├── pages/
+│   ├── Analysis.tsx
+│   ├── History.tsx
+│   ├── Search.tsx
+│   └── Settings.tsx
 ├── services/           # API integration
 │   └── api.ts
 ├── App.tsx            # Main app component
@@ -58,13 +63,16 @@ src/
 
 ## API Integration
 
-The frontend communicates with the backend API at `/api`. Ensure the backend is running on `http://localhost:8000` before starting the frontend.
+The frontend communicates with the backend API at `/api/v1`. Ensure the backend is running on `http://localhost:8000` before starting the frontend.
 
 ### Key API Endpoints Used
 
-- `POST /api/recommend-fix` - Full pipeline analysis
-- `POST /api/search/similar` - Search for similar bugs
-- `GET /api/health` - Health check
+- `POST /api/v1/recommend-fix` - Full pipeline analysis
+- `POST /api/v1/search/similar` - Search for similar bugs
+- `GET /api/v1/history` - Paginated user history
+- `GET /api/v1/history/{record_id}` - History detail drawer data
+- `DELETE /api/v1/history/{record_id}` - Delete history record
+- `GET /api/v1/health` - Health check
 
 ## UI Components
 
@@ -107,7 +115,7 @@ npm run dev
 
 ## Styling
 
-The app uses Material-UI's theme system with custom color palette:
+The app uses custom CSS tokens and layout/component styles in `src/styles/`.
 - Primary: #0047ab (Blue)
 - Secondary: #00a8e1 (Cyan)
 - Success: #00b050 (Green)
@@ -121,6 +129,10 @@ npm run build
 ```
 
 This generates an optimized production build in the `dist/` folder.
+
+For cloud deployment where frontend and backend are on different domains, set:
+
+- `VITE_API_BASE_URL=https://<backend-host>/api/v1`
 
 ## License
 

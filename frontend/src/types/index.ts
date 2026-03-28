@@ -47,9 +47,9 @@ export interface ProbableCause {
 export interface Recommendation {
   title: string;
   description: string;
-  difficulty: string;
+  difficulty: 'easy' | 'medium' | 'hard';
   implementation_steps: string[];
-  code_example?: string;
+  code_example?: string | null;
 }
 
 export interface RecommendationResult {
@@ -58,11 +58,23 @@ export interface RecommendationResult {
   generation_time_ms: number;
 }
 
+export interface SimilarBug {
+  repository: string;
+  title: string;
+  similarity_pct: string;
+  similarity_score?: number;
+  number?: number;
+  url?: string;
+  body_snippet?: string;
+}
+
 export interface AnalysisResult {
+  record_id?: number;
   processed_input: ProcessedInput;
   bug_report: BugReport;
   root_cause_analysis: RCAResult;
   recommendations?: RecommendationResult;
+  similar_bugs?: SimilarBug[];
 }
 
 // Form Types

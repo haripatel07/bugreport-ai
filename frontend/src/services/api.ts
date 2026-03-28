@@ -2,44 +2,91 @@ import axios, { AxiosInstance } from 'axios';
 import {
   BugReport,
   RCAResult,
-  Recommendation,
   RecommendationResult,
   ProcessedInput,
   AnalysisResult,
+  SimilarBug,
 } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
-interface AnalyzeEndpointResponse {
-  success: boolean;
-  message: string;
-  data: {
-    processed_input: ProcessedInput;
-    bug_report: BugReport;
-    root_cause_analysis: RCAResult;
-  };
+interface AuthUser {
+  id: number;
+  email: string;
+  is_active: boolean;
+}
+
+export interface HistoryRecordSummary {
+  id: number;
+  description: string;
+  input_type: string;
+  severity: string;
+  status: string;
+  created_at: string;
+  has_bug_report: boolean;
+  has_rca: boolean;
+  has_recommendations: boolean;
+}
+
+export interface HistoryRecordDetail {
+  id: number;
+  description: string;
+  input_type: string;
+  environment: Record<string, string> | null;
+  processed_input: ProcessedInput | null;
+  bug_report: BugReport | null;
+  root_cause_analysis: RCAResult | null;
+  recommendations: RecommendationResult | null;
+  similar_bugs: SimilarBug[] | null;
+  status: string;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface AuthTokenResponse {
+  access_token: string;
+  token_type: string;
 }
 
 interface RecommendEndpointResponse {
   success: boolean;
   message: string;
   data: {
+    record_id?: number;
     processed_input: ProcessedInput;
+    bug_report: BugReport;
     root_cause_analysis: RCAResult;
-    recommendations: RecommendationResult | {
-      recommendations: Array<Recommendation | {
-        fix?: string;
-        code?: string;
-        difficulty?: string;
-        reason?: string;
-      }>;
-      recommendation_source?: string;
-      generation_time_ms?: number;
-      context_used?: string[];
-      similar_bugs_consulted?: number;
-      rca_causes_consulted?: number;
-    };
+    similar_bugs?: SimilarBug[];
+    recommendations: RecommendationResult;
   };
+}
+
+interface GuestAnalyzeResponse {
+  success: boolean;
+  message: string;
+  guest_mode: boolean;
+  data: {
+    processed_input: ProcessedInput;
+    bug_report: BugReport;
+    root_cause_analysis: RCAResult;
+    similar_bugs?: SimilarBug[];
+    recommendations: RecommendationResult;
+  };
+}
+
+interface HistoryResponse {
+  success: boolean;
+  count: number;
+  total_count: number;
+  offset: number;
+  limit: number;
+  records: HistoryRecordSummary[];
+}
+
+interface HistoryRecordResponse {
+  success: boolean;
+  record: HistoryRecordDetail;
 }
 
 class BugReportApiService {
@@ -52,6 +99,42 @@ class BugReportApiService {
         'Content-Type': 'application/json',
       },
     });
+
+    this.client.interceptors.request.use((config) => {
+      const token = this.getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('bugreport_token');
+  }
+
+  setToken(token: string): void {
+    localStorage.setItem('bugreport_token', token);
+  }
+
+  clearToken(): void {
+    localStorage.removeItem('bugreport_token');
+  }
+
+  async register(input: { email: string; password: string }): Promise<AuthUser> {
+    const response = await this.client.post<AuthUser>('/auth/register', input);
+    return response.data;
+  }
+
+  async login(input: { email: string; password: string }): Promise<AuthTokenResponse> {
+    const response = await this.client.post<AuthTokenResponse>('/auth/login', input);
+    this.setToken(response.data.access_token);
+    return response.data;
+  }
+
+  async getCurrentUser(): Promise<AuthUser> {
+    const response = await this.client.get<AuthUser>('/auth/me');
+    return response.data;
   }
 
   private normalizeRca(rca: RCAResult | (RCAResult & { root_causes?: RCAResult['probable_causes'] })): RCAResult {
@@ -66,65 +149,48 @@ class BugReportApiService {
     };
   }
 
-  private normalizeRecommendations(
-    recommendationResult: RecommendEndpointResponse['data']['recommendations']
-  ): RecommendationResult {
-    const recommendations = (recommendationResult?.recommendations ?? []).map((item, idx): Recommendation => {
-      const candidate = item as Recommendation & {
-        fix?: string;
-        code?: string;
-        reason?: string;
-      };
-
-      if (candidate.title || candidate.description || candidate.implementation_steps) {
-        return {
-          title: candidate.title || `Recommendation ${idx + 1}`,
-          description: candidate.description || candidate.reason || 'Suggested fix from analysis pipeline.',
-          difficulty: candidate.difficulty || 'medium',
-          implementation_steps: candidate.implementation_steps || [],
-          code_example: candidate.code_example,
-        };
-      }
-
-      return {
-        title: `Recommendation ${idx + 1}`,
-        description: candidate.fix || candidate.reason || 'Suggested fix from analysis pipeline.',
-        difficulty: candidate.difficulty || 'medium',
-        implementation_steps: candidate.fix ? [candidate.fix] : [],
-        code_example: candidate.code,
-      };
-    });
-
-    return {
-      recommendations,
-      recommendation_source: recommendationResult?.recommendation_source || 'unknown',
-      generation_time_ms: recommendationResult?.generation_time_ms || 0,
-    };
-  }
-
   async analyzeError(input: {
     description: string;
     input_type: 'text' | 'stack_trace' | 'log' | 'json';
     environment?: Record<string, string>;
   }): Promise<AnalysisResult> {
-    const [analysisResponse, recommendationResponse] = await Promise.all([
-      this.client.post<AnalyzeEndpointResponse>('/analyze', {
-        description: input.description,
-        input_type: input.input_type,
-        environment: input.environment || {},
-      }),
-      this.client.post<RecommendEndpointResponse>('/recommend-fix', {
-        description: input.description,
-        input_type: input.input_type,
-        environment: input.environment || {},
-        use_search: false,
-      }),
-    ]);
+    const preferredModel = localStorage.getItem('bugreport_preferred_model') || undefined;
+    const recommendationResponse = await this.client.post<RecommendEndpointResponse>('/recommend-fix', {
+      description: input.description,
+      input_type: input.input_type,
+      environment: input.environment || {},
+      model: preferredModel,
+      use_search: true,
+    });
 
     return {
-      ...analysisResponse.data.data,
-      root_cause_analysis: this.normalizeRca(analysisResponse.data.data.root_cause_analysis),
-      recommendations: this.normalizeRecommendations(recommendationResponse.data.data.recommendations),
+      ...recommendationResponse.data.data,
+      record_id: recommendationResponse.data.data.record_id,
+      root_cause_analysis: this.normalizeRca(recommendationResponse.data.data.root_cause_analysis),
+      recommendations: recommendationResponse.data.data.recommendations,
+      similar_bugs: recommendationResponse.data.data.similar_bugs || [],
+    };
+  }
+
+  async analyzeErrorFree(input: {
+    description: string;
+    input_type: 'text' | 'stack_trace' | 'log' | 'json';
+    environment?: Record<string, string>;
+  }): Promise<AnalysisResult> {
+    const preferredModel = localStorage.getItem('bugreport_preferred_model') || undefined;
+    const response = await this.client.post<GuestAnalyzeResponse>('/analyze-free', {
+      description: input.description,
+      input_type: input.input_type,
+      environment: input.environment || {},
+      model: preferredModel,
+      use_search: true,
+    });
+
+    return {
+      ...response.data.data,
+      root_cause_analysis: this.normalizeRca(response.data.data.root_cause_analysis),
+      recommendations: response.data.data.recommendations,
+      similar_bugs: response.data.data.similar_bugs || [],
     };
   }
 
@@ -146,6 +212,60 @@ class BugReportApiService {
   async getHealth(): Promise<Record<string, unknown>> {
     const response = await this.client.get<Record<string, unknown>>('/health');
     return response.data;
+  }
+
+  async getInfrastructureHealth(): Promise<Record<string, unknown>> {
+    try {
+      const response = await this.client.get<Record<string, unknown>>('/health');
+      return response.data;
+    } catch {
+      const response = await axios.get<Record<string, unknown>>('/api/health');
+      return response.data;
+    }
+  }
+
+  async getHistory(page: number = 1, pageSize: number = 20): Promise<{
+    records: HistoryRecordSummary[];
+    totalCount: number;
+  }> {
+    const offset = Math.max(0, (page - 1) * pageSize);
+    try {
+      const response = await this.client.get<HistoryResponse>('/history', {
+        params: { limit: pageSize, offset },
+      });
+      return {
+        records: response.data.records || [],
+        totalCount: response.data.total_count || 0,
+      };
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        throw new Error('Sign in to view your saved analysis history.');
+      }
+      throw error;
+    }
+  }
+
+  async getHistoryRecord(recordId: number): Promise<HistoryRecordDetail> {
+    try {
+      const response = await this.client.get<HistoryRecordResponse>(`/history/${recordId}`);
+      return response.data.record;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        throw new Error('Sign in to open history details.');
+      }
+      throw error;
+    }
+  }
+
+  async deleteHistoryRecord(recordId: number): Promise<void> {
+    try {
+      await this.client.delete(`/history/${recordId}`);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        throw new Error('Sign in to delete saved history records.');
+      }
+      throw error;
+    }
   }
 }
 
