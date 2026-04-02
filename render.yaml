@@ -1,3 +1,4 @@
+version: 2
 services:
   - type: web
     name: bugreport-ai-backend
