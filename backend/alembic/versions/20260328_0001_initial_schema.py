@@ -26,7 +26,7 @@ def upgrade() -> None:
             sa.Column("id", sa.Integer(), nullable=False),
             sa.Column("email", sa.String(length=255), nullable=False),
             sa.Column("hashed_password", sa.String(length=255), nullable=False),
-            sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("1")),
+            sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("true")),
             sa.Column("created_at", sa.DateTime(), nullable=False),
             sa.PrimaryKeyConstraint("id"),
         )
@@ -59,8 +59,9 @@ def upgrade() -> None:
         columns = {column["name"] for column in inspector.get_columns("analysis_records")}
         if "user_id" not in columns:
             op.execute(
-                "INSERT OR IGNORE INTO users (id, email, hashed_password, is_active, created_at) "
-                "VALUES (1, 'legacy@local', 'legacy_migration_placeholder', 1, CURRENT_TIMESTAMP)"
+                "INSERT INTO users (id, email, hashed_password, is_active, created_at) "
+                "VALUES (1, 'legacy@local', 'legacy_migration_placeholder', true, CURRENT_TIMESTAMP) "
+                "ON CONFLICT (id) DO NOTHING"
             )
             op.add_column(
                 "analysis_records",
