@@ -216,6 +216,7 @@ const ErrorForm: React.FC<ErrorFormProps> = ({
               <input
                 className="auth-input"
                 type="email"
+                name="email"
                 placeholder="you@example.com"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
@@ -224,6 +225,7 @@ const ErrorForm: React.FC<ErrorFormProps> = ({
               <input
                 className="auth-input"
                 type="password"
+                name="password"
                 placeholder="Password (min 8 chars)"
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}

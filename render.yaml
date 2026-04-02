@@ -26,7 +26,7 @@ services:
       - key: OPENAI_API_KEY
         sync: false
 
-  - type: static
+  - type: static_site
     name: bugreport-ai-frontend
     rootDir: frontend
     buildCommand: npm ci && npm run build
